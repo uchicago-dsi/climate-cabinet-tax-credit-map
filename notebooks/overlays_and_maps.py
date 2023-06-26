@@ -3,7 +3,6 @@
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-import seaborn as sns
 import folium
 pd.set_option('display.max_columns', None)
 
