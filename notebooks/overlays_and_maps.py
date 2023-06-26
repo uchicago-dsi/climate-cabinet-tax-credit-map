@@ -124,3 +124,11 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
                 ).add_to(m)
         fig.add_child(m)
     return fig
+
+if __name__ == "__main__":
+    fig =  overlayed_plot(rural=1, municipal=0)  # Call the function with desired parameters
+    # Save the map as an HTML file
+    fig.save('map.html')
+
+import webbrowser
+webbrowser.open('map.html', new=2)
