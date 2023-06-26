@@ -69,28 +69,28 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
         fig = Figure(width=800,height=700)
         m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
-        folium.GeoJson(rural_coops[rural_coops['State']==State], name='Co-Op Territories Overlay',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(rural_coops[rural_coops['State']==State], name='Co-Op Territories',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields= ['NAME', 'TYPE'], aliases=['Co-Op:', 'Type:'], labels=True, sticky=True),
                popup=None
                ).add_to(m)
         ##Overlay J40 Layer
         intersection_j40_state = overlays(rural=1, community = 'j40')
         intersection_j40_state = intersection_j40_state[intersection_j40_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_j40_state, name='j40 Tract Overlay',  style_function=lambda feature: {'fillColor': 'blue','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_j40_state, name='Justice40 Layer',  style_function=lambda feature: {'fillColor': 'blue','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractID', 'Tot_Pop','perc_cover', 'Type_1'], aliases=['Co-Op:', 'County:', 'Tract ID:', 'Population:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
         ##Overlay Coal Layer
         intersection_coal_state = overlays(rural=1, community = 'coal')
         intersection_coal_state = intersection_coal_state[intersection_coal_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_coal_state, name='Coal Communities Overlay',  style_function=lambda feature: {'fillColor': 'green','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_coal_state, name='Energy Communities - Coal Layer',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractID', 'label','perc_cover', 'Type_1'], aliases=['Co-Op:', 'County:', 'TractID:', 'Label:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
         ##Overlay FFE Layer
         intersection_ffe_state = overlays(rural=1, community = 'ffe')
         intersection_ffe_state = intersection_ffe_state[intersection_ffe_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_ffe_state, name='FFe MSA/NMSA Overlay',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_ffe_state, name='Energy Communities - FFE Layer',  style_function=lambda feature: {'fillColor': 'green','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractIDcty', 'MSA_NMSA','perc_cover', 'Type_1'], aliases=['Co-Op:', 'County:', 'CountyID:', 'MSA/NMSA:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
@@ -99,32 +99,35 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
         fig = Figure(width=800,height=700)
         m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
-        folium.GeoJson(municipal_utils[municipal_utils['State']==State], name='Municipal Utility Territories Overlay',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(municipal_utils[municipal_utils['State']==State], name='Municipal Utility Territories',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields= ['NAME','TYPE'], aliases=['Utility:','Type:'], labels=True, sticky=True),
                popup=None
                ).add_to(m)
         ##Overlay J40 Layer
         intersection_j40_state = overlays(municipal=1, community = 'j40')
         intersection_j40_state = intersection_j40_state[intersection_j40_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_j40_state, name='j40 Tract Overlay',  style_function=lambda feature: {'fillColor': 'blue','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_j40_state, name='Justice40 Layer',  style_function=lambda feature: {'fillColor': 'blue','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractID', 'Tot_Pop','perc_cover', 'Type_1'], aliases=['Utility:', 'County:', 'Tract ID:', 'Population:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
         ##Overlay Coal Layer
         intersection_coal_state = overlays(municipal=1, community = 'coal')
         intersection_coal_state = intersection_coal_state[intersection_coal_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_coal_state, name='Coal Communities Overlay',  style_function=lambda feature: {'fillColor': 'green','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_coal_state, name='Energy Communities - Coal Layer',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractID', 'label','perc_cover', 'Type_1'], aliases=['Utility:', 'County:', 'TractID:', 'Label:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
         ##Overlay FFE Layer
         intersection_ffe_state = overlays(municipal=1, community = 'ffe')
         intersection_ffe_state = intersection_ffe_state[intersection_ffe_state['State_1']==State].to_crs(epsg=3857)
-        folium.GeoJson(intersection_ffe_state, name='FFe MSA/NMSA Overlay',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
+        folium.GeoJson(intersection_ffe_state, name='Energy Communities - FFE Layer',  style_function=lambda feature: {'fillColor': 'green','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractIDcty', 'MSA_NMSA','perc_cover', 'Type_1'], aliases=['Utility:', 'County:', 'CountyID:', 'MSA/NMSA:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
         fig.add_child(m)
+
+    folium.TileLayer('openstreetmap').add_to(m)   
+    folium.LayerControl(collapsed= False).add_to(m)   
     return fig
 
 if __name__ == "__main__":
@@ -133,4 +136,4 @@ if __name__ == "__main__":
     fig.save('map.html')
 
 import webbrowser
-webbrowser.open('map.html', new=2)
+webbrowser.open('map.html',new=2)
