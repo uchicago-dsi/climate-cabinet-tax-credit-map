@@ -36,7 +36,7 @@ if not os.path.exists(wd + 'rural_coops'):
 rural_coops_path = wd+'rural_coops/rural_coops.shp'
 rural_coops.to_file(rural_coops_path, driver='ESRI Shapefile')
 
-municipal_utils = util_merged.query('(TYPE == "MUNICIPAL") | (TYPE == "POLICTICAL SUBDIVISION")').to_crs(epsg=3857)
+municipal_utils = util_merged.query('(TYPE == "MUNICIPAL") | (TYPE == "POLITICAL SUBDIVISION")').to_crs(epsg=3857)
 municipal_utils['Type'] = 'Municipal/Public Utility'
 municipal_utils['area'] = municipal_utils['geometry'].area
 if not os.path.exists(wd + 'municipal_utils'):

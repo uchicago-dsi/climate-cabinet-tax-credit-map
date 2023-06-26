@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 import folium
+from branca.element import Figure
 pd.set_option('display.max_columns', None)
 
 ##Set Working Directory
@@ -67,7 +68,7 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
         m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
         folium.GeoJson(rural_coops[rural_coops['State']=='Illinois'], name='Co-Op Territories Overlay',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
-               tooltip=folium.features.GeoJsonTooltip(fields= ['NAME', 'Type'], aliases=['Co-Op:', 'Type:'], labels=True, sticky=True),
+               tooltip=folium.features.GeoJsonTooltip(fields= ['NAME', 'TYPE'], aliases=['Co-Op:', 'Type:'], labels=True, sticky=True),
                popup=None
                ).add_to(m)
         ##Overlay J40 Layer
@@ -97,7 +98,7 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
         m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
         folium.GeoJson(municipal_utils[municipal_utils['State']=='Illinois'], name='Municipal Utility Territories Overlay',  style_function=lambda feature: {'fillColor': 'red','color': 'black','opacity':1,'weight': 0.4},
-               tooltip=folium.features.GeoJsonTooltip(fields= ['NAME','Type'], aliases=['Utility:','Type:'], labels=True, sticky=True),
+               tooltip=folium.features.GeoJsonTooltip(fields= ['NAME','TYPE'], aliases=['Utility:','Type:'], labels=True, sticky=True),
                popup=None
                ).add_to(m)
         ##Overlay J40 Layer
