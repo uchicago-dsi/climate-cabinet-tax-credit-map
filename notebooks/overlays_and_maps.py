@@ -8,8 +8,10 @@ from branca.element import Figure
 pd.set_option('display.max_columns', None)
 
 ##Set Working Directory
-wd = '../data/'
-
+import os
+current_dir = os.getcwd()
+wd = os.path.join(current_dir,'data/')
+wd = wd.replace('\\', '/')
 ##Load Justice40 Data
 justice_final_path = wd+'justice40_final/justice40_final.shp'
 justice_final = gpd.read_file(justice_final_path, driver='ESRI Shapefile').to_crs(epsg=3857)
