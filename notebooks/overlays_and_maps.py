@@ -30,6 +30,12 @@ coal_df = gpd.read_file(coal_path, driver='ESRI Shapefile').to_crs(epsg=3857)
 ffe_path = (wd + 'energy_ffe/ffe_df.shp')
 ffe_df = gpd.read_file(ffe_path, driver='ESRI Shapefile').to_crs(epsg=3857)
 
+##Load the state and county datasets
+state_shp_path = wd + 'state/state_tract.shp'
+state_shp = gpd.read_file(state_shp_path, driver='ESRI Shapefile').to_crs(epsg=3857)
+county_df_path = wd + 'county/county_tract.shp'
+county_df = gpd.read_file(county_df_path, driver='ESRI Shapefile').to_crs(epsg=3857)
+
 ##Making Overlays
 def overlays(rural = 0, municipal = 0, community='j40'):
     if ((rural == 1) & (community=='j40')):
@@ -65,9 +71,9 @@ def overlays(rural = 0, municipal = 0, community='j40'):
 
 ##Making Maps based off of the overlays
 def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
+    fig = Figure(width=800,height=700)
+    m = folium.Map(location=(40,-89),zoom_start=7)
     if (rural ==1):
-        fig = Figure(width=800,height=700)
-        m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
         folium.GeoJson(rural_coops[rural_coops['State']==State], name='Co-Op Territories',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields= ['NAME', 'TYPE'], aliases=['Co-Op:', 'Type:'], labels=True, sticky=True),
@@ -94,10 +100,7 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractIDcty', 'MSA_NMSA','perc_cover', 'Type_1'], aliases=['Co-Op:', 'County:', 'CountyID:', 'MSA/NMSA:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
-        fig.add_child(m)
     if (municipal ==1):
-        fig = Figure(width=800,height=700)
-        m = folium.Map(location=(40,-89),zoom_start=7)
         ##Base Co-op Layer
         folium.GeoJson(municipal_utils[municipal_utils['State']==State], name='Municipal Utility Territories',  style_function=lambda feature: {'fillColor': 'yellow','color': 'black','opacity':1,'weight': 0.4},
                tooltip=folium.features.GeoJsonTooltip(fields= ['NAME','TYPE'], aliases=['Utility:','Type:'], labels=True, sticky=True),
@@ -124,10 +127,16 @@ def overlayed_plot(rural=0, municipal=0, State = "Illinois"):
                tooltip=folium.features.GeoJsonTooltip(fields=['NAME','County', 'TractIDcty', 'MSA_NMSA','perc_cover', 'Type_1'], aliases=['Utility:', 'County:', 'CountyID:', 'MSA/NMSA:','Percent Area Covered:','Type:'],labels=True, sticky=True),
                 popup=None  # Disable the popup
                 ).add_to(m)
-        fig.add_child(m)
+        
+    # Add county boundaries
+    folium.GeoJson(county_df[county_df['State']==State], name='County Boundaries', style_function=lambda feature: {'fillColor': 'none', 'color': 'gray', 'opacity': 0.5, 'weight': 1}).add_to(m)
+    # Add state boundaries
+    folium.GeoJson(state_shp, name='State Boundaries', style_function=lambda feature: {'fillColor': 'none', 'color': 'black', 'opacity': 1, 'weight': 1}).add_to(m)
+    folium.TileLayer('openstreetmap', name = "Layers Filter").add_to(m)   
+    
+    folium.LayerControl(collapsed= False).add_to(m)  
+    fig.add_child(m)
 
-    folium.TileLayer('openstreetmap').add_to(m)   
-    folium.LayerControl(collapsed= False).add_to(m)   
     return fig
 
 if __name__ == "__main__":

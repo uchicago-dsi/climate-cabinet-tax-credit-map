@@ -5,7 +5,7 @@ import numpy as np
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
+# import plotly.express as px
 import folium
 import shapely
 import os
@@ -20,8 +20,9 @@ util_cols_to_remove = ['OBJECTID','SOURCE','SOURCEDATE','VAL_METHOD','VAL_DATE']
 utility_territories.drop(util_cols_to_remove, axis = 1, inplace = True)
 utility_territories.rename(columns = {'STATE':'ST_Code'}, inplace = True)
 ###Load an external dataset with the state names and abbreviations
-states = pd.read_csv(wd+'states.csv')
-states = states[['Abbreviation','State']].rename(columns = {'Abbreviation':'ST_Code'})
+##Load an external dataset with the state names and abbreviations
+states1 = pd.read_csv(wd+'state_fips.csv')
+states = states1[['Abbreviation','State']].rename(columns = {'Abbreviation':'ST_Code'})
 util_merged = utility_territories.merge(gpd.GeoDataFrame(states), how='left', left_on='ST_Code', right_on='ST_Code')
 if not os.path.exists(wd + 'util_clean'):
     os.mkdir(wd + 'util_clean')
@@ -83,3 +84,24 @@ if not os.path.exists(wd + 'energy_ffe'):
     os.mkdir(wd + 'energy_ffe')
 ffe_df_path = wd + 'energy_ffe/ffe_df.shp'
 ffe_df.to_file(ffe_df_path, driver='ESRI Shapefile')
+
+##Load the State and County Datasets
+county_df = gpd.read_file(wd + 'county_tract/tl_2020_us_county.shp')
+county_df['STATEFP'] = county_df['STATEFP'].astype(int)
+county_df = county_df.merge(states1[['STATEFP', 'State']], on='STATEFP', how='left')
+county_df = county_df.drop(columns=['COUNTYNS','GEOID','NAME','LSAD','CLASSFP','MTFCC','CSAFP','CBSAFP','METDIVFP','FUNCSTAT'])
+county_df.rename(columns={'NAMELSAD':'County'}, inplace=True)
+
+state_shp = gpd.read_file(wd + 'state_tract/tl_2020_us_state.shp')
+state_shp = state_shp.drop(columns=['REGION', 'DIVISION',  'STATENS', 'GEOID','LSAD','MTFCC','FUNCSTAT'])
+state_shp.rename(columns={'NAME':'State'}, inplace=True)
+
+county_df = county_df.to_crs(epsg=3857)
+state_shp = state_shp.to_crs(epsg=3857)
+
+if not os.path.exists(wd + 'county/county_tract.shp'):
+    os.mkdir(wd + 'county')
+    county_df.to_file(wd + 'county/county_tract.shp')
+if not os.path.exists(wd + 'state/state_tract.shp'):
+    os.mkdir(wd + 'state')
+    state_shp.to_file(wd + 'state/state_tract.shp')
