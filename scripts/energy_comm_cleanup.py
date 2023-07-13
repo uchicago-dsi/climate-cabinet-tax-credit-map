@@ -22,6 +22,8 @@ def load_coal_data() -> gpd.GeoDataFrame:
                                 'generator_':'gen_clos','adjacent_t':'adj_clos'}, inplace=True)
         coal_df.loc[:, 'Type'] = 'Energy Community'
         coal_df.loc[:, 'Subtype'] = 'Energy - Coal Closure'
+        #Compute the area of the geometry
+        coal_df.loc[:, 'area_coal'] = coal_df.geometry.area
         return coal_df
     except (FileNotFoundError, IOError, PermissionError) as e:
         print(f'Error loading coal data: {e}')
@@ -47,6 +49,8 @@ def load_ffe_data() -> gpd.GeoDataFrame:
                                     'Shape_Leng':'Leng_Cty','Shape_Area':'Area_Cty'}, inplace=True)
         ffe_df.loc[:, 'Type'] = 'Energy Community'
         ffe_df.loc[:, 'Subtype'] = 'Energy - Fossil Fuel Employment'
+        #Compute the area of the geometry
+        ffe_df.loc[:, 'area_ffe'] = ffe_df.geometry.area
         return ffe_df
     except (FileNotFoundError, IOError, PermissionError) as e:
         print(f'Error loading FFE data: {e}')

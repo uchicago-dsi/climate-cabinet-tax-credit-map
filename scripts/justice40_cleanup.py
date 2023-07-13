@@ -18,6 +18,8 @@ def load_justice40_data() -> gpd.GeoDataFrame:
         justice40.columns = ['TractID','State','County','Tot_Pop','Unemp_Per','Disadv?','Disad_Tri?','Underinves','Low_HS_Edu','Low_Income','UI_EXP','THRHLD','geometry']
         justice_final = justice40[(justice40['Disadv?'] == 1) & (justice40['geometry'].is_valid == True)]
         justice_final.loc[:, 'Type'] = 'Justice40'
+        #Compute the area of the geometry for each tract
+        justice_final.loc[:, 'area_j40'] = justice_final['geometry'].area
         return justice_final
     except (FileNotFoundError, IOError, PermissionError) as e:
         print(f'Error loading utility data: {e}')

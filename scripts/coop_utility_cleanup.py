@@ -28,16 +28,21 @@ def load_utility_data() -> gpd.GeoDataFrame:
         ##Load an external dataset with the state names and abbreviations
         states = pd.read_csv(STATE_FIPS_CSV_PATH)[['Abbreviation','State']].rename(columns = {'Abbreviation':'ST_Code'})
         util_merged = utility_territories.merge(gpd.GeoDataFrame(states), how='left', on='ST_Code')
+        #Compute the area of the geometry
+        util_merged['area'] = util_merged['geometry'].area
         return util_merged
     except (FileNotFoundError, IOError, PermissionError) as e:
         print(f'Error loading utility data: {e}')
         return None
-    
+
 ##Define a function to save the cleaned data
 def save_cleaned_utility_data(util_data: gpd.GeoDataFrame, output_path: str) -> None:
     try:
         if not os.path.exists(UTIL_CLEAN_DIR):
             os.makedirs(UTIL_CLEAN_DIR)
+        util_data = util_data.query('(TYPE == "MUNICIPAL") | (TYPE == "POLITICAL SUBDIVISION") | (TYPE == "COOPERATIVE")').to_crs(epsg=3857)
+        #Change the column to contain either Coop or Municipality
+        util_data['Type'] = util_data['TYPE'].apply(lambda x: 'Rural Co-Op' if x == 'COOPERATIVE' else 'Municipal/Public Utility')
         util_data.to_file(output_path, driver='ESRI Shapefile')
         print(f'Cleaned utility data saved to {output_path}')
     except (FileNotFoundError, IOError, PermissionError) as e:
