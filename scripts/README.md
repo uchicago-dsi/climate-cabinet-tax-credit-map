@@ -1,7 +1,6 @@
 ## Scripts
-
+What do the scripts do: <br>
 #### 1. `coop_utility_cleanup.py`:
-What does the script do: <br>
 - Loads the **Electric Retial Service Territories** shape file downlaoded from :  [Homeland Infrastructure Foundation-Level Data (HIFLD)](https://hifld-geoplatform.opendata.arcgis.com/datasets/geoplatform::electric-retail-service-territories-2/explore?location=21.841288%2C-93.233909%2C3.97)
 - Cleans up the `GeoDataFrame` by dropping, renaming and making columns. Then merges the dataframe with a CSV containing the Abbreviations and State names to get the state names.
 - The dataset will be filtered to contain only the Rural Coops or Municipal Utilites.
@@ -38,5 +37,12 @@ What does the script do: <br>
 - The geometries will be dissolved by the tractId since there would be duplicates appearing from the spatial join.(It's possible that some tracts have multiple overlapping MSA geometries.)
 -The conditions wil be applied for classifying a tract as a low income community and save the final data as a shape file on the disk.
 
+#### 6. `overlays.py`:
+- Load the datasets and performs intersection overlays, to have the bonus territories that are covered by the Utilites/CoOps.
+- Percentage area of the Utilites/CoOps which is overlapped with the bonus territories is calculated for each overlay.
+- Overlays are saved as shape files on the disk.
 
-
+#### 7. `maps.py`:
+- Loads the overlays and the state and county borders shape files.
+- Creates an interactive folium map with all the communities as separate layers ontop of the CoOps/Utilties base layer.
+- Created map will be saved as an HTML on the disk.
