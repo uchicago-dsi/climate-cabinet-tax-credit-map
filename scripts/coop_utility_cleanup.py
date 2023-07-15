@@ -2,76 +2,106 @@
 ## Load Dependencies
 import os
 import pandas as pd
+import numpy as np
 import geopandas as gpd
+import hydra
+import logging
+import warnings
+# Disable Fiona warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="fiona")
 
-##Set working directory and file save paths
-WD = os.path.join(os.getcwd(), 'data')
-SAVE_PATH = os.path.join(WD, "coops_utilities")
-if not os.path.exists(SAVE_PATH):
-    os.mkdir(SAVE_PATH)
-UTILITY_SHAPE_FILE_PATH = os.path.join(WD, "utility shape file", "Electric_Retail_Service_Territories.shp")
-STATE_FIPS_CSV_PATH = os.path.join(WD, "state_fips.csv")
-UTIL_CLEAN_DIR = os.path.join(SAVE_PATH, "util_clean")
-UTIL_CLEAN_PATH = os.path.join(UTIL_CLEAN_DIR, "util_clean.shp")
-RURAL_COOPS_DIR = os.path.join(SAVE_PATH, "rural_coops")
-MUNICIPAL_UTILS_DIR = os.path.join(SAVE_PATH, "municipal_utils")
-RURAL_COOPS_PATH = os.path.join(RURAL_COOPS_DIR, "rural_coops.shp")
-MUNICIPAL_UTILS_PATH = os.path.join(MUNICIPAL_UTILS_DIR, "municipal_utils.shp")
+## Configure the logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR)
 
-##Define a function to load the Utility Datasets (Rural CoOps and Municipal Utilities) and clean them
-def load_utility_data() -> gpd.GeoDataFrame:
+def load_utility_data(input_path:str, state_path: str) -> gpd.GeoDataFrame:
+    """
+    Load the Utility Datasets (Rural CoOps and Municipal Utilities) and clean them.
+
+    Args:
+        input_path (str): Path to the utility shape file.
+        state_path (str): Path to the state abbreviations dataset.
+
+    Returns:
+        gpd.GeoDataFrame: Cleaned utility data as a GeoDataFrame or None if an error occurs.
+    """
     try:
-        utility_territories = gpd.read_file(UTILITY_SHAPE_FILE_PATH).to_crs(epsg=3857)
+        utility_territories = gpd.read_file(input_path).to_crs(epsg=3857)
         util_cols_to_remove = ['OBJECTID','SOURCE','SOURCEDATE','VAL_METHOD','VAL_DATE']
         utility_territories.drop(util_cols_to_remove, axis = 1, inplace = True)
         utility_territories.rename(columns = {'STATE':'ST_Code'}, inplace = True)
         ##Load an external dataset with the state names and abbreviations
-        states = pd.read_csv(STATE_FIPS_CSV_PATH)[['Abbreviation','State']].rename(columns = {'Abbreviation':'ST_Code'})
+        states = pd.read_csv(state_path)[['Abbreviation','State']].rename(columns = {'Abbreviation':'ST_Code'})
         util_merged = utility_territories.merge(gpd.GeoDataFrame(states), how='left', on='ST_Code')
         #Compute the area of the geometry
-        util_merged['area'] = util_merged['geometry'].area
+        util_merged['area'] = np.round(util_merged['geometry'].area, 4)
+        util_merged = util_merged.query('(TYPE == "MUNICIPAL") | (TYPE == "POLITICAL SUBDIVISION") | (TYPE == "COOPERATIVE")').to_crs(epsg=3857)
+        #Change the column to contain either Coop or Municipality
+        util_merged['Type'] = util_merged['TYPE'].apply(lambda x: 'Rural Co-Op' if x == 'COOPERATIVE' else 'Municipal/Public Utility')
         return util_merged
     except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error loading utility data: {e}')
+        logger.error(f'Error loading utility data: {e}')
         return None
 
-##Define a function to save the cleaned data
 def save_cleaned_utility_data(util_data: gpd.GeoDataFrame, output_path: str) -> None:
+    """
+    Save the cleaned utility data as an ESRI Shapefile.
+
+    Args:
+        util_data (gpd.GeoDataFrame): Cleaned utility data as a GeoDataFrame.
+        output_path (str): Path to save the cleaned utility data.
+
+    Returns:
+        None
+    """
     try:
-        if not os.path.exists(UTIL_CLEAN_DIR):
-            os.makedirs(UTIL_CLEAN_DIR)
-        util_data = util_data.query('(TYPE == "MUNICIPAL") | (TYPE == "POLITICAL SUBDIVISION") | (TYPE == "COOPERATIVE")').to_crs(epsg=3857)
-        #Change the column to contain either Coop or Municipality
-        util_data['Type'] = util_data['TYPE'].apply(lambda x: 'Rural Co-Op' if x == 'COOPERATIVE' else 'Municipal/Public Utility')
         util_data.to_file(output_path, driver='ESRI Shapefile')
-        print(f'Cleaned utility data saved to {output_path}')
+        logger.info(f'Cleaned utility data saved to {output_path}')
     except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error saving cleaned utility data: {e}')
+        logger.error(f'Error saving cleaned utility data: {e}')
 
-## Separate the utilities into rural cooperatives and municipal utilities
-def separate_utilities(util_data: gpd.GeoDataFrame) -> None:
-    rural_coops = util_data.query('(TYPE == "COOPERATIVE")').to_crs(epsg=3857)
-    rural_coops['Type'] = 'Rural Co-Op'
-    rural_coops['area'] = rural_coops['geometry'].area
-    if not os.path.exists(RURAL_COOPS_DIR):
-        os.makedirs(RURAL_COOPS_DIR)
-    rural_coops.to_file(RURAL_COOPS_PATH, driver='ESRI Shapefile')
-    print(f'Rural cooperatives data saved to {RURAL_COOPS_PATH}')
-    
-    municipal_utils = util_data.query('(TYPE == "MUNICIPAL") | (TYPE == "POLITICAL SUBDIVISION")').to_crs(epsg=3857)
-    municipal_utils['Type'] = 'Municipal/Public Utility'
-    municipal_utils['area'] = municipal_utils['geometry'].area
-    if not os.path.exists(MUNICIPAL_UTILS_DIR):
-        os.makedirs(MUNICIPAL_UTILS_DIR)
-    municipal_utils.to_file(MUNICIPAL_UTILS_PATH, driver='ESRI Shapefile')
-    print(f'Municipal utilities data saved to {MUNICIPAL_UTILS_PATH}')
+def separate_utilities(util_data: gpd.GeoDataFrame, rural_output_path: str, municipal_output_path: str) -> None:
+    """
+    Separate the utilities into rural cooperatives and municipal utilities and save them as ESRI Shapefiles.
 
-##Make a main function to run the script
-def main() -> None:
-    util_merged = load_utility_data()
+    Args:
+        util_data (gpd.GeoDataFrame): Cleaned utility data as a GeoDataFrame.
+        rural_output_path (str): Path to save the rural cooperatives data.
+        municipal_output_path (str): Path to save the municipal utilities data.
+
+    Returns:
+        None
+    """
+    try:
+        rural_coops = util_data.query('(Type == "Rural Co-Op")').to_crs(epsg=3857)
+        rural_coops.to_file(rural_output_path, driver='ESRI Shapefile')
+        logger.info(f'Rural cooperatives data saved to {rural_output_path}')
+        
+        municipal_utils = util_data.query('(Type == "Municipal/Public Utility")').to_crs(epsg=3857)
+        municipal_utils.to_file(municipal_output_path, driver='ESRI Shapefile')
+        logger.info(f'Municipal utilities data saved to {municipal_output_path}')
+    except (FileNotFoundError, IOError, PermissionError) as e:
+        logger.error(f'Error saving separated utility data: {e}')
+        return None
+
+@hydra.main(config_path='../conf', config_name='config')
+def main(cfg) -> None:
+    paths = cfg.paths
+    WD = os.getcwd().replace('\\', '/')
+    os.chdir(WD)  # Set the working directory explicitly
+    util_paths = {
+        "UTIL_SHAPE_FILE_PATH": os.path.join(WD, paths.utilities.util_shape_file_path).replace('\\', '/'),
+        "UTIL_CLEAN_PATH": os.path.join(WD, paths.utilities.util_clean_path).replace('\\', '/'),
+        "RURAL_COOPS_PATH": os.path.join(WD, paths.utilities.rural_coops_path).replace('\\', '/'),
+        "MUNICIPAL_UTILS_PATH": os.path.join(WD, paths.utilities.municipal_utils_path).replace('\\', '/'),
+        "STATE_FIPS_CSV_PATH": os.path.join(WD, paths.boundaries.state_fips_path).replace('\\', '/')
+    }
+    for path in util_paths.values():
+        os.makedirs(os.path.dirname(path), exist_ok=True) 
+    util_merged = load_utility_data(util_paths['UTIL_SHAPE_FILE_PATH'], util_paths['STATE_FIPS_CSV_PATH'])
     if util_merged is not None:
-        save_cleaned_utility_data(util_merged, UTIL_CLEAN_PATH)
-        separate_utilities(util_merged)
+        save_cleaned_utility_data(util_merged, util_paths['UTIL_CLEAN_PATH'])
+        separate_utilities(util_merged, util_paths['RURAL_COOPS_PATH'], util_paths['MUNICIPAL_UTILS_PATH'])
 
 if __name__ == '__main__':
     main()

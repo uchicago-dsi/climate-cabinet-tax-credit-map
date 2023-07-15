@@ -6,8 +6,8 @@ FROM python:3.9
 WORKDIR /cc_temp
 
 #Copy the scripts directory contents into the container at /scripts, and then the requirements.txt file
-COPY scripts /cc_temp/scripts
-COPY requirements.txt /cc_temp
+COPY scripts ./scripts
+COPY requirements.txt /cc_temp/requirements.txt
 
 #Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt

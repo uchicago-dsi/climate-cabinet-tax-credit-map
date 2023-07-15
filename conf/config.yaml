@@ -1,0 +1,63 @@
+hydra:
+  run:
+    dir: .
+
+paths:
+  wd: "data"
+  #Paths for the utility cleanup script
+  utilities:
+    util_shape_file_path: "${paths.wd}/utility shape file/Electric_Retail_Service_Territories.shp"
+    util_clean_path: "${paths.wd}/coops_utilities/util_clean/util_clean.shp"
+    rural_coops_path: "${paths.wd}/coops_utilities/rural_coops/rural_coops.shp"
+    municipal_utils_path: "${paths.wd}/coops_utilities/municipal_utils/municipal_utils.shp"
+
+  #Paths for the J40 clean up script
+  j40: 
+    j40_shp_path: "${paths.wd}/justice40 shapefile/usa/usa.shp"
+    j40_clean_path : "${paths.wd}/communities/justice40/justice40.shp"
+
+  #Paths for the energy communities cleanup script
+  energy:
+    coal_shp_path: "${paths.wd}/ira_data_coalclosure_energycomm_20231/IRA_Coal_Closure_Energy_Comm_SHP/Coal_Closure_Energy_Communities_shp/Coal_Closure_Energy_Communities.shp"
+    coal_clean_path: "${paths.wd}/communities/energy_coal/coal_closure.shp"
+    ffe_shp_path: "${paths.wd}/ira_data_msanmsa_ffe_20231/MSA_NMSA_FFE_SHP/MSA_NMSA_FFE_SHP.shp"
+    ffe_clean_path: "${paths.wd}/communities/energy_ffe/ffe.shp"
+    #energy_path: "${paths.wd}/communities/energy/energy.shp"
+
+  #Paths for the low income communities cleanup script
+  low_income:
+    lic_path: "${paths.wd}/Low Income Communities"
+    pov_dir: "${paths.low_income.lic_path}/poverty/R13409161_SL140.csv" #Poverty
+    pov_save_path: "${paths.low_income.lic_path}/poverty/poverty_clean.csv"
+    tract_inc_dir: "${paths.low_income.lic_path}/income/R13409069_SL140.csv" #Income Tract Level csv
+    tract_inc_save_path: "${paths.low_income.lic_path}/income/income_clean.csv"
+    st_inc_dir: "${paths.low_income.lic_path}/income/R13411548_SL040.csv" #Income State Level csv
+    st_inc_save_path: "${paths.low_income.lic_path}/income/income_state_clean.csv"
+    st_tract_merged_save_path: "${paths.low_income.lic_path}/income/income_tract_st_merged.csv" #Income State and Tract Merged
+    msa_inc_dir: "${paths.low_income.lic_path}/income/R13411591_SL320.csv" #Income MSA Level csv
+    msa_save_path: "${paths.low_income.lic_path}/income/income_msa_clean.csv"
+    msa_shape_path: "${paths.low_income.lic_path}/income/2020_msa_shp/tl_2020_us_cbsa.shp" #MSA Shapefile
+    msa_clean_save_path: "${paths.low_income.lic_path}/income/msa_clean_shp/msa_clean.shp" 
+    msa_inc_shp_save_path: "${paths.low_income.lic_path}/income/msa_income_shp/msa_income_shp.shp" #MSA Income Merged
+    tract_shp_path: "${paths.low_income.lic_path}/merged_tracts_2020/merged_tracts_2020.shp" #Tract Shapefile
+    low_inc_clean_path: "${paths.wd}/communities/low_income/low_income_tracts.shp" #Final Shapefile
+
+  #Paths for the County and State borders cleanup script
+  boundaries:
+    ct_path: "${paths.wd}/county_tract/tl_2020_us_county.shp" 
+    st_path: "${paths.wd}/state_tract/tl_2020_us_state.shp" 
+    ct_clean_path: "${paths.wd}/boundaries/county_clean/county_clean.shp" 
+    st_clean_path: "${paths.wd}/boundaries/state_clean/state_clean.shp" 
+    state_fips_path: "${paths.wd}/state_fips.csv" #State FIPS dataset to be used for both Utils and Borders
+
+  #Paths for the overlay script
+  overlays:
+    j40_overlay_path: "${paths.wd}/overlays/j40_overlays/j40_overlays.shp" 
+    coal_overlay_path: "${paths.wd}/overlays/coal_overlays/coal_overlays.shp" 
+    ffe_overlay_path: "${paths.wd}/overlays/ffe_overlays/ffe_overlays.shp" 
+    #energy_overlay_path: "${paths.wd}/overlays/energy_overlays/energy_overlays.shp" #Energy Overlays dataset save path for future if overlay is successful
+    low_income_overlay_path: "${paths.wd}/overlays/low_income_overlays/low_income_overlays.shp" 
+
+  #Path to save the final result maps
+  maps:
+    output_html_path: "${paths.wd}/results/IL_Overlay_Map.html" #Output html file path

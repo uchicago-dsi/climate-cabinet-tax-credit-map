@@ -3,63 +3,92 @@
 import os
 import pandas as pd
 import geopandas as gpd
+import logging
+import hydra
 
-##Set working directory and file save paths
-WD = os.path.join(os.getcwd(), 'data')
-STATE_FIPS_PATH = os.path.join(WD, "state_fips.csv") #State FIPS dataset
-CT_PATH = os.path.join(WD, "county_tract","tl_2020_us_county.shp") #County borders dataset
-ST_PATH = os.path.join(WD, "state_tract","tl_2020_us_state.shp") #State borders dataset
-CT_SAVE_PATH = os.path.join(WD, "boundaries", "county_clean") #County borders dataset save path
-ST_SAVE_PATH = os.path.join(WD, "boundaries", "state_clean") #State borders dataset save path
+## Configure the logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR)
 
-##Define a function to load and clean the county borders dataset
-def load_county_borders() -> gpd.GeoDataFrame:
+def load_county_borders(ct_path: str, state_fips_path: str) -> gpd.GeoDataFrame:
+    """
+    Load and clean the county borders dataset.
+
+    Args:
+        ct_path: Path to the county borders dataset.
+        state_fips_path: Path to the state FIPS dataset.
+
+    Returns:
+        gpd.GeoDataFrame: Cleaned county borders dataset.
+    """
     try:
-        county_df = gpd.read_file(CT_PATH).to_crs(epsg=3857)
+        county_df = gpd.read_file(ct_path).to_crs(epsg=3857)
         county_df['STATEFP'] = county_df['STATEFP'].astype(int)
-        states = pd.read_csv(STATE_FIPS_PATH)[['St_FIPS', 'State']].rename(columns={'St_FIPS':'STATEFP'})
+        states = pd.read_csv(state_fips_path)[['St_FIPS', 'State']].rename(columns={'St_FIPS':'STATEFP'})
         county_df = county_df.merge(states, on='STATEFP', how='left')
         county_df = county_df.drop(columns=['COUNTYNS','GEOID','NAME','LSAD','CLASSFP','MTFCC','CSAFP','CBSAFP','METDIVFP','FUNCSTAT'])
         county_df.rename(columns={'NAMELSAD':'County'}, inplace=True)
         return county_df
     except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error loading coal data: {e}')
+        logger.info(f'Error loading coal data: {e}')
         return None
 
-##Define a function to load and clean the state borders dataset
-def load_state_borders() -> gpd.GeoDataFrame:
+def load_state_borders(st_path: str) -> gpd.GeoDataFrame:
+    """
+    Load and clean the state borders dataset.
+
+    Args:
+        st_path: Path to the state borders dataset.
+
+    Returns:
+        gpd.GeoDataFrame: Cleaned state borders dataset.
+    """
     try:
-        state_df = gpd.read_file(ST_PATH).to_crs(epsg=3857)
+        state_df = gpd.read_file(st_path).to_crs(epsg=3857)
         state_df = state_df.drop(columns=['REGION', 'DIVISION',  'STATENS', 'GEOID','LSAD','MTFCC','FUNCSTAT'])
         state_df.rename(columns={'NAME':'State'}, inplace=True)
         return state_df
     except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error loading coal data: {e}')
+        logger.info(f'Error loading coal data: {e}')
         return None
 
-##Define a function to save the state and county borders datasets
-def save_county_borders(county_df: gpd.GeoDataFrame) -> None:
-    try:
-        county_df.to_file(CT_SAVE_PATH)
-        print(f"Saved county data to {CT_SAVE_PATH}")
-    except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error saving coal data: {e}')
+def save_gdf(gdf: gpd.GeoDataFrame, save_path:str) -> None:
+    """
+    Save a GeoDataFrame to a file.
 
-def save_state_borders(state_df: gpd.GeoDataFrame) -> None:
-    try:
-        state_df.to_file(ST_SAVE_PATH)
-        print(f"Saved state data to {ST_SAVE_PATH}")
-    except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error saving coal data: {e}')
+    Args:
+        gdf: The GeoDataFrame to be saved.
+        save_path: The path to save the GeoDataFrame.
 
-##Make a main function to run the script
-def main():
-    county_df = load_county_borders()
-    state_df = load_state_borders()
+    Returns:
+        None
+    """
+    try:
+        gdf.to_file(save_path)
+        logger.info(f"Saved the data to {save_path}")
+    except (FileNotFoundError, IOError, PermissionError) as e:
+        logger.info(f'Error saving the data: {e}')
+
+@hydra.main(config_path='../conf', config_name='config')
+def main(cfg) -> None:
+    paths = cfg.paths
+    WD = os.getcwd().replace('\\', '/')
+    os.chdir(WD)  # Set the working directory explicitly
+    border_paths = {
+        'state_fips_path': os.path.join(WD, paths.boundaries.state_fips_path).replace('\\', '/'),
+        'ct_path': os.path.join(WD, paths.boundaries.ct_path).replace('\\', '/'),
+        'st_path': os.path.join(WD, paths.boundaries.st_path).replace('\\', '/'),
+        'ct_clean_path': os.path.join(WD, paths.boundaries.ct_clean_path).replace('\\', '/'),
+        'st_clean_path': os.path.join(WD, paths.boundaries.st_clean_path).replace('\\', '/')
+    }
+    for path in border_paths.values():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    county_df = load_county_borders(border_paths['ct_path'], border_paths['state_fips_path'])
+    state_df = load_state_borders(border_paths['st_path'])
     if (county_df is not None):
-        save_county_borders(county_df)
+        save_gdf(county_df, border_paths['ct_clean_path'])
     if (state_df is not None):
-        save_state_borders(state_df)
+        save_gdf(state_df, border_paths['st_clean_path'])
 
 if __name__ == "__main__":
     main()

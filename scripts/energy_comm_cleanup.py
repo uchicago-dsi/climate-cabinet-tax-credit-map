@@ -3,19 +3,25 @@
 import os
 import pandas as pd
 import geopandas as gpd
+import hydra
+import logging
 
-##Set working directory and file save paths
-WD = os.path.join(os.getcwd(), 'data')
-COAL_SHP_PATH = os.path.join(WD, "ira_data_coalclosure_energycomm_20231","IRA_Coal_Closure_Energy_Comm_SHP","Coal_Closure_Energy_Communities_shp", \
-                             "Coal_Closure_Energy_Communities.shp") #Coal closure dataset
-COAL_SAVE_PATH = os.path.join(WD, "communities","energy_coal") #Save path for coal closure dataset
-FFE_SHP_PATH = os.path.join(WD, "ira_data_msanmsa_ffe_20231","MSA_NMSA_FFE_SHP","MSA_NMSA_FFE_SHP.shp") #Fossil fuel employment dataset
-FFE_SAVE_PATH = os.path.join(WD, "communities","energy_ffe") #Save path for fossil fuel employment dataset
+## Configure the logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR)
 
-##Define a function to load the Coal Closure data and clean it
-def load_coal_data() -> gpd.GeoDataFrame:
+def load_coal_data(input_path:str) -> gpd.GeoDataFrame:
+    """
+    Load and clean the Coal Closure data.
+
+    Args:
+        input_path: Path to the Coal Closure data.
+
+    Returns:
+        gpd.GeoDataFrame: Cleaned Coal Closure data.
+    """
     try:
-        coal_df = gpd.read_file(COAL_SHP_PATH).to_crs(epsg=3857)
+        coal_df = gpd.read_file(input_path).to_crs(epsg=3857)
         drop_cols_coal = ['objectid', 'affgeoid_t', 'fipstate_2', 'fipcounty_', 'geoid_coun','fiptract_2','censustrac','date_last_','dataset_ve']
         coal_df.drop(columns=drop_cols_coal, inplace=True)
         coal_df.rename(columns={'geoid_trac':'TractID', 'state_name':'State','county_nam':'County','mine_closu':'mine_clos',\
@@ -26,23 +32,38 @@ def load_coal_data() -> gpd.GeoDataFrame:
         coal_df.loc[:, 'area_coal'] = coal_df.geometry.area
         return coal_df
     except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error loading coal data: {e}')
+        logger.info(f'Error loading coal data: {e}')
         return None
 
-##Define a function to save the cleaned data
-def save_coal_data(coal_df: gpd.GeoDataFrame, save_path: str) -> None:
-    try:
-        if not os.path.exists(COAL_SAVE_PATH):
-            os.mkdir(COAL_SAVE_PATH) 
-        coal_df.to_file(save_path, driver='ESRI Shapefile')
-        print(f'Coal data saved to {COAL_SAVE_PATH}')
-    except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error saving coal data: {e}')
+def save_gdf(gdf: gpd.GeoDataFrame, save_path: str) -> None:
+    """
+    Save the cleaned GeoDataFrame to a file.
 
-##Define a function to load the Fossil Fuel Employment data and clean it
-def load_ffe_data() -> gpd.GeoDataFrame:
+    Args:
+        gdf: Cleaned GeoDataFrame.
+        save_path: Path to save the data.
+
+    Returns:
+        None
+    """
     try:
-        ffe_df = gpd.read_file(FFE_SHP_PATH).to_crs(epsg=3857)
+        gdf.to_file(save_path, driver='ESRI Shapefile')
+        logger.info(f'Data saved to {save_path}')
+    except (FileNotFoundError, IOError, PermissionError) as e:
+        logger.info(f'Error saving the data: {e}')
+
+def load_ffe_data(input_path:str) -> gpd.GeoDataFrame:
+    """
+    Load and clean the Fossil Fuel Employment data.
+
+    Args:
+        input_path: Path to the Fossil Fuel Employment data.
+
+    Returns:
+        gpd.GeoDataFrame: Cleaned Fossil Fuel Employment data.
+    """
+    try:
+        ffe_df = gpd.read_file(input_path).to_crs(epsg=3857)
         drop_cols_ffe = ['ObjectID','fipstate_2','fipscty_20','geoid_cty_','MSA_area_I','Date_Last_','Dataset_ve'] 
         ffe_df.drop(columns=drop_cols_ffe, inplace=True)
         ffe_df.rename(columns = {'AFFGEOID_C':'TractIDcty','state_name':'State','county_nam':'County','FFE_qual_s':'is_FFE','MSA_NMSA_L':'M_NMSA_loc',\
@@ -55,25 +76,27 @@ def load_ffe_data() -> gpd.GeoDataFrame:
     except (FileNotFoundError, IOError, PermissionError) as e:
         print(f'Error loading FFE data: {e}')
         return None
-    
-##Define a function to save the cleaned data
-def save_ffe_data(ffe_df: gpd.GeoDataFrame, save_path: str) -> None:
-    try:
-        if not os.path.exists(FFE_SAVE_PATH):
-            os.mkdir(FFE_SAVE_PATH) 
-        ffe_df.to_file(save_path, driver='ESRI Shapefile')
-        print(f'FFE data saved to {FFE_SAVE_PATH}')
-    except (FileNotFoundError, IOError, PermissionError) as e:
-        print(f'Error saving FFE data: {e}')
 
-##Make a main function to run the script
-def main():
-    coal_df = load_coal_data()
+@hydra.main(config_path='../conf', config_name='config')
+def main(cfg) -> None:
+    paths = cfg.paths
+    WD = os.getcwd().replace('\\', '/')
+    os.chdir(WD)
+    energy_paths = {
+        'coal_shp_path': os.path.join(WD, paths.energy.coal_shp_path).replace('\\', '/'),
+        'coal_clean_path': os.path.join(WD, paths.energy.coal_clean_path).replace('\\', '/'),
+        'ffe_shp_path': os.path.join(WD, paths.energy.ffe_shp_path).replace('\\', '/'),
+        'ffe_clean_path': os.path.join(WD, paths.energy.ffe_clean_path).replace('\\', '/')#,
+        #'energy_path': os.path.join(WD, paths.energy.energy_path).replace('\\', '/')  
+    }
+    for path in energy_paths.values():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    coal_df = load_coal_data(energy_paths['coal_shp_path'])
     if coal_df is not None:
-        save_coal_data(coal_df, os.path.join(COAL_SAVE_PATH, 'coal_closure.shp'))
-    ffe_df = load_ffe_data()
+        save_gdf(coal_df, energy_paths['coal_clean_path'])
+    ffe_df = load_ffe_data(energy_paths['ffe_shp_path'])
     if ffe_df is not None:
-        save_ffe_data(ffe_df, os.path.join(FFE_SAVE_PATH, 'ffe.shp'))
+        save_gdf(ffe_df, energy_paths['ffe_clean_path'])
 
 if __name__ == '__main__':
     main()
