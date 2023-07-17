@@ -61,3 +61,10 @@ paths:
   #Path to save the final result maps
   maps:
     output_html_path: "${paths.wd}/results/IL_Overlay_Map.html" #Output html file path
+
+  #Paths for webscraper file
+  scraper:
+    base_url_2021: "'https://www2.census.gov/geo/tiger/TIGER2021/TRACT/"
+    base_url_2020: "'https://www2.census.gov/geo/tiger/TIGER2020/TRACT/"
+    all_tracts_zip_save_path: "${paths.wd}/all_tracts_2020" 
+    merged_tracts_path: "${paths.wd}/merged_tracts_2020/merged_tracts_2020.shp"

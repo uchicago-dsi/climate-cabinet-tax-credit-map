@@ -7,72 +7,115 @@ import os
 import zipfile
 import pandas as pd
 import geopandas as gpd
+import hydra
+import logging
 
-##Set working directory, file save paths and the base url
-WD = os.path.join(os.getcwd(), 'data','Low Income Communities')
-ALL_TRACTS_PATH = os.path.join(WD, 'all_tracts_2020')
-if not os.path.exists(ALL_TRACTS_PATH):
-    os.makedirs(ALL_TRACTS_PATH)
-MERGED_TRACTS_PATH = os.path.join(WD, 'merged_tracts_2020')
-FINAL_SAVE_PATH = os.path.join(MERGED_TRACTS_PATH, 'merged_tracts_2020.shp')
-# BASE_URL = 'https://www2.census.gov/geo/tiger/TIGER2021/TRACT/' #if 2021 shape files are needed.
-BASE_URL = 'https://www2.census.gov/geo/tiger/TIGER2020/TRACT/' #for 2020 shape files
+## Configure the logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.ERROR)
 
-##Define a function to download and write the ZIP files
-def download_and_extract(url, save_path):
-    response = requests.get(url)
-    with open(save_path, 'wb') as file:
-        file.write(response.content)
+def download_and_extract(url:str, save_path:str) -> None:
+    """
+    Download and extract a ZIP file from the given URL to the specified save path.
 
-## Define a function to download tract shapefiles from the Census Bureau website (FTP Layer)
-def download_tract_shapefiles():
-    response = requests.get(BASE_URL)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    links = soup.find_all('a')
-    for link in links:
-        href = link.get('href')
-        if href is not None and href.endswith('.zip'):
-            download_url = urllib.parse.urljoin(BASE_URL, href)
-            file_name = href.split('/')[-1]
-            print(f'Downloading {file_name}...')
-            download_and_extract(download_url, os.path.join(ALL_TRACTS_PATH, file_name))
-            print(f'{file_name} downloaded successfully.')
+    Args:
+        url (str): The URL of the ZIP file to download.
+        save_path (str): The path where the downloaded file will be saved.
+    """
+    try:
+        response = requests.get(url)
+        with open(save_path, 'wb') as file:
+            file.write(response.content)
+    except (FileNotFoundError, IOError, PermissionError, ValueError) as e:
+        logger.info(f'Error downloading the file: {e}')
+        return None
+    
+def download_tract_shapefiles(url:str, all_tracts_path:str) -> None:
+    """
+    Download tract shapefiles from the given URL to the specified directory path.
 
-##Define a function to extract and merge the downloaded tract shapefiles
-def merge_tract_shapefiles():
-    zip_files = [file for file in os.listdir(ALL_TRACTS_PATH) if file.endswith('.zip')]
-    #Empty list to store GeoDataFrames
-    gdfs = []
-    for zip_file in zip_files:
-        with zipfile.ZipFile(os.path.join(ALL_TRACTS_PATH, zip_file), 'r') as zf:
-            shp_file = [file for file in zf.namelist() if file.endswith('.shp')][0]
-            gdf = gpd.read_file(f'zip://{os.path.join(ALL_TRACTS_PATH, zip_file)}!{shp_file}')
-            gdfs.append(gdf)
-    #Check if all the DataFrames inside the gdfs list have the same columns
-    for i in range(1, len(gdfs)):
-        assert gdfs[i].columns.to_list() == gdfs[i-1].columns.to_list()
-    #Concatenate all the DataFrames inside the gdfs list to a single GeoDataFrame
-    merged_tracts = pd.concat(gdfs, ignore_index=True)
-    #Clean the merged_tracts DataFrame
-    merged_tracts = merged_tracts[['STATEFP', 'GEOID', 'NAMELSAD', 'ALAND', 'AWATER', 'INTPTLAT', 'INTPTLON', 'geometry']]
-    merged_tracts.columns = ['stateFP', 'tract_id', 'tract_name', 'area_land', 'area_water', 'lat', 'lon', 'geometry']
-    merged_tracts['tract_id'] = merged_tracts['tract_id'].astype('int64')
-    merged_tracts['stateFP'] = merged_tracts['stateFP'].astype(int)
+    Args:
+        url (str): The base URL where the shapefiles are located.
+        all_tracts_path (str): The path where the downloaded shapefiles will be stored.
+    """
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        links = soup.find_all('a')
+        for link in links:
+            href = link.get('href')
+            if href is not None and href.endswith('.zip'):
+                download_url = urllib.parse.urljoin(url, href)
+                file_name = href.split('/')[-1]
+                logger.info(f'Downloading {file_name}...')
+                download_and_extract(download_url, os.path.join(all_tracts_path, file_name))
+                logger.info(f'{file_name} downloaded successfully.')
+    except (FileNotFoundError, IOError, PermissionError, ValueError) as e:
+        logger.info(f'Error downloading the file: {e}')
+        return None
 
-    return merged_tracts
+def merge_tract_shapefiles(all_tracts_path:str) -> gpd.GeoDataFrame or None:
+    """
+    Merge the downloaded tract shapefiles into a single GeoDataFrame.
 
-#Define a function to save the merged tract shapefile
-def save_merged_tracts(merged_tracts):
-    if not os.path.exists(MERGED_TRACTS_PATH):
-        os.makedirs(MERGED_TRACTS_PATH)
-    merged_tracts.to_file(FINAL_SAVE_PATH)
-    print(f"The merged tracts shapefile saved to {FINAL_SAVE_PATH}")
+    Args:
+        all_tracts_path (str): The path where the downloaded shapefiles are stored.
 
-# Make a mian function to run the script
-def main():
-    download_tract_shapefiles()
-    merged_tracts = merge_tract_shapefiles()
-    save_merged_tracts(merged_tracts)
+    Returns:
+        gpd.GeoDataFrame or None: The merged GeoDataFrame if successful, else None.
+    """
+    try:
+        zip_files = [file for file in os.listdir(all_tracts_path) if file.endswith('.zip')]
+        #Empty list to store GeoDataFrames
+        gdfs = []
+        for zip_file in zip_files:
+            with zipfile.ZipFile(os.path.join(all_tracts_path, zip_file), 'r') as zf:
+                shp_file = [file for file in zf.namelist() if file.endswith('.shp')][0]
+                gdf = gpd.read_file(f'zip://{os.path.join(all_tracts_path, zip_file)}!{shp_file}')
+                gdfs.append(gdf)
+        #Check if all the DataFrames inside the gdfs list have the same columns
+        for i in range(1, len(gdfs)):
+            assert gdfs[i].columns.to_list() == gdfs[i-1].columns.to_list()
+        #Concatenate all the DataFrames inside the gdfs list to a single GeoDataFrame
+        merged_tracts = pd.concat(gdfs, ignore_index=True)
+        #Clean the merged_tracts DataFrame
+        merged_tracts = merged_tracts[['STATEFP', 'GEOID', 'NAMELSAD', 'ALAND', 'AWATER', 'INTPTLAT', 'INTPTLON', 'geometry']]
+        merged_tracts.columns = ['stateFP', 'tract_id', 'tract_name', 'area_land', 'area_water', 'lat', 'lon', 'geometry']
+        merged_tracts['tract_id'] = merged_tracts['tract_id'].astype('int64')
+        merged_tracts['stateFP'] = merged_tracts['stateFP'].astype(int)
+
+        return merged_tracts
+    except (FileNotFoundError, IOError, PermissionError, ValueError) as e:
+        logger.info(f'Error merging the files: {e}')
+        return None
+    
+def save_merged_tracts(merged_tracts: gpd.GeoDataFrame, final_save_path:str):
+    """
+    Save the merged tract shapefile to the specified path.
+
+    Args:
+        merged_tracts (gpd.GeoDataFrame): The merged GeoDataFrame.
+        final_save_path (str): The path where the merged shapefile will be saved.
+    """
+    merged_tracts.to_file(final_save_path)
+    logger.info(f"The merged tracts shapefile saved to {final_save_path}")
+
+@hydra.main(config_path='../conf', config_name='config')
+def main(cfg) -> None:
+    paths = cfg.paths
+    WD = os.getcwd().replace('\\', '/')
+    os.chdrir(WD)
+    scraper_paths = {
+        # 'base_url_2021': os.path.join(WD, paths.scraper.base_url_2021),
+        'base_url_2020': os.path.join(WD, paths.scraper.base_url_2020),
+        'all_tracts_path': os.path.join(WD, paths.scraper.all_tracts_path),
+        'merged_tracts_path': os.path.join(WD, paths.scraper.merged_tracts_path)
+    }
+    for path in scraper_paths.values():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    download_tract_shapefiles(scraper_paths['base_url_2020'], scraper_paths['all_tracts_path'])
+    merged_tracts = merge_tract_shapefiles(scraper_paths['all_tracts_path'])
+    save_merged_tracts(merged_tracts, scraper_paths['merged_tracts_path'])
 
 if __name__ == '__main__':
     main()

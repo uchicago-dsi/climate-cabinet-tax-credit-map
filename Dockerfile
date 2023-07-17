@@ -14,10 +14,3 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 #Run the main.py script when the container launches
 CMD ["python", "./main.py"]
-
-#Build the image
-#docker build -t py-docker-climate-cabinet .
-#Run the image
-#docker run -it py-docker-climate-cabinet
-#Run the image with a volume
-#docker run -v /path/to/data:/app/data py-docker-climate-cabinet
