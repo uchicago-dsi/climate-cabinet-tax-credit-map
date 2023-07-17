@@ -72,45 +72,49 @@ paths:
 constants:
   #Constants for the coop_util_cleanup script
   utilities:
-    util_drop_cols: ["OBJECTID", "SOURCE", "SOURCEDATE", "VAL_METHOD", "VAL_DATE"]
-    util_rename_cols: {'STATE': 'ST_Code'}
+    drop_cols: ["OBJECTID", "SOURCE", "SOURCEDATE", "VAL_METHOD", "VAL_DATE"]
+    rename_cols: {'STATE': 'ST_Code'}
     state_cols: ["Abbreviation", "State"]
     state_rename_col : {"Abbreviation":"ST_Code"}
-    util_area: "area"
-    util_geo: "geometry"
-    util_filters_col: "TYPE" 
-    util_filters: ["MUNICIPAL", "POLITICAL SUBDIVISION","COOPERATIVE"]
-    util_filters_new: ["Municipal/Public Utility", "Rural Co-Op"]
-    util_new_col: "Type"
+    area: "area"
+    st_code: "ST_Code"
+    geo: "geometry"
+    filter_col: "TYPE" 
+    filters: ["MUNICIPAL", "POLITICAL SUBDIVISION","COOPERATIVE"]
+    filters_new: ["Municipal/Public Utility", "Rural Co-Op"]
+    new_col: "Type"
 
   #Constants for the justice40_cleanup script
   j40:
-    j40_cols_to_keep: ['GEOID10','SF', 'CF','TPF','UF_PFS','SN_C','SN_T','HRS_ET','LHE','FPL200S','UI_EXP','THRHLD','geometry']
-    j40_rename_cols: {'GEOID10': 'TractID', 'SF': 'State', 'CF': 'County', 'TPF': 'Tot_Pop', 'UF_PFS': 'Unemp_Per', 'SN_C': 'Disadv?', 'SN_T': 'Disad_Tri?', 'HRS_ET': 'Underinves', 'LHE': 'Low_HS_Edu', 'FPL200S': 'Low_Income', 'UI_EXP': 'UI_EXP', 'THRHLD': 'THRHLD', 'geometry': 'geometry'}
-    j40_filter_cols: ['Disadv?', 'geometry']
-    j40_area: 'area_j40'
-    j40_geo: 'geometry'
-    j40_new_col: 'Type'
+    cols_to_keep: ['GEOID10','SF', 'CF','TPF','UF_PFS','SN_C','SN_T','HRS_ET','LHE','FPL200S','UI_EXP','THRHLD','geometry']
+    rename_cols: {'GEOID10': 'TractID', 'SF': 'State', 'CF': 'County', 'TPF': 'Tot_Pop', 'UF_PFS': 'Unemp_Per', 'SN_C': 'Disadv?', 'SN_T': 'Disad_Tri?', 'HRS_ET': 'Underinves', 'LHE': 'Low_HS_Edu', 'FPL200S': 'Low_Income', 'UI_EXP': 'UI_EXP', 'THRHLD': 'THRHLD', 'geometry': 'geometry'}
+    filter_cols: ['Disadv?', 'geometry']
+    area: 'area_j40'
+    geo: 'geometry'
+    new_col: 'Type'
+    new_col_val: 'J40'
 
   #Constants for the energy_communities_clean script
   energy:
     coal_drop_cols : ['objectid', 'affgeoid_t', 'fipstate_2', 'fipcounty_', 'geoid_coun','fiptract_2','censustrac','date_last_','dataset_ve']
     coal_rename_cols: {'geoid_trac':'TractID', 'state_name':'State','county_nam':'County','mine_closu':'mine_clos','generator_':'gen_clos','adjacent_t':'adj_clos'}
-    coal_new_cols: ['Type', 'Subtype']
     coal_area: 'area_coal'
-    coal_geo: 'geometry'
+    geo: 'geometry'
+    coal_subtype: 'Energy - Coal Closure'
     ffe_drop_cols: ['ObjectID','fipstate_2','fipscty_20','geoid_cty_','MSA_area_I','Date_Last_','Dataset_ve']
     ffe_rename_cols: {'AFFGEOID_C':'TractIDcty','state_name':'State','county_nam':'County','FFE_qual_s':'is_FFE','MSA_NMSA_L':'M_NMSA_loc','Shape_Leng':'Leng_Cty','Shape_Area':'Area_Cty'}        
-    ffe_new_cols: ['Type', 'Subtype']
     ffe_area: 'area_ffe'
-    ffe_geo: 'geometry'
+    ffe_subtype: 'Energy - Fossil Fuel Employment'
+    new_cols: ['Type', 'Subtype']
+    type_val: 'Energy Community'
 
   #Constants for the low_income_cleanup script
   low_income:
     state: 'state'
+    geo: 'geometry'
     pov_cols_to_keep: ['Geo_STUSAB','Geo_GEOID','Geo_QName','Geo_FIPS','Geo_AREALAND','Geo_AREAWATR','ACS20_5yr_B17020001','ACS20_5yr_B17020002']
     pov_renamed_cols: {'Geo_STUSAB': 'state', 'Geo_GEOID': 'geo_id', 'Geo_QName': 'tract_name', 'Geo_FIPS': 'tractId', 'Geo_AREALAND': 'area_land', 'Geo_AREAWATR': 'area_water', 'ACS20_5yr_B17020001': 'total_pop', 'ACS20_5yr_B17020002': 'pov_pop'}
-    pov_per: 'pov_per'
+    pov_perc: 'pov_perc'
     pov_pop: 'pov_pop'
     pov_tot_pop: 'total_pop'
     li_tract_csv_cols_to_keep: ['Geo_STUSAB','Geo_GEOID','Geo_QName', 'Geo_FIPS', 'Geo_AREALAND', 'Geo_AREAWATR','ACS20_5yr_B19113001']
@@ -125,18 +129,18 @@ constants:
     msa_shp_merge_cols: ['cbsaId','lsad','lat','lon','geometry']
     merge_all:
       inc_merged_cols: ['state','geoId','tractName','tractId','med_inc','st_med_inc']
-      inc_tract_shp_cols: ['stateFP','tract_id','tract_name','area_land','area_water','lat','lon','geometry']
-      inc_pov_leftid: 'tractId'
-      inc_pov_rightid: 'tract_id'
-      inc_pov_cols: ['tractId','total_pop','pov_pop','pov_perc']
-      inc_pov_drop_cols: ['tract_id', 'tract_name']
-      inc_pov_col_order: ['stateFP','state','geoId','tractId','tractName','med_inc','st_med_inc','total_pop','pov_pop','pov_perc','area_land','area_water','lat','lon','geometry']
+      tract_shp_cols: ['stateFP','tract_id','tract_name','area_land','area_water','lat','lon','geometry']
+      leftid: 'tractId'
+      rightid: 'tract_id'
+      pov_cols: ['tractId','total_pop','pov_pop','pov_perc']
+      pov_drop_cols: ['tract_id', 'tract_name']
+      pov_col_order: ['stateFP','state','geoId','tractId','tractName','med_inc','st_med_inc','total_pop','pov_pop','pov_perc','area_land','area_water','lat','lon','geometry']
       msa_inc_shp_cols_to_keep: ['state','cbsaId','geoId','msaName','msaTractId','lsad','msa_medInc','geometry']
       msa_inc_shp_renamed_cols: {'state': 'state_msa', 'cbsaId': 'cbsaId', 'geoId': 'geoIdMsa', 'msaName': 'msaName', 'msaTractId': 'msaTractId', 'lsad': 'lsad', 'msa_medInc': 'msa_medInc', 'geometry': 'geometry'}
       final_merged_col_order: ['stateFP','state','geoId','tractId','tractName','cbsaId','geoIdMsa','msaName','msaTractId','lsad','med_inc','st_med_inc','msa_medInc','total_pop','pov_pop','pov_perc','area_land','area_water','lat','lon','geometry']
-      final_merged_area: 'area_li'
-    li_conditions:
-      merged_li_col: 'Type'
+      area: 'area_li'
+    li_conds:
+      li_col: 'Type'
       pov_perc: 'pov_perc'
       med_inc: 'med_inc'
       st_med_inc: 'st_med_inc'
