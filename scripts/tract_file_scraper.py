@@ -1,4 +1,32 @@
 #-*- coding: utf-8 -*-
+"""
+This script downloads and processes tract shapefiles, and then merges them into a single GeoDataFrame.
+
+Dependencies:
+- requests
+- bs4 (BeautifulSoup)
+- urllib.parse
+- zipfile
+- pandas
+- geopandas
+- hydra
+
+Usage:
+- Make sure the required dependencies are installed.
+- Place the script in the desired working directory.
+- Create a 'conf' folder in the working directory containing the configuration file 'config.yaml'.
+- Update the 'config.yaml' file with the required URLs and paths for downloading and saving tract shapefiles.
+- Execute the script to download tract shapefiles, merge them, and save the merged GeoDataFrame.
+
+Notes:
+- The script downloads tract shapefiles from a specific URL, extracts them, and then merges them into a single GeoDataFrame.
+- The input tract shapefiles must be in ESRI Shapefile format with valid geometries.
+- The merged GeoDataFrame contains essential attributes like tract ID, tract name, area, latitude, longitude, and geometry for each tract.
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
+
 ## Load Dependencies
 import requests
 from bs4 import BeautifulSoup

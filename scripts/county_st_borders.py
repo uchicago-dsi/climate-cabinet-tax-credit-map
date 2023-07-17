@@ -1,4 +1,26 @@
 #-*- coding: utf-8 -*-
+"""
+Boundary Data Preprocessing Script
+
+This script loads and cleans county borders and state borders datasets. It processes the datasets
+to ensure they are in a consistent format and projection (EPSG: 3857). The cleaned datasets are then
+saved as ESRI Shapefiles.
+
+Requirements:
+- pandas
+- geopandas
+- hydra
+
+Usage:
+1. Ensure the necessary dependencies are installed.
+2. Configure the YAML file (config.yaml) with appropriate paths for county borders, state borders, and state FIPS codes.
+3. Run the script using the following command:
+   python preprocess_boundaries.py
+
+Author:Sai Krishna
+Date:07-17-2023
+"""
+
 ## Load Dependencies
 import os
 import pandas as pd

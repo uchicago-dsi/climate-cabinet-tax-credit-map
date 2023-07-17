@@ -1,4 +1,32 @@
 #-*- coding: utf-8 -*-
+"""
+This script performs data processing and spatial overlays on different datasets to analyze environmental justice and low-income communities.
+It loads various datasets, performs necessary data cleaning and merging, and then calculates overlays between the coops_utils dataset and different community datasets.
+The resulting overlays are saved as shapefiles for further analysis and visualization.
+
+Dependencies:
+- pandas
+- geopandas
+- numpy
+- os
+- hydra
+- logging
+
+Usage:
+- Make sure the required dependencies are installed.
+- Place the script in the desired working directory.
+- Create a 'conf' folder in the working directory containing the configuration file 'config.yaml'.
+- Update the 'config.yaml' file with paths to input datasets and desired output directories.
+- Execute the script to perform the data processing and overlays.
+
+Note:
+- Make sure the input datasets are in ESRI Shapefile format with valid geometries.
+- The script assumes the input datasets are projected in EPSG:3857 (Web Mercator) to ensure consistent spatial units for overlay operations.
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
+
 ## Load Dependencies
 import pandas as pd
 import geopandas as gpd

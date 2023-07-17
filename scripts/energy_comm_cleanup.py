@@ -1,4 +1,25 @@
 #-*- coding: utf-8 -*-
+"""
+Energy Data Preprocessing Script
+
+This script loads and cleans two datasets related to energy communities: Coal Closure data and Fossil Fuel Employment data.
+The cleaned datasets are saved as ESRI Shapefiles for further analysis.
+
+Requirements:
+- pandas
+- geopandas
+- hydra
+
+Usage:
+1. Ensure the necessary dependencies are installed.
+2. Configure the YAML file (config.yaml) with appropriate paths for Coal Closure data and Fossil Fuel Employment data.
+3. Run the script using the following command:
+   python preprocess_energy_data.py
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
+
 ## Load Dependencies
 import os
 import pandas as pd

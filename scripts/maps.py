@@ -1,4 +1,33 @@
 #-*- coding: utf-8 -*-
+"""
+This script performs spatial overlays on different datasets to analyze environmental justice and low-income communities. 
+It creates a map with multiple GeoJSON layers representing different overlays and saves it as an interactive HTML file.
+
+Dependencies:
+- pandas
+- numpy
+- geopandas
+- folium
+- branca.element
+- os
+- hydra
+- logging
+
+Usage:
+- Make sure the required dependencies are installed.
+- Place the script in the desired working directory.
+- Create a 'conf' folder in the working directory containing the configuration file 'config.yaml'.
+- Update the 'config.yaml' file with paths to input datasets and the desired output directory for the map.
+- Execute the script to perform spatial overlays and create the overlay map.
+
+Note:
+- The input datasets must be in ESRI Shapefile format with valid geometries.
+- The script assumes the input datasets are projected in EPSG:3857 (Web Mercator) to ensure consistent spatial units for overlay operations.
+- The map is focused on the state of Illinois by default, but you can change the focus state by modifying the 'state' parameter in the 'create_overlay_map' function.
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
 ## Load Dependencies
 import pandas as pd
 import numpy as np

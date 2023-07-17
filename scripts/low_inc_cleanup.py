@@ -1,4 +1,28 @@
 #-*- coding: utf-8 -*-
+"""
+Low Income Data Preprocessing Script
+
+This script loads and cleans various low-income-related datasets, including poverty data, state level income data,
+tract level income data, MSA level income data, and MSA shapefile. It then merges these datasets and applies 
+low-income conditions to identify low-income tracts. The cleaned and processed data is saved as ESRI Shapefiles
+for further analysis.
+
+Requirements:
+- pandas
+- geopandas
+- numpy
+- hydra
+
+Usage:
+1. Ensure the necessary dependencies are installed.
+2. Configure the YAML file (config.yaml) with the appropriate paths for the low-income datasets.
+3. Run the script using the following command:
+   python preprocess_low_income_data.py
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
+
 ## Load Dependencies
 import pandas as pd
 import geopandas as gpd

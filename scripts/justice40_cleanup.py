@@ -1,4 +1,25 @@
 #-*- coding: utf-8 -*-
+"""
+Justice40 Data Preprocessing Script
+
+This script loads and cleans the Justice40 data. It focuses on filtering tracts with Justice40 disadvantaged communities
+and valid geometries. The cleaned dataset is saved as an ESRI Shapefile for further analysis.
+
+Requirements:
+- pandas
+- geopandas
+- hydra
+
+Usage:
+1. Ensure the necessary dependencies are installed.
+2. Configure the YAML file (config.yaml) with the appropriate path for the Justice40 data.
+3. Run the script using the following command:
+   python preprocess_justice40_data.py
+
+Author: Sai Krishna
+Date: 07-17-2023
+"""
+
 ## Load Dependencies
 import os
 import pandas as pd

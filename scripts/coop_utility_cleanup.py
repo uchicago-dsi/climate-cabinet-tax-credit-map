@@ -1,4 +1,25 @@
 #-*- coding: utf-8 -*-
+"""
+Data Preprocessing Script
+
+This script loads utility datasets (Rural CoOps and Municipal Utilities), performs data cleaning and preprocessing,
+and saves the cleaned data as ESRI Shapefiles. 
+
+Requirements:
+- pandas
+- numpy
+- geopandas
+- hydra
+
+Usage:
+1. Ensure the necessary dependencies are installed.
+2. Configure the YAML file (config.yaml) with appropriate paths for the datasets.
+3. Run the script using the following command:
+   python preprocess_utilities.py
+
+Author:Sai Krishna
+Date: 07-17-2023
+"""
 ## Load Dependencies
 import os
 import pandas as pd
