@@ -70,7 +70,7 @@ def save_data(cleaned_data: pd.DataFrame or gpd.GeoDataFrame, output_path: str, 
     except (FileNotFoundError, IOError, PermissionError) as e:
         logger.error(f'Error saving data: {e}')
 
-def data_preprocess(input_df:pd.DataFrame or gpd.GeoDataFrame, cols_drop:list or None, cols_to_keep:list or None, cols_rename:dict or None) -> pd.DataFrame or gpd.GeoDataFrame:
+def data_preprocess(input_df:pd.DataFrame or gpd.GeoDataFrame, cols_drop:list or None = None, cols_to_keep:list or None = None, cols_rename:dict or None = None) -> pd.DataFrame or gpd.GeoDataFrame:
     """
     Preprocesses the dataset by dropping columns, keeping columns, and renaming columns.
 

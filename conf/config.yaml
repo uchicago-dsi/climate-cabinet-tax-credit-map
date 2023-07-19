@@ -72,7 +72,7 @@ paths:
 constants:
   #Constants for the coop_util_cleanup script
   utilities:
-    drop_cols: ["OBJECTID", "SOURCE", "SOURCEDATE", "VAL_METHOD", "VAL_DATE"]
+    drop_cols: ["OBJECTID", "SOURCE", "SOURCEDATE", "VAL_METHOD", "VAL_DATE", "WEBSITE", "CNTRL_AREA", "PLAN_AREA", "HOLDING_CO", "SUMMR_PEAK",'WINTR_PEAK','SUMMER_CAP', 'WINTER_CAP', 'NET_GEN', 'PURCHASED', 'NET_EX']
     rename_cols: {'STATE': 'ST_Code'}
     state_cols: ["Abbreviation", "State"]
     state_rename_col : {"Abbreviation":"ST_Code"}
@@ -125,10 +125,11 @@ constants:
     msa_csv_renamed_cols: {'Geo_STUSAB': 'state', 'Geo_CBSA': 'cbsaId', 'Geo_GEOID': 'geoId', 'Geo_QName': 'msaName', 'Geo_FIPS': 'msaTractId', 'Geo_AREALAND': 'area_land', 'Geo_AREAWATR': 'area_water', 'ACS20_5yr_B19113001': 'msa_medInc'}
     msa_shp_cols_to_keep: ['GEOID','NAMELSAD','LSAD','ALAND','AWATER','INTPTLAT','INTPTLON','geometry']
     msa_shp_renamed_cols: {'GEOID': 'cbsaId', 'NAMELSAD': 'msaName', 'LSAD': 'lsad', 'ALAND': 'area_land', 'AWATER': 'area_water', 'INTPTLAT': 'lat', 'INTPTLON': 'lon', 'geometry': 'geometry'}
-    msa_shp_cbsaid : 'cbsaId'
+    msa_shp_cbsaId : 'cbsaId'
     msa_shp_merge_cols: ['cbsaId','lsad','lat','lon','geometry']
     merge_all:
-      inc_merged_cols: ['state','geoId','tractName','tractId','med_inc','st_med_inc']
+      inc_merged_cols: ['state','geoId_x','tractName','tractId','med_inc','st_med_inc'] 
+      inc_merged_cols_renamed: {'geoId_x': 'geoId'}
       tract_shp_cols: ['stateFP','tract_id','tract_name','area_land','area_water','lat','lon','geometry']
       leftid: 'tractId'
       rightid: 'tract_id'
@@ -151,10 +152,10 @@ constants:
   #Constants for county_st_borders cleanup script
   ct_st_borders:
     statefp: 'STATEFP'
-    cols_read_csv: ['St_FIPS', 'State']
+    cols_read_csv: ['St_FIPS', 'State'] 
     cols_rename_csv: {'St_FIPS':'STATEFP'}
     cols_drop_cty: ['COUNTYNS','GEOID','NAME','LSAD','CLASSFP','MTFCC','CSAFP','CBSAFP','METDIVFP','FUNCSTAT']
-    cty_merged_rename: {'NAMELSAD':'County'}
+    ct_rename_cols: {'NAMELSAD':'County'}
     st_drop_cols: ['REGION', 'DIVISION',  'STATENS', 'GEOID','LSAD','MTFCC','FUNCSTAT']
     st_rename_cols: {'NAME':'State'}
       

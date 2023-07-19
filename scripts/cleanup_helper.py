@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 """
-Script for cleanup and preparing all the datasets for the analysis.
+Helper Script for cleanup and preparing all the datasets for the analysis.
 
 This script makes use of the preprocess_helper script and performs data cleaning, preprocessing
 and saves the cleaned data as ESRI Shapefiles. 
@@ -9,7 +9,6 @@ Requirements:
 - pandas
 - numpy
 - geopandas
-- hydra
 - preprocess_helper
 
 Usage:
@@ -27,9 +26,8 @@ import os
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-import hydra
 import logging
-import preprocess_helper as helper
+import scripts.preprocess_helper as helper
 
 ## Configure the logger
 logger = logging.getLogger(__name__)
@@ -55,14 +53,14 @@ def coops_utils_cleanup(util_shp:gpd.GeoDataFrame, state_csv_df: pd.DataFrame, c
         as specified in the constants.
     """
     try:
-        coops_utils = helper.data_preprocess(input_df = util_shp, cols_drop = constants.drop_cols,cols_rename = constants.rename_cols)
+        coops_utils = util_shp.copy()
+        coops_utils = helper.data_preprocess(input_df = util_shp, cols_drop = consts.drop_cols,cols_rename = consts.rename_cols)
+        state_df = state_csv_df[consts.state_cols].rename(columns = consts.state_rename_col)
 
-        state_df = state_csv_df[[consts.state_cols]].rename(columns = consts.state_rename_col)
-
-        util_merged = input_df.merge(gpd.GeoDataFrame(state_df), how='left', on=consts.st_code)
+        util_merged = coops_utils.merge(gpd.GeoDataFrame(state_df), how='left', on=consts.st_code)
         util_merged[consts.area] = np.round(util_merged[consts.geo].area, 4)
-        util_merged = merged.query(f'{consts.filter_col} IN {consts.filters}').to_crs(epsg=3857)
-        util_merged[consts.new_col] = util_merged[consts.filters_col].\
+        util_merged = util_merged[util_merged[consts.filter_col].isin(consts.filters)].to_crs(epsg=3857)
+        util_merged[consts.new_col] = util_merged[consts.filter_col].\
             apply(lambda x: consts.filters_new[1] if x== consts.filters[2] else consts.filters_new[0])
 
         rural_coops = util_merged.query(f'{consts.new_col} == "{consts.filters_new[1]}"').to_crs(epsg=3857)
@@ -121,8 +119,8 @@ def energy_cleanup(coal_shp:gpd.GeoDataFrame, ffe_shp:gpd.GeoDataFrame, consts:d
         electric power plant data (ffe_df).
     """
     try:
-        coal_df = helper.data_preprocess(input_df = coal_shp, cols_drop = consts.drop_cols_coal, cols_rename = consts.rename_cols_coal)
-        ffe_df = helper.data_preprocess(input_df = ffe_shp, cols_drop = consts.drop_cols_ffe, cols_rename = consts.rename_cols_ffe)
+        coal_df = helper.data_preprocess(input_df = coal_shp, cols_drop = consts.coal_drop_cols, cols_rename = consts.coal_rename_cols)
+        ffe_df = helper.data_preprocess(input_df = ffe_shp, cols_drop = consts.ffe_drop_cols, cols_rename = consts.ffe_rename_cols)
         coal_df.loc[:, consts.new_cols[0]] = consts.type_val
         coal_df.loc[:, consts.new_cols[1]] = consts.coal_subtype
         coal_df.loc[:, consts.coal_area] = coal_df[consts.geo].area
@@ -158,57 +156,59 @@ def low_inc_cleanup(pov_csv_path:str, li_tract_csv_path:str, li_st_csv_path:str,
     try:
         pov_df = helper.load_data(pov_csv_path, type='csv')
         pov_df = pov_df.dropna(axis =1, how ='all')
-        pov_df = pov_df.data_preprocess(input_df = pov_df, cols_to_keep = consts.pov_cols_to_keep, cols_rename = consts.pov_renamed_cols)
+        pov_df = helper.data_preprocess(input_df = pov_df.copy(), cols_to_keep = consts.pov_cols_to_keep, cols_rename = consts.pov_renamed_cols)
         pov_df[consts.state] = pov_df[consts.state].apply(lambda x: x.upper())
         pov_df[consts.pov_perc] = pov_df[consts.pov_pop]/pov_df[consts.pov_tot_pop]
-
+        
         li_tract_df = helper.load_data(li_tract_csv_path, type='csv')
         li_tract_df = li_tract_df.dropna(axis =1, how ='all')
-        li_tract_df = li_tract_df.data_preprocess(input_df = li_tract_df, cols_to_keep = consts.li_tract_csv_cols_to_keep, \
+        li_tract_df = helper.data_preprocess(input_df = li_tract_df.copy(), cols_to_keep = consts.li_tract_csv_cols_to_keep, \
                                                     cols_rename = consts.li_tract_csv_renamed_cols)
         li_tract_df[consts.state] = li_tract_df[consts.state].apply(lambda x: x.upper())
-
+        
         li_st_df = helper.load_data(li_st_csv_path, type='csv')
         li_st_df = li_st_df.dropna(axis =1, how ='all')
-        li_st_df = helper.data_preprocess(input_df = li_st_df, cols_to_keep = consts.st_csv_cols_to_keep, \
+        li_st_df = helper.data_preprocess(input_df = li_st_df.copy(), cols_to_keep = consts.st_csv_cols_to_keep, \
                                             cols_rename = consts.st_csv_renamed_cols)
         li_st_df[consts.state] = li_st_df[consts.state].apply(lambda x: x.upper())
 
-        inc_merged_csv = pd.merge(li_tract_df, li_st_df, on = consts.state, how = 'left')
-
-        li_msa_df = helper.load(li_msa_csv_path, type='csv')
+        inc_merged_csv = pd.merge(li_tract_df, li_st_df, on = consts['state'], how = 'left')
+        
+        li_msa_df = helper.load_data(li_msa_csv_path, type='csv')
         li_msa_df = li_msa_df.dropna(axis =1, how ='all')
-        li_msa_df = helper.data_preprocess(input_df = li_msa_df, cols_to_keep = consts.msa_csv_cols_to_keep, \
+        li_msa_df = helper.data_preprocess(input_df = li_msa_df.copy(), cols_to_keep = consts.msa_csv_cols_to_keep, \
                                             cols_rename = consts.msa_csv_renamed_cols)
         li_msa_df[consts.state] = li_msa_df[consts.state].apply(lambda x: x.upper())
-
-        msa_shp_df = helper.load(msa_shp_path, type='shp')
-        msa_shp_df = helper.preprocess(input_df = msa_shp_df, cols_to_keep = consts.msa_shp_cols_to_keep, \
+        
+        msa_shp_df = helper.load_data(msa_shp_path, type='shp')
+        msa_shp_df = helper.data_preprocess(input_df = msa_shp_df.copy(), cols_to_keep = consts.msa_shp_cols_to_keep, \
                                             cols_rename = consts.msa_shp_renamed_cols)
         msa_shp_df[consts.msa_shp_cbsaId] = msa_shp_df[consts.msa_shp_cbsaId].astype(int)
-
-        msa_merge_shp = pd.merge(li_msa_df, msa_shp_df[msa_shp_merge_cols], on = consts.msa_shp_cbsaId, how = 'left')
-        msa_merge_shp = gpd.GeoDataFrame(msa_income_shp, geometry=consts.geo)
-
-        all_tracts_shp = helper.load(tracts_shp_path, type='shp')
+        
+        msa_merge_shp = pd.merge(li_msa_df, msa_shp_df[consts.msa_shp_merge_cols], on = consts.msa_shp_cbsaId, how = 'left')
+        msa_merge_shp = gpd.GeoDataFrame(msa_merge_shp, geometry=consts.geo)
+        
+        all_tracts_shp = helper.load_data(tracts_shp_path, type='shp')
+        
+        
         inc_merged_shp = pd.merge(inc_merged_csv[consts.merge_all.inc_merged_cols], all_tracts_shp[consts.merge_all.tract_shp_cols],\
                                     left_on = consts.merge_all.leftid, right_on = consts.merge_all.rightid, how = 'left')
+        inc_merged_shp.rename(columns = consts.merge_all.inc_merged_cols_renamed, inplace = True)
         
         inc_pov_merged = pd.merge(inc_merged_shp, pov_df[consts.merge_all.pov_cols], on = consts.merge_all.leftid, how = 'left')
         inc_pov_merged.drop(columns = consts.merge_all.pov_drop_cols, inplace = True)
-        inc_pov_merged = gpd.GeodataFrame(inc_pov_merged, geometry=consts.geo)
-
-        msa_merge_shp = helper.data_preprocess(input_df = msa_merge_shp, cols_to_keep =consts.merge_all.msa_inc_shp_cols_to_keep, \
+        inc_pov_merged = gpd.GeoDataFrame(inc_pov_merged, geometry=consts.geo)
+        
+        msa_merge_shp = helper.data_preprocess(input_df = msa_merge_shp.copy(), cols_to_keep =consts.merge_all.msa_inc_shp_cols_to_keep, \
                                                 cols_rename = consts.merge_all.msa_inc_shp_renamed_cols)
         msa_merge_shp = gpd.GeoDataFrame(msa_merge_shp, geometry=consts.geo)
-
+        
         final_lic_shp = gpd.sjoin(inc_pov_merged, msa_merge_shp, how = 'left', predicate = 'intersects').drop(columns = ['index_right'])
 
         final_lic_shp = final_lic_shp[consts.merge_all.final_merged_col_order]
         final_lic_shp = final_lic_shp.dissolve(by = consts.merge_all.leftid) 
         final_lic_shp[consts.merge_all.area] = final_lic_shp[consts.geo].area
 
-        final_lic_shp[consts.li_col] = ""
         final_lic_shp[consts.li_conds.li_col] = ""
         final_lic_shp.loc[final_lic_shp[consts.li_conds.pov_perc] > 20, consts.li_conds.li_col] = "Low Income"
         final_lic_shp.loc[final_lic_shp[consts.li_conds.med_inc] < final_lic_shp[consts.li_conds.st_med_inc]*0.8, consts.li_conds.li_col] = "Low Income"
@@ -218,10 +218,10 @@ def low_inc_cleanup(pov_csv_path:str, li_tract_csv_path:str, li_st_csv_path:str,
 
         return final_lic_shp
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
-def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_path:str, st_df:gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_csv:pd.DataFrame, st_df:gpd.GeoDataFrame, consts: dict) -> gpd.GeoDataFrame:
     """
     Clean up county and state borders datasets.
 
@@ -239,17 +239,18 @@ def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_path:str, st_df:
                If an error occurs during processing, (None, None) is returned.
     """
     try:
-        states_fips = pd.read_csv(st_fips_path)
-        states_fips = helper.data_preprocess(input_df = states, cols_to_keep = consts.ct_st_borders.cols_read_csv, \
-                                            cols_rename = consts.ct_st_borders.cols_rename_csv)
-        county_df = county_df.merge(states_fips, on = consts.ct_st_borders.statefp, how = 'left')
-        county_df = county_df.drop(columns = consts.ct_st_borders.cols_drop_cty)
-        county_df.rename(columns = consts.ct_st_borders.rename_cols, inplace = True)
+        states_fips = helper.data_preprocess(input_df = st_fips_csv.copy(), cols_to_keep = consts.cols_read_csv, \
+                                            cols_rename = consts.cols_rename_csv)
+        
+        county_df[consts.statefp] = county_df[consts.statefp].astype(int)
+        county_df = county_df.merge(states_fips, on = consts.statefp, how = 'left')
+        county_df = county_df.drop(columns = consts.cols_drop_cty)
+        county_df.rename(columns = consts.ct_rename_cols, inplace = True)
 
-        st_df = helper.data_preprocess(input_df = st_df, cols_to_keep = consts.ct_st_borders.st_drop_cols, \
-                                            cols_rename = consts.ct_st_borders.st_rename_cols)
+        st_df = helper.data_preprocess(input_df = st_df, cols_to_keep = consts.st_drop_cols, \
+                                            cols_rename = consts.st_rename_cols)
         
         return county_df, st_df
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None, None
