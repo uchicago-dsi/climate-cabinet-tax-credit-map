@@ -22,7 +22,6 @@ Date:
 """
 
 ## Load Dependencies
-import os
 import pandas as pd
 import numpy as np
 import geopandas as gpd
@@ -215,8 +214,9 @@ def low_inc_cleanup(pov_csv_path:str, li_tract_csv_path:str, li_st_csv_path:str,
         final_lic_shp.loc[(final_lic_shp[consts.li_conds.lsad] == 'M1') & \
             (final_lic_shp[consts.li_conds.med_inc] < final_lic_shp[consts.li_conds.msa_medInc]*0.8), consts.li_conds.li_col] = "Low Income"
         final_lic_shp.loc[final_lic_shp[consts.li_conds.li_col] == "", consts.li_conds.li_col] = "Not Low Income"
-
-        return final_lic_shp
+        #Return only the Low Income data
+        final_lic_shp = final_lic_shp[final_lic_shp[consts.li_conds.li_col] == "Low Income"]
+        return final_lic_shp.reset_index()
     except Exception as e:
         logger.error(e)
         return None
@@ -247,10 +247,39 @@ def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_csv:pd.DataFrame
         county_df = county_df.drop(columns = consts.cols_drop_cty)
         county_df.rename(columns = consts.ct_rename_cols, inplace = True)
 
-        st_df = helper.data_preprocess(input_df = st_df, cols_to_keep = consts.st_drop_cols, \
+        st_df = helper.data_preprocess(input_df = st_df, cols_drop = consts.st_drop_cols, \
                                             cols_rename = consts.st_rename_cols)
         
         return county_df, st_df
     except Exception as e:
         logger.error(e)
         return None, None
+    
+def dci_cleanup(dci_csv_df: pd.DataFrame, zip_shp: gpd.GeoDataFrame, consts: dict) ->gpd.GeoDataFrame:
+    """
+    Clean up DCI dataset. This function takes a DCI DataFrame and a zip code GeoDataFrame as input.
+    It performs data preprocessing to clean and merge the DCI and zip code datasets based on specific columns.
+    The cleaned GeoDataFrame is returned after the process.
+
+    Args:
+        dci_csv_df (pd.DataFrame): The DataFrame containing DCI data.
+        zip_shp (gpd.GeoDataFrame): The GeoDataFrame containing zip code data.
+        consts (dict): The dictionary containing constants.
+    
+    Returns:
+        gpd.GeoDataFrame: The GeoDataFrame containing DCI data after cleaning and merging.
+                            If an error occurs during processing, None is returned.
+    """
+    try:
+        zip_shp[consts.geoid] = zip_shp[consts.geoid].astype('int64')
+        dci_shp = dci_csv_df.merge(zip_shp, left_on = consts.zip, right_on = consts.geoid, how = 'left')
+        dci_shp = helper.data_preprocess(input_df = dci_shp.copy(), cols_to_keep = consts.cols_to_keep, \
+                                            cols_rename = consts.cols_rename)
+        dci_shp = dci_shp[~dci_shp[consts.geo].isnull()] #all the 4 null zips have quintile scores not equal to 5
+        dci_shp = dci_shp[dci_shp[consts.quintile] == 5]
+        dci_shp[consts.new_col.name] = consts.new_col.val
+        dci_shp = gpd.GeoDataFrame(dci_shp, geometry=consts.geo).to_crs(epsg = consts.crs)
+        return dci_shp
+    except Exception as e:
+        logger.error(e)
+        return None

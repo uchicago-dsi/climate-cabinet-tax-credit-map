@@ -35,7 +35,7 @@ import os
 import zipfile
 import pandas as pd
 import geopandas as gpd
-import hydra
+import omegaconf
 import logging
 
 ## Configure the logger
@@ -128,8 +128,11 @@ def save_merged_tracts(merged_tracts: gpd.GeoDataFrame, final_save_path:str):
     merged_tracts.to_file(final_save_path)
     logger.info(f"The merged tracts shapefile saved to {final_save_path}")
 
-@hydra.main(config_path='../conf', config_name='config')
-def main(cfg) -> None:
+def main() -> None:
+    wd = os.getcwd().replace('\\', '/')
+    os.chdir(wd)
+    yaml_path = os.path.join(os.path.dirname(wd), 'conf', 'config.yaml').replace('\\', '/')
+    cfg = omegaconf.OmegaConf.load(yaml_path)
     paths = cfg.paths
     WD = os.getcwd().replace('\\', '/')
     os.chdrir(WD)

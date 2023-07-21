@@ -60,14 +60,21 @@ paths:
 
   #Path to save the final result maps
   maps:
-    output_html_path: "${paths.wd}/results/IL_Overlay_Map.html" #Output html file path
+    output_html_path: "results/IL_Overlay_Map.html" #Output html file path
+    coops_html_path: "results/coop/" #Output html file path
+    utils_html_path: "results/municipal/" #Output html file path
 
   #Paths for webscraper file
   scraper:
-    base_url_2021: "'https://www2.census.gov/geo/tiger/TIGER2021/TRACT/"
-    base_url_2020: "'https://www2.census.gov/geo/tiger/TIGER2020/TRACT/"
+    base_url_2021: "https://www2.census.gov/geo/tiger/TIGER2021/TRACT/"
+    base_url_2020: "https://www2.census.gov/geo/tiger/TIGER2020/TRACT/"
     all_tracts_zip_save_path: "${paths.wd}/all_tracts_2020" 
     merged_tracts_path: "${paths.wd}/merged_tracts_2020/merged_tracts_2020.shp"
+
+  #Paths for the distressed communities
+  dci:
+    dci_csv_path: "${paths.wd}/dci/dci_2016_2020.csv"
+    zip_shp_path: "${paths.wd}/dci/tl_2020_us_zcta520.zip!tl_2020_us_zcta520.shp"
 
 constants:
   #Constants for the coop_util_cleanup script
@@ -87,7 +94,7 @@ constants:
   #Constants for the justice40_cleanup script
   j40:
     cols_to_keep: ['GEOID10','SF', 'CF','TPF','UF_PFS','SN_C','SN_T','HRS_ET','LHE','FPL200S','UI_EXP','THRHLD','geometry']
-    rename_cols: {'GEOID10': 'TractID', 'SF': 'State', 'CF': 'County', 'TPF': 'Tot_Pop', 'UF_PFS': 'Unemp_Per', 'SN_C': 'Disadv?', 'SN_T': 'Disad_Tri?', 'HRS_ET': 'Underinves', 'LHE': 'Low_HS_Edu', 'FPL200S': 'Low_Income', 'UI_EXP': 'UI_EXP', 'THRHLD': 'THRHLD', 'geometry': 'geometry'}
+    rename_cols: {'GEOID10': 'TractID', 'SF': 'state', 'CF': 'County', 'TPF': 'Tot_Pop', 'UF_PFS': 'Unemp_Per', 'SN_C': 'Disadv?', 'SN_T': 'Disad_Tri?', 'HRS_ET': 'Underinves', 'LHE': 'Low_HS_Edu', 'FPL200S': 'Low_Income', 'UI_EXP': 'UI_EXP', 'THRHLD': 'THRHLD', 'geometry': 'geometry'}
     filter_cols: ['Disadv?', 'geometry']
     area: 'area_j40'
     geo: 'geometry'
@@ -97,12 +104,12 @@ constants:
   #Constants for the energy_communities_clean script
   energy:
     coal_drop_cols : ['objectid', 'affgeoid_t', 'fipstate_2', 'fipcounty_', 'geoid_coun','fiptract_2','censustrac','date_last_','dataset_ve']
-    coal_rename_cols: {'geoid_trac':'TractID', 'state_name':'State','county_nam':'County','mine_closu':'mine_clos','generator_':'gen_clos','adjacent_t':'adj_clos'}
+    coal_rename_cols: {'geoid_trac':'TractID', 'state_name':'state','county_nam':'County','mine_closu':'mine_clos','generator_':'gen_clos','adjacent_t':'adj_clos'}
     coal_area: 'area_coal'
     geo: 'geometry'
     coal_subtype: 'Energy - Coal Closure'
     ffe_drop_cols: ['ObjectID','fipstate_2','fipscty_20','geoid_cty_','MSA_area_I','Date_Last_','Dataset_ve']
-    ffe_rename_cols: {'AFFGEOID_C':'TractIDcty','state_name':'State','county_nam':'County','FFE_qual_s':'is_FFE','MSA_NMSA_L':'M_NMSA_loc','Shape_Leng':'Leng_Cty','Shape_Area':'Area_Cty'}        
+    ffe_rename_cols: {'AFFGEOID_C':'TractIDcty','state_name':'state','county_nam':'County','FFE_qual_s':'is_FFE','MSA_NMSA_L':'M_NMSA_loc','Shape_Leng':'Leng_Cty','Shape_Area':'Area_Cty'}        
     ffe_area: 'area_ffe'
     ffe_subtype: 'Energy - Fossil Fuel Employment'
     new_cols: ['Type', 'Subtype']
@@ -159,5 +166,61 @@ constants:
     st_drop_cols: ['REGION', 'DIVISION',  'STATENS', 'GEOID','LSAD','MTFCC','FUNCSTAT']
     st_rename_cols: {'NAME':'State'}
       
+  #Constants for DCI cleanup
+  dci:
+    geoid: 'GEOID20'
+    zip: 'Zipcode'
+    cols_to_keep: ['Zipcode', 'Metro area', 'City', 'County', 'State', 'State Abbreviation', 'Census Region', 'County Type','Total Population', 'Distress Score', 'Quintile (5=Distressed)', 'GEOID20', 'ALAND20','AWATER20','INTPTLAT20','INTPTLON20','geometry']
+    cols_rename: {'Zipcode':'zip_code', 'Metro area':'metro_area', 'City':'city', 'County':'county','State':'state', 'State Abbreviation':'state_abbr', 'Census Region':'region', 'County Type':'cty_type','Total Population':'total_pop','Distress Score':'dist_score','Quintile (5=Distressed)':'quintile', 'GEOID20':'geoid', 'ALAND20':'area_land', 'AWATER20':'area_water', 'INTPTLAT20':'lat', 'INTPTLON20':'lon'}
+    geo: 'geometry'
+    quintile: 'quintile'
+    crs: 3857
+    new_col: 
+      name: 'Type'
+      val: 'Distressed Community'
 
+  #Constants for overlays
+  overlays:
+    communities: ['j40', 'coal', 'ffe', 'low_income', 'dci']
+    new_cols: ['areaInters', 'perc_cover']
+    area: 'area'
 
+  #Constants for the maps
+  maps:
+    tiles: 'cartodbpositron'
+    utils:
+      fields: ['NAME','Type']
+      util_aliases: ['Utility Name:','Type:']
+      coop_aliases: ['CoOp Name:','Type:']
+      features: {'fillColor':'yellow','color':'black','fillOpacity':0.4,'weight':0.3}
+      coop_name: "Rural Cooperatives"
+      util_name: "Municipal/Public Utilities"
+    overlay_features:
+      j40: {'fillColor': 'blue', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      coal: {'fillColor': 'red', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      ffe: {'fillColor': 'green', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      lic: {'fillColor': 'purple', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      dci: {'fillColor': 'brown', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+    overlay_names:
+      j40: "Justice40"
+      coal: "Energy Communities - Coal"
+      ffe: "Energy Communities - Fossil Fuel Unemployment"
+      lic: "Low Income Communities"
+      dci: "Distressed Communities"
+    overlay_fields:
+      j40: ['Type_2','County','TractID','Tot_Pop','NAME','Type_1','perc_cover']
+      coal: ['Type_2','County','TractID','Subtype','NAME','Type_1','perc_cover']
+      ffe: ['Type_2','County','TractIDcty','MSA_NMSA','Subtype','NAME','Type_1','perc_cover']
+      lic: ['Type_2','msaName','msaTractId','NAME','Type_1','perc_cover']
+      dci: ['Type_2','county','zip_code','NAME','Type_1','perc_cover']
+    overlay_aliases:
+      j40: ['Community:','County:','Tract ID:','Population:','Name:','Utility Type:','Percent Area Covered:']
+      coal: ['Community:','County:','Tract ID:','Community Subtype:','Name:','Utility Type:','Percent Area Covered:']
+      ffe: ['Community:','County:','County Tract ID:','MSA/NMSA','Community Subtype:','Name:','Utility Type:','Percent Area Covered:']
+      lic: ['Community:','MSA:','MSA Tract ID:','Name:','Utility Type:','Percent Area Covered:']
+      dci: ['Community:','County:','Zip Code:','Name:','Utility Type:','Percent Area Covered:']
+    ct_name: "County Borders"
+    ct_features: {'fillColor':'none','color':'black','fillOpacity':0,'weight':0.3}
+    st_name: "State Borders"
+    st_features: {'fillColor':'none','color':'black','fillOpacity':0,'weight':0.4}
+    

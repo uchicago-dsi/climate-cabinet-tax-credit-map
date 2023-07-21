@@ -29,8 +29,6 @@ Author: Sai Krishna
 Date: 07-17-2023
 """
 ## Load Dependencies
-import pandas as pd
-import numpy as np
 import geopandas as gpd
 import folium
 from branca.element import Figure
