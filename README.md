@@ -49,7 +49,7 @@ To run the scripts locally, follow these steps:
     - Check for the storage mounting command from the script before exucuting it.
 ```bash
 sh docker_build_image.sh
-```
+```  
     - The container would run the `main.py` within itself and will produce the folium maps as HTML files in the results directory.
 
 ## Further Reading
