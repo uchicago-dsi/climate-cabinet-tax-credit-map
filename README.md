@@ -8,7 +8,7 @@ This repository contains code to create the interactive maps to help understand 
 The repository has the following structure:
 
 - `main.py`: The main Python file used to run the scripts.
-- `scripts`: A directory containing the python scripts needed to:
+- `scripts`: A directory with python scripts containing the helper functions needed to:
     - Data load/scrape, 
     - Data cleanup, 
     - Feature engineering, 
@@ -18,6 +18,23 @@ The repository has the following structure:
 - `Dockerfile`: Contains instructions for building the custom training Docker container image.
 - `docker_build_image.sh`: Shell script to build the custom training container image.
 
+```bash
+.git/
+├──conf
+├──notebooks
+├──scripts
+├──main.py
+├──Dockerfile
+└──requirements.txt
+```
+\dirtree{%
+.1 .git/
+.2 conf/
+.2 scripts/
+.2 main.py
+.2 Dockerfile
+.2 requirements.txt
+}
 
 ## Usage
 
@@ -33,7 +50,7 @@ To run the scripts locally, follow these steps:
 ```bash
 sh docker_build_image.sh
 ```
-    - The container would run the `main.py` within itself and will produce the folium maps.
+    - The container would run the `main.py` within itself and will produce the folium maps as HTML files in the results directory.
 
 ## Further Reading
 

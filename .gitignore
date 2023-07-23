@@ -173,3 +173,5 @@ cython_debug/
 /scripts/energy_comm_cleanup.py
 /scripts/justice40_cleanup.py
 /scripts/low_inc_cleanup.py
+/scripts/maps.py
+/scripts/overlays.py
