@@ -135,8 +135,8 @@ constants:
     msa_shp_cbsaId : 'cbsaId'
     msa_shp_merge_cols: ['cbsaId','lsad','lat','lon','geometry']
     merge_all:
-      inc_merged_cols: ['state','geoId_x','tractName','tractId','med_inc','st_med_inc'] 
-      inc_merged_cols_renamed: {'geoId_x': 'geoId'}
+      inc_merged_cols: ['state', 'st_name','geoId_x','tractName','tractId','med_inc','st_med_inc'] 
+      inc_merged_cols_renamed: {'geoId_x': 'geoId', 'state':'st_code', 'st_name':'state'}
       tract_shp_cols: ['stateFP','tract_id','tract_name','area_land','area_water','lat','lon','geometry']
       leftid: 'tractId'
       rightid: 'tract_id'
