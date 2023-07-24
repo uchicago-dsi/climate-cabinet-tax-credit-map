@@ -27,14 +27,6 @@ The repository has the following structure:
 ├──Dockerfile
 └──requirements.txt
 ```
-\dirtree{%
-.1 .git/
-.2 conf/
-.2 scripts/
-.2 main.py
-.2 Dockerfile
-.2 requirements.txt
-}
 
 ## Usage
 
