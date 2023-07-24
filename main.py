@@ -1,5 +1,5 @@
 import os
-from scripts.main_helper as mh
+import scripts.main_helper as mh
 import omegaconf
 
 def main() -> None:
