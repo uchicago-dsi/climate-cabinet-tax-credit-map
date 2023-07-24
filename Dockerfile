@@ -1,6 +1,5 @@
-##Make a docker file to build the image to run all the scripts from the scripts folder
 #Use python 3.9 as the base image
-FROM python:3.9
+FROM python:3.9-slim
 
 #Set the working directory to /scripts
 WORKDIR /app

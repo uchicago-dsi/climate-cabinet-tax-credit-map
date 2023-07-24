@@ -34,7 +34,7 @@ To run the scripts locally, follow these steps:
 
 1. **Clone the repository**.
 
-2. **Download the data:** Download from this [GDrive URL](https://drive.google.com/drive/u/1/folders/1RSVQ8qlabg9ZNqzHjma82X_w4CKoWia8) and save it in `data` folder in the root directory of the project.
+2. **Download the data:** Download from this [GDrive URL](https://drive.google.com/drive/u/1/folders/1V3-60TLIG2djuktstMSY-jZ7bUwvuRsx) and save it in `data` folder in the root directory of the project.
 
 3. **Run the scripts using a docker container:**
 - Have both the `Dockerfile` and the `docker_build_image.sh` script in the root directory and run the shell script using terminal command:
