@@ -18,10 +18,6 @@ RUN pip install --trusted-host pypi.python.org --no-cache-dir -r requirements.tx
 
 #Copy the scripts directory contents into the container at /scripts, and then the requirements.txt file
 COPY ./scripts ./scripts
-<<<<<<< HEAD
-=======
-
->>>>>>> 06bfab7cf2afb893dd432d00dcd706a3a9080291
 COPY ./conf ./conf
 COPY main.py .
 

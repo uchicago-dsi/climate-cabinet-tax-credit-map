@@ -196,13 +196,13 @@ constants:
       coop_name: "Rural Cooperatives"
       util_name: "Municipal/Public Utilities"
     overlay_features:
-      j40: {'fillColor': 'blue', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
-      coal: {'fillColor': 'red', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
-      ffe: {'fillColor': 'green', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
-      lic: {'fillColor': 'purple', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
-      dci: {'fillColor': 'brown', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      j40: {'fillColor': '#2596be', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      coal: {'fillColor': '#ff5733', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      ffe: {'fillColor': '#33ff57', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      lic: {'fillColor': '#d633ff', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
+      dci: {'fillColor': '#8f2020', 'color': 'black', 'fillOpacity': 0.4, 'weight': 0.3}
     overlay_names:
-      j40: "Justice40"
+      j40: "Justice40 Communities"
       coal: "Energy Communities - Coal"
       ffe: "Energy Communities - Fossil Fuel Unemployment"
       lic: "Low Income Communities"

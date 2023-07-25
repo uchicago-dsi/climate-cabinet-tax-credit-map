@@ -18,7 +18,7 @@ Usage:
    python preprocess_utilities.py
 
 Author:Sai Krishna
-Date: 
+Date: 07/25/2023
 """
 
 ## Load Dependencies
@@ -51,9 +51,10 @@ def coops_utils_cleanup(util_shp:gpd.GeoDataFrame, state_csv_df: pd.DataFrame, c
         Make sure the input shapefile and the state CSV file have compatible data columns
         as specified in the constants.
     """
+    coops_utils = util_shp.copy()
+    assert len(coops_utils) > 0, 'No data found in the input shapefile.'
     try:
-        coops_utils = util_shp.copy()
-        coops_utils = helper.data_preprocess(input_df = util_shp, cols_drop = consts.drop_cols,cols_rename = consts.rename_cols)
+        coops_utils = helper.data_preprocess(input_df = coops_utils, cols_drop = consts.drop_cols,cols_rename = consts.rename_cols)
         state_df = state_csv_df[consts.state_cols].rename(columns = consts.state_rename_col)
 
         util_merged = coops_utils.merge(gpd.GeoDataFrame(state_df), how='left', on=consts.st_code)
@@ -131,96 +132,6 @@ def energy_cleanup(coal_shp:gpd.GeoDataFrame, ffe_shp:gpd.GeoDataFrame, consts:d
         logger.error(f'Error in cleaning up energy data: {e}')
         raise e
 
-def low_inc_cleanup(pov_csv_path:str, li_tract_csv_path:str, li_st_csv_path:str, li_msa_csv_path:str, tracts_shp_path:str ,msa_shp_path:str, consts:dict) -> gpd.GeoDataFrame:
-    """
-    Cleans and processes low-income data and performs spatial operations.
-
-    This function takes various input files containing low-income data, cleans and preprocesses them,
-    and then performs data merging and spatial join operations. It computes low-income conditions for
-    each census tract based on specific criteria, and finally, it returns the resulting GeoDataFrame.
-
-    Args:
-        pov_csv_path (str): Path to the poverty data CSV file.
-        li_tract_csv_path (str): Path to the tract-level income data CSV file.
-        li_st_csv_path (str): Path to the state-level income data CSV file.
-        li_msa_csv_path (str): Path to the MSA-level income data CSV file.
-        tracts_shp_path (str): Path to the census tracts shapefile.
-        msa_shp_path (str): Path to the MSA shapefile.
-        consts (dict): A dictionary containing constants required for data processing, column names, etc.
-
-    Returns:
-        gpd.GeoDataFrame: A GeoDataFrame containing the cleaned and processed low-income data, including
-        spatial information about census tracts and associated low-income conditions.
-    """
-    try:
-        pov_df = helper.load_data(pov_csv_path, type='csv')
-        pov_df = pov_df.dropna(axis =1, how ='all')
-        pov_df = helper.data_preprocess(input_df = pov_df.copy(), cols_to_keep = consts.pov_cols_to_keep, cols_rename = consts.pov_renamed_cols)
-        pov_df[consts.state] = pov_df[consts.state].apply(lambda x: x.upper())
-        pov_df[consts.pov_perc] = pov_df[consts.pov_pop]/pov_df[consts.pov_tot_pop]
-        
-        li_tract_df = helper.load_data(li_tract_csv_path, type='csv')
-        li_tract_df = li_tract_df.dropna(axis =1, how ='all')
-        li_tract_df = helper.data_preprocess(input_df = li_tract_df.copy(), cols_to_keep = consts.li_tract_csv_cols_to_keep, \
-                                                    cols_rename = consts.li_tract_csv_renamed_cols)
-        li_tract_df[consts.state] = li_tract_df[consts.state].apply(lambda x: x.upper())
-        
-        li_st_df = helper.load_data(li_st_csv_path, type='csv')
-        li_st_df = li_st_df.dropna(axis =1, how ='all')
-        li_st_df = helper.data_preprocess(input_df = li_st_df.copy(), cols_to_keep = consts.st_csv_cols_to_keep, \
-                                            cols_rename = consts.st_csv_renamed_cols)
-        li_st_df[consts.state] = li_st_df[consts.state].apply(lambda x: x.upper())
-
-        inc_merged_csv = pd.merge(li_tract_df, li_st_df, on = consts['state'], how = 'left')
-        
-        li_msa_df = helper.load_data(li_msa_csv_path, type='csv')
-        li_msa_df = li_msa_df.dropna(axis =1, how ='all')
-        li_msa_df = helper.data_preprocess(input_df = li_msa_df.copy(), cols_to_keep = consts.msa_csv_cols_to_keep, \
-                                            cols_rename = consts.msa_csv_renamed_cols)
-        li_msa_df[consts.state] = li_msa_df[consts.state].apply(lambda x: x.upper())
-        
-        msa_shp_df = helper.load_data(msa_shp_path, type='shp')
-        msa_shp_df = helper.data_preprocess(input_df = msa_shp_df.copy(), cols_to_keep = consts.msa_shp_cols_to_keep, \
-                                            cols_rename = consts.msa_shp_renamed_cols)
-        msa_shp_df[consts.msa_shp_cbsaId] = msa_shp_df[consts.msa_shp_cbsaId].astype(int)
-        
-        msa_merge_shp = pd.merge(li_msa_df, msa_shp_df[consts.msa_shp_merge_cols], on = consts.msa_shp_cbsaId, how = 'left')
-        msa_merge_shp = gpd.GeoDataFrame(msa_merge_shp, geometry=consts.geo)
-        
-        all_tracts_shp = helper.load_data(tracts_shp_path, type='shp')
-        
-        
-        inc_merged_shp = pd.merge(inc_merged_csv[consts.merge_all.inc_merged_cols], all_tracts_shp[consts.merge_all.tract_shp_cols],\
-                                    left_on = consts.merge_all.leftid, right_on = consts.merge_all.rightid, how = 'left')
-        inc_merged_shp.rename(columns = consts.merge_all.inc_merged_cols_renamed, inplace = True)
-        
-        inc_pov_merged = pd.merge(inc_merged_shp, pov_df[consts.merge_all.pov_cols], on = consts.merge_all.leftid, how = 'left')
-        inc_pov_merged.drop(columns = consts.merge_all.pov_drop_cols, inplace = True)
-        inc_pov_merged = gpd.GeoDataFrame(inc_pov_merged, geometry=consts.geo)
-        
-        msa_merge_shp = helper.data_preprocess(input_df = msa_merge_shp.copy(), cols_to_keep =consts.merge_all.msa_inc_shp_cols_to_keep, \
-                                                cols_rename = consts.merge_all.msa_inc_shp_renamed_cols)
-        msa_merge_shp = gpd.GeoDataFrame(msa_merge_shp, geometry=consts.geo)
-        
-        final_lic_shp = gpd.sjoin(inc_pov_merged, msa_merge_shp, how = 'left', predicate = 'intersects').drop(columns = ['index_right'])
-
-        final_lic_shp = final_lic_shp[consts.merge_all.final_merged_col_order]
-        final_lic_shp = final_lic_shp.dissolve(by = consts.merge_all.leftid) 
-        final_lic_shp[consts.merge_all.area] = final_lic_shp[consts.geo].area
-
-        final_lic_shp[consts.li_conds.li_col] = ""
-        final_lic_shp.loc[final_lic_shp[consts.li_conds.pov_perc] > 20, consts.li_conds.li_col] = "Low Income"
-        final_lic_shp.loc[final_lic_shp[consts.li_conds.med_inc] < final_lic_shp[consts.li_conds.st_med_inc]*0.8, consts.li_conds.li_col] = "Low Income"
-        final_lic_shp.loc[(final_lic_shp[consts.li_conds.lsad] == 'M1') & \
-            (final_lic_shp[consts.li_conds.med_inc] < final_lic_shp[consts.li_conds.msa_medInc]*0.8), consts.li_conds.li_col] = "Low Income"
-        final_lic_shp.loc[final_lic_shp[consts.li_conds.li_col] == "", consts.li_conds.li_col] = "Not Low Income"
-        #Return only the Low Income data
-        final_lic_shp = final_lic_shp[final_lic_shp[consts.li_conds.li_col] == "Low Income"]
-        return final_lic_shp.reset_index()
-    except Exception as e:
-        logger.error(e)
-        return None
-
 def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_csv:pd.DataFrame, st_df:gpd.GeoDataFrame, consts: dict) -> gpd.GeoDataFrame:
     """
     Clean up county and state borders datasets.
@@ -283,3 +194,142 @@ def dci_cleanup(dci_csv_df: pd.DataFrame, zip_shp: gpd.GeoDataFrame, consts: dic
     except Exception as e:
         logger.error(e)
         return None
+    
+
+class LowIncomeCleanup:
+    """
+    A class to clean and process low-income data and perform spatial operations.
+
+    Attributes:
+        consts (dict): A dictionary containing constants required for data processing, column names, etc.
+    """
+    def __init__(self, consts):
+        self.consts = consts
+
+    def _load_preprocess_data(self, path, cols_to_keep, cols_rename, data_type='csv'):
+        """
+        Load data from a CSV/shp file, preprocess it, and convert the 'State' column to uppercase.
+
+        Args:
+            path (str): Path to the CSV/shp file.
+            data_type (str, optional): Type of data to load ('csv' or 'shp'). Default is 'csv'.
+
+        Returns:
+            pd.DataFrame or gpd.GeoDataFrame: The loaded and preprocessed DataFrame or GeoDataFrame.
+        """
+        data = helper.load_data(path, type=data_type).dropna(axis=1, how='all')
+        data = helper.data_preprocess(input_df=data.copy(), cols_to_keep= cols_to_keep, cols_rename=cols_rename)
+        if data_type == 'csv':
+            data[self.consts.state] = data[self.consts.state].str.upper()
+        return data
+
+    def _merge_dataframes(self, df1, df2, on=None):
+        """
+        Merge two DataFrames based on the 'State' column.
+
+        Args:
+            df1 (pd.DataFrame): The first DataFrame to merge.
+            df2 (pd.DataFrame): The second DataFrame to merge.
+
+        Returns:
+            pd.DataFrame: The merged DataFrame.
+        """
+        return pd.merge(df1, df2, on= on, how='left')
+
+    def _merge_geodataframes(self, gdf1, gdf2, on=None, left_on=None, right_on=None):
+        """
+        Merge two GeoDataFrames based on the 'CBSAId' column.
+
+        Args:
+            gdf1 (gpd.GeoDataFrame): The first GeoDataFrame to merge.
+            gdf2 (gpd.GeoDataFrame): The second GeoDataFrame to merge.
+
+        Returns:
+            gpd.GeoDataFrame: The merged GeoDataFrame.
+        """
+        if on is not None:
+            return gpd.GeoDataFrame(pd.merge(gdf1, gdf2, on=on, how='left'), geometry=self.consts.geo)
+        elif left_on is not None and right_on is not None:
+            return gpd.GeoDataFrame(pd.merge(gdf1, gdf2, left_on=left_on, right_on=right_on, how='left'), geometry=self.consts.geo)
+
+    def _spatial_join(self, gdf1, gdf2, predicate='intersects'):
+        """
+        Perform a spatial join between two GeoDataFrames.
+
+        Args:
+            gdf1 (gpd.GeoDataFrame): The first GeoDataFrame to join.
+            gdf2 (gpd.GeoDataFrame): The second GeoDataFrame to join.
+            predicate (str, optional): The spatial predicate to use for the join. Default is 'intersects'.
+
+        Returns:
+            gpd.GeoDataFrame: The spatially joined GeoDataFrame.
+        """
+        return gpd.sjoin(gdf1, gdf2, how='left', predicate=predicate).drop(columns=['index_right'])
+
+    def _apply_low_income_conditions(self, gdf):
+        """
+        Apply low-income conditions to the GeoDataFrame.
+
+        Args:
+            gdf (gpd.GeoDataFrame): The GeoDataFrame containing low-income data.
+
+        Returns:
+            gpd.GeoDataFrame: The GeoDataFrame with low-income conditions applied.
+        """
+        gdf[self.consts.li_conds.li_col] = ""
+        gdf.loc[gdf[self.consts.li_conds.pov_perc] > 20, self.consts.li_conds.li_col] = "Low Income"
+        gdf.loc[gdf[self.consts.li_conds.med_inc] < gdf[self.consts.li_conds.st_med_inc] * 0.8, self.consts.li_conds.li_col] = "Low Income"
+        gdf.loc[(gdf[self.consts.li_conds.lsad] == 'M1') & (gdf[self.consts.li_conds.med_inc] < gdf[self.consts.li_conds.msa_medInc] * 0.8), self.consts.li_conds.li_col] = "Low Income"
+        gdf.loc[gdf[self.consts.li_conds.li_col] == "", self.consts.li_conds.li_col] = "Not Low Income"
+        return gdf[gdf[self.consts.li_conds.li_col] == "Low Income"].reset_index()
+
+    def clean_data(self, pov_csv_path, li_tract_csv_path, li_st_csv_path, li_msa_csv_path, tracts_shp_path, msa_shp_path):
+        """
+        Clean and process low-income data and perform spatial operations.
+
+        Args:
+            pov_csv_path (str): Path to the poverty data CSV file.
+            li_tract_csv_path (str): Path to the tract-level income data CSV file.
+            li_st_csv_path (str): Path to the state-level income data CSV file.
+            li_msa_csv_path (str): Path to the MSA-level income data CSV file.
+            tracts_shp_path (str): Path to the census tracts shapefile.
+            msa_shp_path (str): Path to the MSA shapefile.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing the cleaned and processed low-income data,
+            including spatial information about census tracts and associated low-income conditions.
+        """
+        #Load the data
+        pov_df = self._load_preprocess_data(pov_csv_path, cols_to_keep=self.consts.pov_cols_to_keep, cols_rename=self.consts.pov_renamed_cols)
+        li_tract_df = self._load_preprocess_data(li_tract_csv_path, cols_to_keep=self.consts.li_tract_csv_cols_to_keep, cols_rename=self.consts.li_tract_csv_renamed_cols)
+        li_st_df = self._load_preprocess_data(li_st_csv_path, cols_to_keep=self.consts.st_csv_cols_to_keep, cols_rename=self.consts.st_csv_renamed_cols)
+        li_msa_df = self._load_preprocess_data(li_msa_csv_path, cols_to_keep=self.consts.msa_csv_cols_to_keep, cols_rename=self.consts.msa_csv_renamed_cols)
+        msa_shp_df = self._load_preprocess_data(msa_shp_path, cols_to_keep=self.consts.msa_shp_cols_to_keep, cols_rename= self.consts.msa_shp_renamed_cols,\
+                                                data_type='shp')
+        
+        pov_df[self.consts.pov_perc] = pov_df[self.consts.pov_pop]/pov_df[self.consts.pov_tot_pop]
+        msa_shp_df[self.consts.msa_shp_cbsaId] = msa_shp_df[self.consts.msa_shp_cbsaId].astype(int)
+        #Merge the datasets together
+        inc_merged_csv = self._merge_dataframes(li_tract_df, li_st_df, on = self.consts.state) #Tract + State income data
+        msa_merge_shp = self._merge_geodataframes(li_msa_df, msa_shp_df[self.consts.msa_shp_merge_cols], on = self.consts.msa_shp_cbsaId) #MSA + MSA shapefile
+
+        all_tracts_shp = helper.load_data(tracts_shp_path, type='shp') #Load the census tracts shapefile
+
+        inc_merged_shp = self._merge_geodataframes(inc_merged_csv[self.consts.merge_all.inc_merged_cols], all_tracts_shp[self.consts.merge_all.tract_shp_cols],\
+                                                   left_on = self.consts.merge_all.leftid, right_on = self.consts.merge_all.rightid) #Inc Tract + Tract shapefile
+        inc_merged_shp.rename(columns=self.consts.merge_all.inc_merged_cols_renamed, inplace=True)
+
+        inc_pov_merged = self._merge_dataframes(inc_merged_shp, pov_df[self.consts.merge_all.pov_cols], on = self.consts.merge_all.leftid) #Inc Tract+Tract shapefile+Poverty data
+        inc_pov_merged.drop(columns=self.consts.merge_all.pov_drop_cols, inplace=True)
+        
+        msa_merge_shp = helper.data_preprocess(input_df = msa_merge_shp.copy(), cols_to_keep =self.consts.merge_all.msa_inc_shp_cols_to_keep, \
+                                                cols_rename = self.consts.merge_all.msa_inc_shp_renamed_cols) 
+        msa_merge_shp = gpd.GeoDataFrame(msa_merge_shp, geometry=self.consts.geo)
+        #Perform spatial operations
+        final_lic_shp = self._spatial_join(inc_pov_merged, msa_merge_shp)
+        final_lic_shp = final_lic_shp.dissolve(by = self.consts.merge_all.leftid)
+        final_lic_shp[self.consts.merge_all.area] = final_lic_shp[self.consts.geo].area
+        #Apply low-income conditions
+        final_lic_shp = self._apply_low_income_conditions(final_lic_shp)
+
+        return final_lic_shp
