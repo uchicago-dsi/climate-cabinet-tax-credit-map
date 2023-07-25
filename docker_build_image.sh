@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-chmod +x
 #Build the image
 docker build -t py-docker-climate-cabinet .
 #Run the image with a volume
