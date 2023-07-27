@@ -10,7 +10,8 @@ import pyproj
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.ERROR)
 
-def overlays(community:str, coops_utils:gpd.GeoDataFrame, community_data:gpd.GeoDataFrame, consts:dict) -> gpd.GeoDataFrame:
+def overlays(community:str, coops_utils:gpd.GeoDataFrame, community_data:gpd.GeoDataFrame,\
+              consts:dict) -> gpd.GeoDataFrame:
     '''
     Make overlays between the coops_utils and the different community datasets.
     Parameters:
@@ -60,7 +61,8 @@ def calculate_state_center(bounds):
         logger.info(e)
         return None
     
-def create_overlay_map(coops_utils:gpd.GeoDataFrame, overlays: dict, cty_borders: gpd.GeoDataFrame, state_borders: gpd.GeoDataFrame, type:str,consts: dict, state: str = 'Illinois') -> folium.Map:
+def create_overlay_map(coops_utils:gpd.GeoDataFrame, overlays: dict, cty_borders: gpd.GeoDataFrame,\
+                        state_borders: gpd.GeoDataFrame, type:str,consts: dict, state: str = 'Illinois') -> folium.Map:
     """
     Create an overlay map showing multiple GeoJSON layers representing different overlays.
 

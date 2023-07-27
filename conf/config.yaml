@@ -56,7 +56,19 @@ paths:
     coal_overlay_path: "${paths.wd}/overlays/coal_overlays/coal_overlays.shp" 
     ffe_overlay_path: "${paths.wd}/overlays/ffe_overlays/ffe_overlays.shp" 
     #energy_overlay_path: "${paths.wd}/overlays/energy_overlays/energy_overlays.shp" #Energy Overlays dataset save path for future if overlay is successful
-    low_income_overlay_path: "${paths.wd}/overlays/low_income_overlays/low_income_overlays.shp" 
+    lic_overlay_path: "${paths.wd}/overlays/low_income_overlays/low_income_overlays.shp" 
+    coops:
+      j40_overlay_path: "${paths.wd}/overlays/coops/j40_overlays/j40_overlays.shp" 
+      coal_overlay_path: "${paths.wd}/overlays/coops/coal_overlays/coal_overlays.shp"
+      ffe_overlay_path: "${paths.wd}/overlays/coops/ffe_overlays/ffe_overlays.shp"
+      lic_overlay_path: "${paths.wd}/overlays/coops/low_income_overlays/low_income_overlays.shp"
+      dci_overlay_path: "${paths.wd}/overlays/coops/dci_overlays/dci_overlays.shp"
+    munis:
+      j40_overlay_path: "${paths.wd}/overlays/munis/j40_overlays/j40_overlays.shp" 
+      coal_overlay_path: "${paths.wd}/overlays/munis/coal_overlays/coal_overlays.shp"
+      ffe_overlay_path: "${paths.wd}/overlays/munis/ffe_overlays/ffe_overlays.shp"
+      lic_overlay_path: "${paths.wd}/overlays/munis/low_income_overlays/low_income_overlays.shp"
+      dci_overlay_path: "${paths.wd}/overlays/munis/dci_overlays/dci_overlays.shp"
 
   #Path to save the final result maps
   maps:
@@ -75,6 +87,29 @@ paths:
   dci:
     dci_csv_path: "${paths.wd}/dci/dci_2016_2020.csv"
     zip_shp_path: "${paths.wd}/dci/tl_2020_us_zcta520.zip!tl_2020_us_zcta520.shp"
+    dci_clean_path: "${paths.wd}/communities/dci/dci_clean.shp"
+  
+  #Paths for the population
+  population:
+    tract_path: "${paths.wd}/population/tract/R13421076_SL140.csv"
+    msa_path: "${paths.wd}/population/msa/R13421095_SL320.csv"
+    cty_path: "${paths.wd}/population/county/R13421098_SL050.csv"
+    cty_shp_path: "${paths.wd}/population/county/tl_2020_us_county.zip!tl_2020_us_county.shp"
+    tract_shp_path: "${paths.low_income.lic_path}/merged_tracts_2020/merged_tracts_2020.shp"
+    msa_shp_path: "${paths.low_income.lic_path}/income/2020_msa_shp/tl_2020_us_cbsa.shp"
+    tract_pop_shp: "${paths.wd}/population/tract_pop/tract_pop.shp"
+    msa_pop_shp: "${paths.wd}/population/msa_pop/msa_pop.shp"
+    cty_pop_shp: "${paths.wd}/population/cty_pop/cty_pop.shp"
+    j40_coop_pop: "${paths.wd}/population/coop/j40_pop/j40_pop.shp"
+    j40_muni_pop: "${paths.wd}/population/muni/j40_pop/j40_pop.shp"
+    coal_coop_pop: "${paths.wd}/population/coop/coal_pop/coal_pop.shp"
+    coal_muni_pop: "${paths.wd}/population/muni/coal_pop/coal_pop.shp"
+    ffe_coop_pop: "${paths.wd}/population/coop/ffe_pop/ffe_pop.shp"
+    ffe_muni_pop: "${paths.wd}/population/muni/ffe_pop/ffe_pop.shp"
+    lic_coop_pop: "${paths.wd}/population/coop/lic_pop/lic_pop.shp"
+    lic_muni_pop: "${paths.wd}/population/muni/lic_pop/lic_pop.shp"
+    dci_coop_pop: "${paths.wd}/population/coop/dci_pop/dci_pop.shp"
+    dci_muni_pop: "${paths.wd}/population/muni/dci_pop/dci_pop.shp"
 
 constants:
   #Constants for the coop_util_cleanup script
@@ -181,7 +216,7 @@ constants:
 
   #Constants for overlays
   overlays:
-    communities: ['j40', 'coal', 'ffe', 'low_income', 'dci']
+    communities: ['j40', 'coal', 'ffe', 'lic', 'dci']
     new_cols: ['areaInters', 'perc_cover']
     area: 'area'
 
@@ -223,4 +258,29 @@ constants:
     ct_features: {'fillColor':'none','color':'black','fillOpacity':0,'weight':0.3}
     st_name: "State Borders"
     st_features: {'fillColor':'none','color':'black','fillOpacity':0,'weight':0.4}
-    
+
+  population:
+    geo: 'geometry'
+    crs: 3857
+    tract:
+      cols_to_drop: ['Geo_FILEID', 'Geo_SUMLEV', 'Geo_GEOCOMP', 'Geo_LOGRECNO','Geo_STATE', 'Geo_COUNTY', 'Geo_TRACT', 'Geo_GEOID', 'Geo_NAME', 'Geo_AREALAND', 'Geo_AREAWATR']
+      cols_renamed: {'Geo_STUSAB': 'state', 'Geo_QName': 'tractName', 'Geo_FIPS': 'tractId','SE_A00001_001': 'total_pop'}
+    msa:
+      cols_to_drop: ['Geo_FILEID', 'Geo_SUMLEV', 'Geo_GEOCOMP', 'Geo_LOGRECNO','Geo_STATE', 'Geo_NAME', 'Geo_FIPS', 'Geo_AREALAND', 'Geo_AREAWATR']
+      cols_renamed: {'Geo_STUSAB': 'state', 'Geo_QName': 'msaName', 'Geo_GEOID': 'geoid_msa', 'Geo_CBSA':'msaId', 'SE_A00001_001': 'total_pop'}
+    county: 
+      cols_to_drop: ['Geo_FILEID', 'Geo_SUMLEV', 'Geo_GEOCOMP', 'Geo_LOGRECNO','Geo_STATE', 'Geo_COUNTY', 'Geo_NAME','Geo_AREALAND', 'Geo_AREAWATR']
+      cols_renamed: {'Geo_STUSAB': 'state', 'Geo_QName': 'ctyName', 'Geo_GEOID': 'geoid_cty', 'SE_A00001_001': 'total_pop', 'Geo_FIPS':'geoId'}
+    merge:
+      tract:
+        shp_cols: ['tract_id','lat','lon','geometry']
+        leftid: 'tractId'
+        rightid: 'tract_id'
+      county:
+        shp_cols: ['GEOID', 'INTPTLAT', 'INTPTLON', 'geometry']
+        leftid: 'geoId'
+        rightid: 'GEOID'
+      msa:
+        shp_cols: ['GEOID', 'LSAD', 'INTPTLAT', 'INTPTLON', 'geometry']
+        leftid: 'msaId'
+        rightid: 'GEOID'

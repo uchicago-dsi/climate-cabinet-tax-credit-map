@@ -15,13 +15,13 @@ def main() -> None:
     util_clean, rural_coops, municipal_utils, j40_clean, coal_clean, ffe_clean, lic_clean, county_df, state_df, dci_clean = res_data_clean
     lic_clean = lic_clean[lic_clean['Type']=='Low Income']
     #Generate the overlays
-    community_list = ['j40', 'coal', 'ffe', 'low_income', 'dci']
+    community_list = ['j40', 'coal', 'ffe', 'lic', 'dci']
     overlays = mh.generate_overlays(community_list, rural_coops, municipal_utils, [j40_clean, coal_clean, ffe_clean, lic_clean, dci_clean], consts.overlays)
     #Create the maps and save them
     coop_overlays = {'j40': overlays['j40_coop'],'coal': overlays['coal_coop'],'ffe': overlays['ffe_coop'],
-                    'lic': overlays['low_income_coop'],'dci': overlays['dci_coop']}
+                    'lic': overlays['lic_coop'],'dci': overlays['dci_coop']}
     mun_overlays = {'j40': overlays['j40_muni'],'coal': overlays['coal_muni'],'ffe': overlays['ffe_muni'],
-                    'lic': overlays['low_income_muni'],'dci': overlays['dci_muni']}
+                    'lic': overlays['lic_muni'],'dci': overlays['dci_muni']}
     mh.generate_and_save_map(rural_coops,coop_overlays, county_df, state_df, 'coops', consts.maps, 'Illinois',paths.maps.coops_html_path)
     mh.generate_and_save_map(municipal_utils,mun_overlays, county_df, state_df, 'municipal',consts.maps, 'Illinois', paths.maps.utils_html_path)
 
