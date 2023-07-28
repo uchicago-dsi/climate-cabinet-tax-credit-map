@@ -260,6 +260,7 @@ constants:
     st_features: {'fillColor':'none','color':'black','fillOpacity':0,'weight':0.4}
 
   population:
+    pop_files: {'tract': 'csv', 'msa': 'csv', 'cty': 'csv', 'tract_shp': 'shp', 'msa_shp': 'shp', 'cty_shp': 'shp'}
     geo: 'geometry'
     crs: 3857
     tract:
@@ -284,3 +285,4 @@ constants:
         shp_cols: ['GEOID', 'LSAD', 'INTPTLAT', 'INTPTLON', 'geometry']
         leftid: 'msaId'
         rightid: 'GEOID'
+    geo_types: ['tract', 'msa', 'county']

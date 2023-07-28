@@ -24,7 +24,16 @@ def main() -> None:
                     'lic': overlays['lic_muni'],'dci': overlays['dci_muni']}
     mh.generate_and_save_map(rural_coops,coop_overlays, county_df, state_df, 'coops', consts.maps, 'Illinois',paths.maps.coops_html_path)
     mh.generate_and_save_map(municipal_utils,mun_overlays, county_df, state_df, 'municipal',consts.maps, 'Illinois', paths.maps.utils_html_path)
-
+    #get the population data
+    pop_processor = mh.PopulationProcessor(consts.population, paths.population)
+    pop_data = pop_processor.load_pop_data()
+    [tract_pop, msa_pop, cty_pop] = pop_processor.pop_clean(pop_data, consts.population.geotypes)
+    #Interpolate the population
+    intp_processor = mh.InterpolationProcessor(consts.population, paths.population)
+    intp_pop = intp_processor.process_interpolation(overlays, data = {'tract_pop': tract_pop,'cty_pop': cty_pop}, 
+                                                    save = False)
+    
+    
 
 if __name__ == '__main__':
     main()
