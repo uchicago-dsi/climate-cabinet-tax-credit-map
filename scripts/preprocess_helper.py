@@ -86,11 +86,19 @@ def data_preprocess(input_df:pd.DataFrame or gpd.GeoDataFrame, cols_drop:list or
     try:
         if cols_drop:
             input_df.drop(cols_drop, axis = 1, inplace = True)
+    except:
+        logger.error(f'Error dropping columns: {cols_drop}')
+        return None
+    try:
         if cols_to_keep:
             input_df = input_df[cols_to_keep]
+    except:
+        logger.error(f'Error selecting columns: {cols_to_keep}')
+        return None
+    try:
         if cols_rename:
             input_df.rename(columns = cols_rename, inplace = True)
-        return input_df
-    except (KeyError, ValueError) as e:
-        logger.error(f'Error cleaning dataset: {e}')
+    except:
+        logger.error(f'Error renaming columns: {cols_rename}')
         return None
+    return input_df

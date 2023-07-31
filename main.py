@@ -27,7 +27,7 @@ def main() -> None:
     #get the population data
     pop_processor = mh.PopulationProcessor(consts.population, paths.population)
     pop_data = pop_processor.load_pop_data()
-    [tract_pop, msa_pop, cty_pop] = pop_processor.pop_clean(pop_data, consts.population.geotypes)
+    [tract_pop, msa_pop, cty_pop] = pop_processor.pop_clean(pop_data, consts.population.geotypes) #msa is not in use for now
     #Interpolate the population
     intp_processor = mh.InterpolationProcessor(consts.population, paths.population)
     intp_pop = intp_processor.process_interpolation(overlays, data = {'tract_pop': tract_pop,'cty_pop': cty_pop}, 

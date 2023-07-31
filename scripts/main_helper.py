@@ -158,6 +158,8 @@ def generate_overlays(community_list, rural_coops, municipal_utils, community_da
             overlay_path = paths.overlays[overlay_type + 's'][community + '_overlay_path']
             os.makedirs(os.path.dirname(overlay_path), exist_ok=True)
             overlays[overlay_key].to_file(overlay_path, driver='ESRI Shapefile')
+        else:
+            raise ValueError('Output path for overlays is not specified.')
 
     return overlays
 

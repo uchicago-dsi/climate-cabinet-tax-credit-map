@@ -56,21 +56,21 @@ def coops_utils_cleanup(util_shp:gpd.GeoDataFrame, state_csv_df: pd.DataFrame, c
     try:
         coops_utils = helper.data_preprocess(input_df = coops_utils, cols_drop = consts.drop_cols,\
                                              cols_rename = consts.rename_cols)
-        state_df = state_csv_df[consts.state_cols].rename(columns = consts.state_rename_col)
+    except:
+        logger.error('Error in cleaning up utility data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    
+    state_df = state_csv_df[consts.state_cols].rename(columns = consts.state_rename_col)
+    util_merged = coops_utils.merge(gpd.GeoDataFrame(state_df), how='left', on=consts.st_code)
+    util_merged[consts.area] = np.round(util_merged[consts.geo].area, 4)
+    util_merged = util_merged[util_merged[consts.filter_col].isin(consts.filters)].to_crs(epsg=3857)
+    util_merged[consts.new_col] = util_merged[consts.filter_col].\
+        apply(lambda x: consts.filters_new[1] if x== consts.filters[2] else consts.filters_new[0])
 
-        util_merged = coops_utils.merge(gpd.GeoDataFrame(state_df), how='left', on=consts.st_code)
-        util_merged[consts.area] = np.round(util_merged[consts.geo].area, 4)
-        util_merged = util_merged[util_merged[consts.filter_col].isin(consts.filters)].to_crs(epsg=3857)
-        util_merged[consts.new_col] = util_merged[consts.filter_col].\
-            apply(lambda x: consts.filters_new[1] if x== consts.filters[2] else consts.filters_new[0])
-
-        rural_coops = util_merged.query(f'{consts.new_col} == "{consts.filters_new[1]}"').to_crs(epsg=3857)
-        municipal_utils = util_merged.query(f'{consts.new_col} == "{consts.filters_new[0]}"').to_crs(epsg=3857)
-        
-        return util_merged, rural_coops, municipal_utils
-    except Exception as e:
-        logger.error(f'Error in cleaning up utility data: {e}')
-        raise e
+    rural_coops = util_merged.query(f'{consts.new_col} == "{consts.filters_new[1]}"').to_crs(epsg=3857)
+    municipal_utils = util_merged.query(f'{consts.new_col} == "{consts.filters_new[0]}"').to_crs(epsg=3857)
+    
+    return util_merged, rural_coops, municipal_utils
 
 
 def j40_cleanup(j40_shp: gpd.GeoDataFrame, consts: dict) -> gpd.GeoDataFrame:
@@ -90,13 +90,13 @@ def j40_cleanup(j40_shp: gpd.GeoDataFrame, consts: dict) -> gpd.GeoDataFrame:
     try:
         j40 = helper.data_preprocess(input_df = j40_shp, cols_to_keep = consts.cols_to_keep, \
                                      cols_rename = consts.rename_cols)
-        j40 = j40[(j40[consts.filter_cols[0]] == 1) & (j40[consts.filter_cols[1]].is_valid == True)]
-        j40.loc[:, consts.new_col] = consts.new_col_val
-        j40.loc[:, consts.area] = j40[consts.geo].area
-        return j40
-    except Exception as e:
-        logger.error(f'Error in cleaning up justice40 data: {e}')
-        raise e
+    except:
+        logger.error('Error in cleaning up justice40 data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    j40 = j40[(j40[consts.filter_cols[0]] == 1) & (j40[consts.filter_cols[1]].is_valid == True)]
+    j40.loc[:, consts.new_col] = consts.new_col_val
+    j40.loc[:, consts.area] = j40[consts.geo].area
+    return j40
 
 
 def energy_cleanup(coal_shp:gpd.GeoDataFrame, ffe_shp:gpd.GeoDataFrame, consts:dict) -> gpd.GeoDataFrame:
@@ -123,18 +123,22 @@ def energy_cleanup(coal_shp:gpd.GeoDataFrame, ffe_shp:gpd.GeoDataFrame, consts:d
     try:
         coal_df = helper.data_preprocess(input_df = coal_shp, cols_drop = consts.coal_drop_cols,\
                                           cols_rename = consts.coal_rename_cols)
+    except:
+        logger.error('Error in cleaning up coal data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    try:
         ffe_df = helper.data_preprocess(input_df = ffe_shp, cols_drop = consts.ffe_drop_cols, \
                                         cols_rename = consts.ffe_rename_cols)
-        coal_df.loc[:, consts.new_cols[0]] = consts.type_val
-        coal_df.loc[:, consts.new_cols[1]] = consts.coal_subtype
-        coal_df.loc[:, consts.coal_area] = coal_df[consts.geo].area
-        ffe_df.loc[:, consts.new_cols[0]] = consts.type_val
-        ffe_df.loc[:, consts.new_cols[1]] = consts.ffe_subtype
-        ffe_df.loc[:, consts.ffe_area] = ffe_df[consts.geo].area
-        return coal_df, ffe_df
-    except Exception as e:
-        logger.error(f'Error in cleaning up energy data: {e}')
-        raise e
+    except:
+        logger.error('Error in cleaning up FFE data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    coal_df.loc[:, consts.new_cols[0]] = consts.type_val
+    coal_df.loc[:, consts.new_cols[1]] = consts.coal_subtype
+    coal_df.loc[:, consts.coal_area] = coal_df[consts.geo].area
+    ffe_df.loc[:, consts.new_cols[0]] = consts.type_val
+    ffe_df.loc[:, consts.new_cols[1]] = consts.ffe_subtype
+    ffe_df.loc[:, consts.ffe_area] = ffe_df[consts.geo].area
+    return coal_df, ffe_df
 
 def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_csv:pd.DataFrame, st_df:gpd.GeoDataFrame,\
                             consts: dict) -> gpd.GeoDataFrame:
@@ -157,19 +161,20 @@ def cty_st_borders_cleanup(county_df: gpd.GeoDataFrame, st_fips_csv:pd.DataFrame
     try:
         states_fips = helper.data_preprocess(input_df = st_fips_csv.copy(), cols_to_keep = consts.cols_read_csv, \
                                             cols_rename = consts.cols_rename_csv)
-        
-        county_df[consts.statefp] = county_df[consts.statefp].astype(int)
-        county_df = county_df.merge(states_fips, on = consts.statefp, how = 'left')
-        county_df = county_df.drop(columns = consts.cols_drop_cty)
-        county_df.rename(columns = consts.ct_rename_cols, inplace = True)
-
+    except:
+        logger.error('Error in cleaning up state FIPS data: Invalid column names.')
+        raise ValueError('Invalid column names in the input CSV file.')
+    county_df[consts.statefp] = county_df[consts.statefp].astype(int)
+    county_df = county_df.merge(states_fips, on = consts.statefp, how = 'left')
+    county_df = county_df.drop(columns = consts.cols_drop_cty)
+    county_df.rename(columns = consts.ct_rename_cols, inplace = True)
+    try:
         st_df = helper.data_preprocess(input_df = st_df, cols_drop = consts.st_drop_cols, \
                                             cols_rename = consts.st_rename_cols)
-        
-        return county_df, st_df
-    except Exception as e:
-        logger.error(e)
-        return None, None
+    except:
+        logger.error('Error in cleaning up state borders data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    return county_df, st_df
     
 def dci_cleanup(dci_csv_df: pd.DataFrame, zip_shp: gpd.GeoDataFrame, consts: dict) ->gpd.GeoDataFrame:
     """
@@ -186,20 +191,19 @@ def dci_cleanup(dci_csv_df: pd.DataFrame, zip_shp: gpd.GeoDataFrame, consts: dic
         gpd.GeoDataFrame: The GeoDataFrame containing DCI data after cleaning and merging.
                             If an error occurs during processing, None is returned.
     """
+    zip_shp[consts.geoid] = zip_shp[consts.geoid].astype('int64')
+    dci_shp = dci_csv_df.merge(zip_shp, left_on = consts.zip, right_on = consts.geoid, how = 'left')
     try:
-        zip_shp[consts.geoid] = zip_shp[consts.geoid].astype('int64')
-        dci_shp = dci_csv_df.merge(zip_shp, left_on = consts.zip, right_on = consts.geoid, how = 'left')
         dci_shp = helper.data_preprocess(input_df = dci_shp.copy(), cols_to_keep = consts.cols_to_keep, \
                                             cols_rename = consts.cols_rename)
-        dci_shp = dci_shp[~dci_shp[consts.geo].isnull()] #all the 4 null zips have quintile scores not equal to 5
-        dci_shp = dci_shp[dci_shp[consts.quintile] == 5]
-        dci_shp[consts.new_col.name] = consts.new_col.val
-        dci_shp = gpd.GeoDataFrame(dci_shp, geometry=consts.geo).to_crs(epsg = consts.crs)
-        return dci_shp
-    except Exception as e:
-        logger.error(e)
-        return None
-    
+    except:
+        logger.error('Error in cleaning up DCI data: Invalid column names.')
+        raise ValueError('Invalid column names in the input shapefile.')
+    dci_shp = dci_shp[~dci_shp[consts.geo].isnull()] #all the 4 null zips have quintile scores not equal to 5
+    dci_shp = dci_shp[dci_shp[consts.quintile] == 5]
+    dci_shp[consts.new_col.name] = consts.new_col.val
+    dci_shp = gpd.GeoDataFrame(dci_shp, geometry=consts.geo).to_crs(epsg = consts.crs)
+    return dci_shp
 
 class LowIncomeCleanup:
     """
@@ -257,6 +261,8 @@ class LowIncomeCleanup:
         elif left_on is not None and right_on is not None:
             return gpd.GeoDataFrame(pd.merge(gdf1, gdf2, left_on=left_on, right_on=right_on, how='left'),\
                                      geometry=self.consts.geo)
+        else:
+            raise ValueError('Invalid merge parameters.')
 
     def _spatial_join(self, gdf1, gdf2, predicate='intersects'):
         """
@@ -326,7 +332,6 @@ class LowIncomeCleanup:
         inc_merged_csv = self._merge_dataframes(li_tract_df, li_st_df, on = self.consts.state) #Tract + State income data
         msa_merge_shp = self._merge_geodataframes(li_msa_df, msa_shp_df[self.consts.msa_shp_merge_cols], \
                                                   on = self.consts.msa_shp_cbsaId) #MSA + MSA shapefile
-
 
         inc_merged_shp = self._merge_geodataframes(inc_merged_csv[self.consts.merge_all.inc_merged_cols], \
                                                    all_tracts_shp[self.consts.merge_all.tract_shp_cols],\
