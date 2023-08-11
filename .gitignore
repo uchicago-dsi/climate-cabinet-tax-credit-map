@@ -176,3 +176,4 @@ cython_debug/
 /scripts/maps.py
 /scripts/overlays.py
 /main_untracked.py
+/scripts/footprint_converter.py
