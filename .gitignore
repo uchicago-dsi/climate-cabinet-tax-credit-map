@@ -43,7 +43,6 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
-nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
@@ -121,6 +120,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.dev
+.env.prod
 .venv
 env/
 venv/
@@ -159,21 +160,27 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-#Custom
-/data
-/notebooks
-/results
-/scripts/function_checker.py
-/scripts/dataset_load_and_cleanup.py
-/scripts/overlays_and_maps.py
-/.hydra
-/scripts/__pycache__
-/scripts/coop_utility_cleanup.py
-/scripts/county_st_borders.py
-/scripts/energy_comm_cleanup.py
-/scripts/justice40_cleanup.py
-/scripts/low_inc_cleanup.py
-/scripts/maps.py
-/scripts/overlays.py
-/main_untracked.py
-/scripts/footprint_converter.py
+# pgadmin
+*pgdata/
+
+# Data
+*/data
+
+# Old pipeline
+old_pipeline/notebooks
+old_pipeline/results
+old_pipeline/scripts/function_checker.py
+old_pipeline/scripts/dataset_load_and_cleanup.py
+old_pipeline/scripts/overlays_and_maps.py
+old_pipeline/.hydra
+old_pipeline/scripts/__pycache__
+old_pipeline/scripts/coop_utility_cleanup.py
+old_pipeline/scripts/county_st_borders.py
+old_pipeline/scripts/energy_comm_cleanup.py
+old_pipeline/scripts/justice40_cleanup.py
+old_pipeline/scripts/low_inc_cleanup.py
+old_pipeline/scripts/maps.py
+old_pipeline/scripts/overlays.py
+old_pipeline/main_untracked.py
+old_pipeline/scripts/footprint_converter.py
+
