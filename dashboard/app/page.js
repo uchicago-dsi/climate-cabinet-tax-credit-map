@@ -18,13 +18,11 @@ export default function Home() {
       <div>
         <SearchBar />
       </div>
-      <div className="flex w-full">
-        {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
-        <div className="relative w-full">
-          <div className="w-3/4">
-            {/* <Tooltip /> */}
-            <DeckGLMap />
-          </div>
+      {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
+      <div className="flex w-full p-20">
+        <div className="relative w-3/4">
+          {/* <Tooltip /> */}
+          <DeckGLMap />
           <div className="absolute right-4 top-4 bg-white p-2">
             <ControlPanel />
           </div>
