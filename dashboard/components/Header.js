@@ -2,8 +2,8 @@
 
 export default function Header() {
   return (
-    <div>
-      <h3>Climate Cabinet's Good Site</h3>
+    <div className="text-center">
+      <h1>Climate Cabinet's Good Site</h1>
     </div>
   );
 }
