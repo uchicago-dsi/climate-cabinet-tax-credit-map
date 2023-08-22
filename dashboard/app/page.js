@@ -31,7 +31,7 @@ export default function Home() {
           <SummaryStats />
         </div>
       </div>
-      <div>
+      <div className="p-5">
         <Footer />
       </div>
     </main>
