@@ -1,48 +1,6 @@
-# Developer Tools
-ipdb==0.13.9
-ipython==7.30.1
-flake8==4.0.1
-
-# Testing
-mock==4.0.3
-factory-boy==3.2.1
-coverage==6.2
-
-# Static and Media Storage
-django-storages==1.12.3
-
-# Core
-pytz==2021.3
-Django==4.0
-django-configurations==2.3.1
-gunicorn==20.1.0
-newrelic==7.2.4.171
-
-# Persistence Store
-psycopg2-binary==2.9.2
-dj-database-url==0.5.0
-
-# Model Tools
-django-model-utils==4.2.0
-django_unique_upload==0.2.1
-
-# Django CORS Headers
-sqlparse==0.4.2
-backports.zoneinfo==0.2.1
-asgiref==3.5.2
-django-cors-headers==3.13.0
-
-# Pandas
-numpy==1.23.2
-pandas==1.4.3
-geopandas==0.13.2
-
-# Google Cloud
-google==3.0.0
-google-api-core==2.8.2
-google-auth==2.11.0
-google-cloud-core==2.3.2
-google-cloud-storage==2.5.0
-google-crc32c==1.3.0
-google-resumable-media==2.3.3
-googleapis-common-protos==1.56.4
+psycopg2-binary
+pandas
+django
+django-configurations
+django-cors-headers
+django-geo

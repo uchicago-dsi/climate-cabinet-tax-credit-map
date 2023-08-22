@@ -1,10 +1,7 @@
 """Loads tax credit programs for geographies into the database.
 """
 
-from django.core.management.base import (
-    BaseCommand,
-    CommandParser
-)
+from django.core.management.base import BaseCommand, CommandParser
 
 
 class Command(BaseCommand):
@@ -15,8 +12,8 @@ class Command(BaseCommand):
     - https://docs.djangoproject.com/en/4.1/howto/custom-management-commands/
     - https://docs.djangoproject.com/en/4.1/topics/settings/
     """
-    help = "Loads data to populate the geography metric table."
 
+    help = "Loads data to populate the geography metric table."
 
     def add_arguments(self, parser: CommandParser) -> None:
         """
@@ -32,7 +29,6 @@ class Command(BaseCommand):
         """
         pass
 
-
     def handle(self, *args, **options) -> None:
         """
         Executes the command. Accepts variable
@@ -45,4 +41,3 @@ class Command(BaseCommand):
             None
         """
         pass
-

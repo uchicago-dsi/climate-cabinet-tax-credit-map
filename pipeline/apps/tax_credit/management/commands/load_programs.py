@@ -1,10 +1,9 @@
 """Loads tax credit programs for geographies into the database.
 """
 
-from django.core.management.base import (
-    BaseCommand,
-    CommandParser
-)
+from django.core.management.base import BaseCommand, CommandParser
+import pandas as pd
+from apps.tax_credit.models import Program
 
 
 class Command(BaseCommand):
@@ -15,8 +14,8 @@ class Command(BaseCommand):
     - https://docs.djangoproject.com/en/4.1/howto/custom-management-commands/
     - https://docs.djangoproject.com/en/4.1/topics/settings/
     """
-    help = "Loads data to populate the tax credit program tables."
 
+    help = "Loads data to populate the tax credit program tables."
 
     def add_arguments(self, parser: CommandParser) -> None:
         """
@@ -32,7 +31,6 @@ class Command(BaseCommand):
         """
         pass
 
-
     def handle(self, *args, **options) -> None:
         """
         Executes the command. Accepts variable
@@ -44,5 +42,19 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        pass
+        programs_file = "data/program.csv"
+        records = pd.read_csv(programs_file, header=0, delimiter="|").to_dict(
+            orient="records"
+        )
 
+        programs = [
+            Program(
+                name=record["Program"],
+                agency=record["Agency"],
+                description=record["Description"],
+                base_benefit=record["Base_benefit"],
+            )
+            for record in records
+        ]
+
+        Program.objects.bulk_create(programs)

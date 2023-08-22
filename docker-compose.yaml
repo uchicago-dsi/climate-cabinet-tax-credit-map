@@ -22,10 +22,13 @@ services:
       args:
         ENV: DEV
       context: pipeline
+    command: python manage.py runserver 0.0.0.0:6677
     volumes:
       - ./pipeline:/pipeline
+      - ./data:/data
     depends_on:
       - climate-cabinet-postgis
+      - climate-cabinet-pgadmin
 
   # PGADMIN DATABASE GUI
   climate-cabinet-pgadmin:

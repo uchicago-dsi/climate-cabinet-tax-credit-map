@@ -48,15 +48,13 @@ class CloudDataReader(IDataReader):
             (`CloudDataReader`): An instance of
                 the `CloudDataReader`.
         """
-        if not hasattr(cls, 'instance'):
+        if not hasattr(cls, "instance"):
             cls.instance = super(CloudDataReader, cls).__new__(cls)
         return cls.instance
 
-
     def __init__(
-        self,
-        download_retries: int = 3,
-        download_timeout_in_sec: int=60) -> None:
+        self, download_retries: int = 3, download_timeout_in_sec: int = 60
+    ) -> None:
         """Initializes the class instance.
 
         Args:
@@ -80,7 +78,6 @@ class CloudDataReader(IDataReader):
         self.download_retries = download_retries
         self.download_timeout_in_sec = download_timeout_in_sec
 
-
     def read_csv(self, file_name: str) -> pd.DataFrame:
         """Downloads the contents of a CSV file saved in
         a Google Cloud Storage bucket and then uses
@@ -96,7 +93,7 @@ class CloudDataReader(IDataReader):
         Returns:
             (pd.DataFrame): A Pandas DataFrame
                 with the file contents.
-        
+
         References:
             - https://googleapis.dev/python/storage/latest/buckets.html
             - https://googleapis.dev/python/storage/latest/blobs.html
@@ -106,14 +103,16 @@ class CloudDataReader(IDataReader):
 
         # Return if blob doesn't exist
         if not blob.exists():
-            raise FileNotFoundError("The requested CSV "
-                f"file was not found at '{file_name}' in " 
-                f"Google Cloud Storage bucket {self.bucket_name}.")
+            raise FileNotFoundError(
+                "The requested CSV "
+                f"file was not found at '{file_name}' in "
+                f"Google Cloud Storage bucket {self.bucket_name}."
+            )
 
         # Otherwise, download as bytes and read into Pandas DataFrame
         timeout_params = (self.download_retries, self.download_timeout_in_sec)
         file_bytes = blob.download_as_bytes(timeout=timeout_params)
-        return pd.read_table(BytesIO(file_bytes), encoding='utf-8')
+        return pd.read_table(BytesIO(file_bytes), encoding="utf-8")
 
 
 class LocalDataReader(IDataReader):
@@ -121,7 +120,7 @@ class LocalDataReader(IDataReader):
     that reads files from the local directory.
     Behaves like a Singleton.
     """
-    
+
     def __new__(cls):
         """The class constructor.
 
@@ -133,10 +132,9 @@ class LocalDataReader(IDataReader):
             (`LocalDataReader`): An instance of the
                 `LocalDataReader`.
         """
-        if not hasattr(cls, 'instance'):
+        if not hasattr(cls, "instance"):
             cls.instance = super(LocalDataReader, cls).__new__(cls)
         return cls.instance
-
 
     def read_csv(self, file_name: str) -> pd.DataFrame:
         """Reads a local CSV file into a new Pandas DataFrame.
@@ -152,14 +150,16 @@ class LocalDataReader(IDataReader):
         """
         file_path = f"{settings.DATA_DIR}/{file_name}"
         if not os.path.exists(file_path):
-             raise FileNotFoundError("The requested local CSV "
+            raise FileNotFoundError(
+                "The requested local CSV "
                 f"file '{file_name}' was not found in the "
-                f"expected directory '{settings.DATA_DIR}'.")
+                f"expected directory '{settings.DATA_DIR}'."
+            )
 
         return pd.read_csv(file_path)
 
 
-class IDataReaderFactory():
+class IDataReaderFactory:
     """A factory for creating an `IDataReader` based
     on the current development environment.
     """
@@ -174,12 +174,14 @@ class IDataReaderFactory():
         Returns:
             (`IDataReader`): The concrete reader instance.
         """
-        env = os.environ.get('ENV', 'DEV')
-        if env == 'DEV':
+        env = os.environ.get("ENV", "DEV")
+        if env == "DEV":
             return LocalDataReader()
-        elif env == 'PROD':
+        elif env == "PROD":
             return CloudDataReader()
         else:
-            raise Exception("Unable to create a concrete "
+            raise Exception(
+                "Unable to create a concrete "
                 f"IDataReader. The environment is {env} "
-                "when 'DEV' or 'PROD' was expected.")
+                "when 'DEV' or 'PROD' was expected."
+            )

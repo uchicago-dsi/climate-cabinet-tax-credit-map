@@ -5,11 +5,10 @@ import logging
 
 
 class LoggerFactory:
-    """A simple factory for configuring standard loggers.
-    """
+    """A simple factory for configuring standard loggers."""
 
     @staticmethod
-    def get(name: str, level: int=logging.INFO) -> logging.Logger:
+    def get(name: str, level: int = logging.INFO) -> logging.Logger:
         """Creates a new logger with the given name and
         level and then attaches a stream handler.
 
@@ -39,4 +38,3 @@ class LoggerFactory:
         logger.addHandler(ch)
 
         return logger
-
