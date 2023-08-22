@@ -35,7 +35,7 @@ export default function DeckGLMap() {
       pickingRadius={50} //TODO: This behaves strangely and only works when zoomed out?
     >
       <Map
-        mapStyle="mapbox://styles/mapbox/satellite-v9"
+        mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
       />
     </DeckGL>

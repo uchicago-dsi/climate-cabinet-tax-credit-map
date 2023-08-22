@@ -12,14 +12,14 @@ import Footer from "../components/Footer";
 export default function Home() {
   return (
     <main className="w-full h-[100vh]">
-      <div className="w-full">
+      <div className="w-full p-5">
         <Header />
       </div>
-      <div>
+      <div className="w-full p-5">
         <SearchBar />
       </div>
       {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
-      <div className="flex w-full p-20">
+      <div className="flex w-full px-20">
         <div className="relative w-3/4">
           {/* <Tooltip /> */}
           <DeckGLMap />
@@ -27,7 +27,7 @@ export default function Home() {
             <ControlPanel />
           </div>
         </div>
-        <div className="flex flex-col w-1/4 h-[100vh] overflow-hidden">
+        <div className="flex flex-col w-1/4 h-[100vh] overflow-hidden px-5">
           <SummaryStats />
         </div>
       </div>
