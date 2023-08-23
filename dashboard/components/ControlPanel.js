@@ -19,26 +19,26 @@ export default function ControlPanel() {
   const mapViews = ["Political Basemap", "Satellite Basemap"];
 
   const selectAll = () => {
-    // state.filteredLayers = [...layers];
+    state.filteredLayers = [...layers];
     // updateFilteredData();
   };
 
   const selectNone = () => {
-    // state.filteredLayers.length = 0;
+    state.filteredLayers.length = 0;
     // updateFilteredData();
   };
 
   const handleLayerChange = (event) => {
-    // const { checked, value } = event.target;
-    // // adjust filtered states
-    // if (checked) {
-    //   state.filteredLayers.push(value);
-    // } else {
-    //   const index = state.filteredLayers.indexOf(value);
-    //   if (index !== -1) {
-    //     state.filteredLayers.splice(index, 1);
-    //   }
-    // }
+    const { checked, value } = event.target;
+    // adjust filtered states
+    if (checked) {
+      state.filteredLayers.push(value);
+    } else {
+      const index = state.filteredLayers.indexOf(value);
+      if (index !== -1) {
+        state.filteredLayers.splice(index, 1);
+      }
+    }
     // updateFilteredData();
   };
 
@@ -95,7 +95,7 @@ export default function ControlPanel() {
               value={option}
               type="radio"
               name="mapLayer"
-              checked={snapshot.selectedMap === option}
+              checked={option === snapshot.selectedMap}
               onChange={handleMapChange}
               key={snapshot.selectedMap} // ChatGPT suggested this as hacky workaround for state handling bug...and it works
             ></input>
