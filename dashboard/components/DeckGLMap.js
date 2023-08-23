@@ -41,8 +41,6 @@ export default function DeckGLMap() {
     </DeckGL>
   );
 
-  console.log(deck);
-
   return deck;
 }
 
