@@ -1,14 +1,50 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
+import { state } from "../lib/state";
 
 export default function ControlPanel() {
+  // TODO: should I use both "state" and the react "state"
+  const snapshot = useSnapshot(state);
   const [expanded, setExpanded] = useState(true);
   // TODO: default selection is not working
   const [selectedMap, setMapView] = useState("Political Basemap");
 
-  const layers = ["Justice 40", "Low Income", "Energy", "Counties"];
+  // TODO: is there a difference between low income and distressed? Probably
+  const layers = [
+    "Justice 40",
+    "Low Income",
+    "Distressed",
+    "Energy",
+    "Counties",
+  ];
   const mapViews = ["Political Basemap", "Satellite Basemap"];
+
+  const selectAll = () => {
+    state.filteredLayers = [...layers];
+    // updateFilteredData();
+  };
+
+  const selectNone = () => {
+    state.filteredLayers.length = 0;
+    // updateFilteredData();
+  };
+
+  const handleCheckboxChange = (event) => {
+    const { checked, value } = event.target;
+
+    // adjust filtered states
+    if (checked) {
+      state.filteredLayers.push(value);
+    } else {
+      const index = state.filteredLayers.indexOf(value);
+      if (index !== -1) {
+        state.filteredLayers.splice(index, 1);
+      }
+    }
+
+    // updateFilteredData();
+  };
 
   const handleMapChange = (event) => {
     setMapView(event.target.value);
@@ -29,8 +65,8 @@ export default function ControlPanel() {
               className="checkbox-sm"
               value={option}
               type="checkbox"
-              //checked={snapshot.filteredStates.includes(option)}
-              //onChange={handleCheckboxChange}
+              checked={snapshot.filteredLayers.includes(option)}
+              onChange={handleCheckboxChange}
             />
             <span
               // TODO: wtf why won't this text left align
@@ -43,13 +79,13 @@ export default function ControlPanel() {
         <div className="join justify-center py-2">
           <button
             className="btn join-item btn-sm normal-case"
-            // onClick={selectAll}
+            onClick={selectAll}
           >
             All
           </button>
           <button
             className="btn join-item btn-sm normal-case"
-            // onClick={selectNone}
+            onClick={selectNone}
           >
             None
           </button>

@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Cimate Cabinate - Inflation Reduction Act (IRA) Credits",
+  title: "Climate Cabinate - Inflation Reduction Act (IRA) Credits",
   description:
     "Interactive map showing tax credit areas from the Inflation Reduction Act",
 };
