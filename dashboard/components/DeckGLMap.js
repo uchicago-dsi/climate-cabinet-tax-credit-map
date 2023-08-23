@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { proxy, useSnapshot } from "valtio";
 
-// import { state } from "../lib/state";
+import { state } from "../lib/state";
 
 import DeckGL from "@deck.gl/react";
 import { LineLayer, IconLayer, GeoJsonLayer } from "@deck.gl/layers";
@@ -19,6 +19,17 @@ import { ScatterplotLayer } from "deck.gl";
 const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 export default function DeckGLMap() {
+  const snapshot = useSnapshot(state);
+  var mapStyle = "mapbox://styles/mapbox/";
+
+  switch (snapshot.selectedMap) {
+    case "Satellite Basemap":
+      mapStyle += "satellite-v9";
+      break;
+    default:
+      mapStyle += "streets-v12";
+  }
+
   const dummyViewState = {
     latitude: 37.7751,
     longitude: -122.4193,
@@ -32,12 +43,9 @@ export default function DeckGLMap() {
       initialViewState={dummyViewState}
       controller={true}
       //   layers={displayLayers}
-      pickingRadius={50} //TODO: This behaves strangely and only works when zoomed out?
+      pickingRadius={50}
     >
-      <Map
-        mapStyle="mapbox://styles/mapbox/streets-v12"
-        mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
-      />
+      <Map mapStyle={mapStyle} mapboxAccessToken={MAPBOX_ACCESS_TOKEN} />
     </DeckGL>
   );
 

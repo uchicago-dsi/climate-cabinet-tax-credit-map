@@ -1,14 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
-import { state } from "../lib/state";
+import { state, set } from "../lib/state";
 
 export default function ControlPanel() {
-  // TODO: should I use both "state" and the react "state"
   const snapshot = useSnapshot(state);
+  // TODO: should I use both "state" and the react "state"
   const [expanded, setExpanded] = useState(true);
-  // TODO: default selection is not working
-  const [selectedMap, setMapView] = useState("Political Basemap");
 
   // TODO: is there a difference between low income and distressed? Probably
   const layers = [
@@ -21,33 +19,31 @@ export default function ControlPanel() {
   const mapViews = ["Political Basemap", "Satellite Basemap"];
 
   const selectAll = () => {
-    state.filteredLayers = [...layers];
+    // state.filteredLayers = [...layers];
     // updateFilteredData();
   };
 
   const selectNone = () => {
-    state.filteredLayers.length = 0;
+    // state.filteredLayers.length = 0;
     // updateFilteredData();
   };
 
-  const handleCheckboxChange = (event) => {
-    const { checked, value } = event.target;
-
-    // adjust filtered states
-    if (checked) {
-      state.filteredLayers.push(value);
-    } else {
-      const index = state.filteredLayers.indexOf(value);
-      if (index !== -1) {
-        state.filteredLayers.splice(index, 1);
-      }
-    }
-
+  const handleLayerChange = (event) => {
+    // const { checked, value } = event.target;
+    // // adjust filtered states
+    // if (checked) {
+    //   state.filteredLayers.push(value);
+    // } else {
+    //   const index = state.filteredLayers.indexOf(value);
+    //   if (index !== -1) {
+    //     state.filteredLayers.splice(index, 1);
+    //   }
+    // }
     // updateFilteredData();
   };
 
   const handleMapChange = (event) => {
-    setMapView(event.target.value);
+    state.selectedMap = event.target.value;
   };
 
   return (
@@ -66,7 +62,7 @@ export default function ControlPanel() {
               value={option}
               type="checkbox"
               checked={snapshot.filteredLayers.includes(option)}
-              onChange={handleCheckboxChange}
+              onChange={handleLayerChange}
             />
             <span
               // TODO: wtf why won't this text left align
@@ -91,6 +87,7 @@ export default function ControlPanel() {
           </button>
         </div>
         <div className="divider m-0"></div>
+        {/* TODO: Can't figure out why radio button deselects on initial render*/}
         {mapViews.map((option, index) => (
           <label key={index} className="label flex cursor-pointer py-1">
             <input
@@ -98,8 +95,9 @@ export default function ControlPanel() {
               value={option}
               type="radio"
               name="mapLayer"
-              checked={selectedMap === option}
+              checked={snapshot.selectedMap === option}
               onChange={handleMapChange}
+              key={snapshot.selectedMap} // ChatGPT suggested this as hacky workaround for state handling bug...and it works
             ></input>
             <span className="label-text px-2">{option}</span>
           </label>
