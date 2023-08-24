@@ -9,49 +9,29 @@ export default function AutocompleteLogic() {
   const snapshot = useSnapshot(state);
 
   // query typed by user
-  const [val, setVal] = useState("");
-
-  // a list to hold all the countries
-  //   const [options, setOptions] = useState([]);
-
-  console.log();
+  const [query, setQuery] = useState("");
 
   // a list to show on the dropdown when user types
   const [items, setItems] = useState([]);
-
-  //   setOptions(state.stateNames);
-
-  // query rest countries api and set the countries list
-  //   useEffect(() => {
-  //     async function fetchData() {
-  //       const url = "https://restcountries.com/v3.1/all?fields=name";
-  //       const response = await fetch(url);
-  //       const countries = await response.json();
-  //       const newItems = countries.map((p) => p.name.common).sort();
-  //       setCountries(newItems);
-  //     }
-
-  //     fetchData();
-  //   }, []);
 
   useEffect(() => {
     setItems(snapshot.stateNames);
   }, []);
 
   useEffect(() => {
-    // if there is no value, return the countries list.
-    if (!val) {
+    // if there is no value, return full list
+    if (!query) {
       setItems(snapshot.stateNames);
       return;
     }
 
-    // if the val changes, we filter items so that it can be filtered. and set it as new state
+    // get the choices that match user input so far
     const newItems = snapshot.stateNames
-      .filter((p) => p.toLowerCase().includes(val.toLowerCase()))
+      .filter((p) => p.toLowerCase().includes(query.toLowerCase()))
       .sort();
     setItems(newItems);
-  }, [snapshot.stateNames, val]);
+  }, [snapshot.stateNames, query]);
 
   // use the common auto complete component here.
-  return <Autocomplete items={items} value={val} onChange={setVal} />;
+  return <Autocomplete items={items} value={query} onChange={setQuery} />;
 }
