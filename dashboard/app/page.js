@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 
-import { state } from "@/lib/state";
+import { state, updateSearchGeo } from "@/lib/state";
 
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
@@ -21,11 +21,29 @@ export default function Home() {
     loadData();
   }, []);
 
+  // Handling resizing of container to dynamically update map bounding box
+  const containerRef = useRef(null);
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.getBoundingClientRect().width;
+        const height = containerRef.current.getBoundingClientRect().height;
+        state.containerWidth = width;
+        state.containerHeight = height;
+      }
+    };
+
+    setTimeout(handleResize, 100);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   if (!snapshot.isDataLoaded) {
     return <div>Loading...</div>;
   }
-
-  console.log(state.stateNames);
 
   return (
     <main className="w-full">
@@ -37,7 +55,7 @@ export default function Home() {
       </div>
       {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
       <div className="flex w-full px-20">
-        <div className="relative w-3/4 overflow-hidden">
+        <div className="relative w-3/4 overflow-hidden" ref={containerRef}>
           {/* <Tooltip /> */}
           <DeckGLMap />
           <div className="absolute right-4 top-4 bg-white p-2">

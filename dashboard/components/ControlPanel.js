@@ -64,9 +64,16 @@ export default function ControlPanel() {
               checked={snapshot.filteredLayers.includes(option)}
               onChange={handleLayerChange}
             />
+            <style>
+              {`
+                    .go-left {
+                        text-align: left !important;
+                    }
+                `}
+            </style>
             <span
               // TODO: wtf why won't this text left align
-              className="label-text"
+              className="label-text go-left"
             >
               {option}
             </span>

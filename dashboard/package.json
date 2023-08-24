@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.2",
+    "@turf/bbox": "^6.5.0",
     "autoprefixer": "10.4.15",
     "classnames": "^2.3.2",
     "deck.gl": "^8.9.25",
