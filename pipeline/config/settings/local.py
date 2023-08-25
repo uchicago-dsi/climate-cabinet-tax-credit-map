@@ -1,6 +1,7 @@
 """Settings to use when running the Django project locally.
 """
 
+from pathlib import Path
 import os
 from .base import BaseConfig
 
@@ -13,7 +14,7 @@ class LocalConfig(BaseConfig):
     """Defines configuration settings for local development environments."""
 
     # File paths
-    DATA_DIR = f"{BaseConfig.BASE_DIR}/data"
+    DATA_DIR = Path(BaseConfig.BASE_DIR) / "data"
 
     # General
     DEBUG = True

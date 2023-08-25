@@ -1,14 +1,15 @@
-"""Loads tax credit programs for geographies into the database.
-"""
+"""Loads tax credit programs for geographies into the database."""
 
-from django.core.management.base import BaseCommand, CommandParser
 import pandas as pd
-from apps.tax_credit.models import Program
+from common.storage import DataReaderFactory, IDataReader
+from django.core.management.base import BaseCommand, CommandParser
+from tax_credit.models import Program
+
+data_reader: IDataReader = DataReaderFactory.get_reader()
 
 
 class Command(BaseCommand):
-    """
-    Populates the `Program` and `GeographyTypeProgram` tables.
+    """Populates the `Program` and `GeographyTypeProgram` tables.
 
     References:
     - https://docs.djangoproject.com/en/4.1/howto/custom-management-commands/
@@ -18,9 +19,8 @@ class Command(BaseCommand):
     help = "Loads data to populate the tax credit program tables."
 
     def add_arguments(self, parser: CommandParser) -> None:
-        """
-        Updates the class' `CommandParser` with arguments
-        passed in from the command line.
+        """Updates the class' `CommandParser` with arguments passed in from the
+        command line.
 
         Parameters:
             parser (`CommandParser`): Django's implementation of
@@ -32,9 +32,8 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options) -> None:
-        """
-        Executes the command. Accepts variable
-        numbers of keyword and non-keyword arguments.
+        """Executes the command. Accepts variable numbers of keyword and non-
+        keyword arguments.
 
         Parameters:
             None
@@ -42,13 +41,13 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        programs_file = "data/program.csv"
-        records = pd.read_csv(programs_file, header=0, delimiter="|").to_dict(
-            orient="records"
-        )
+        records: list[dict[str, str]] = data_reader.read_csv(
+            "program.csv", delimiter="|"
+        ).to_dict(orient="records")
 
         programs = [
             Program(
+                id=record["Id"],
                 name=record["Program"],
                 agency=record["Agency"],
                 description=record["Description"],

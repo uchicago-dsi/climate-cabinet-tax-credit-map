@@ -15,6 +15,7 @@ class BaseConfig(Configuration):
     PROJECT_DIR = f"{BASE_DIR}/pipeline"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATIC_URL = "/static/"
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
     # Installed apps
     INSTALLED_APPS = (
@@ -28,8 +29,8 @@ class BaseConfig(Configuration):
         # Third party apps
         "corsheaders",
         # Your apps
-        "apps.common",
-        "apps.tax_credit",
+        "tax_credit",
+        "tests"
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/

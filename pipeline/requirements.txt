@@ -1,6 +1,12 @@
 psycopg2-binary
 pandas
+geopandas
 django
 django-configurations
 django-cors-headers
 django-geo
+google
+google-cloud
+google-cloud-storage
+pyarrow
+shapely
