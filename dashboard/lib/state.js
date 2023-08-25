@@ -75,7 +75,8 @@ export function updateMapZoom() {
     {
       width: state.containerWidth,
       height: state.containerHeight,
-      padding: { top: 20, bottom: 20, left: 20, right: 20 },
+      // TODO: padding isn't working
+      padding: { top: 30, bottom: 30, left: 30, right: 30 },
     }
   );
 
