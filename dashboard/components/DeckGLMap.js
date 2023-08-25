@@ -20,13 +20,13 @@ const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
 export default function DeckGLMap() {
   const snapshot = useSnapshot(state);
-  var mapStyle = "mapbox://styles/mapbox/";
 
   // Don't render the component until the data is loaded
-  if (!snapshot.isDataLoaded) {
+  if (!snapshot.isDataLoaded || !snapshot.mapZoom) {
     return "";
   }
 
+  var mapStyle = "mapbox://styles/mapbox/";
   switch (snapshot.selectedMap) {
     case "Satellite Basemap":
       mapStyle += "satellite-v9";
@@ -35,23 +35,13 @@ export default function DeckGLMap() {
       mapStyle += "streets-v12";
   }
 
-  console.log("mapSettings in DeckGL component");
-  console.log(snapshot.mapZoom);
-
-  //   const defaultViewState = {
-  //     latitude: 37.7751,
-  //     longitude: -122.4193,
-  //     zoom: 11,
-  //     bearing: 0,
-  //     pitch: 0,
-  //   };
-
-  const defaultViewState = { ...snapshot.mapZoom };
+  // You need to unpack this here or you get an extensibility error
+  const mapView = { ...snapshot.mapZoom };
 
   const deck = (
     <DeckGL
       //   initialViewState={snapshot.mapZoom}
-      viewState={defaultViewState}
+      viewState={mapView}
       controller={true}
       //   layers={displayLayers}
       pickingRadius={50}

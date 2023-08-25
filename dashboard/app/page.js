@@ -2,7 +2,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 
-import { state, updateSearchGeo } from "@/lib/state";
+import { state, updateMapZoom } from "@/lib/state";
 
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
@@ -33,7 +33,8 @@ export default function Home() {
       }
     };
 
-    setTimeout(handleResize, 100);
+    // TODO: this timeout is weird and I probably shouldn't have to actually do this
+    setTimeout(handleResize, 200);
     window.addEventListener("resize", handleResize);
 
     return () => {
