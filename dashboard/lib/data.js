@@ -19,5 +19,16 @@ export const loadData = async () => {
     .filter((value, index, array) => array.indexOf(value) === index)
     .sort();
 
+  // Get list of communities for layers
+  // TODO: hard-coding this for testing functionality
+  // TODO: is there a difference between low income and distressed? Probably
+  state.layers = [
+    "Justice 40",
+    "Low Income",
+    "Distressed",
+    "Energy",
+    "Counties",
+  ];
+
   state.isDataLoaded = true;
 };

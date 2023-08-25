@@ -6,13 +6,12 @@ import bbox from "@turf/bbox";
 import { WebMercatorViewport } from "@deck.gl/core";
 
 export const state = proxy({
+  layers: [],
   filteredLayers: [],
-  selectedMap: "Political Basemap",
+  selectedMap: "Political Basemap", // default to the political view
   states: [],
   stateNames: [],
   isDataLoaded: false,
-  searchValue: "Alabama",
-  searchGeometry: null, // TODO: does this need a default?
 
   containerWidth: 0,
   containerHeight: 0,
@@ -25,7 +24,20 @@ export const state = proxy({
   },
 });
 
-export function updateSearchGeo(searchValue) {
+export function updateFilteredData() {
+  console.log(state.filteredLayers);
+  // choose the filtered areas to display
+  // TODO: row properties isn't going to be selected based upon state
+  //   state.filteredLayers = state.layers.features.filter((row) => {
+  //     if (state.filteredStates.includes(row.properties.state)) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   });
+}
+
+export function updateSearchGeo() {
   const foundFeature = state.states.features.find(
     (feature) => feature.properties.NAME === state.searchValue
   );
@@ -67,24 +79,6 @@ export function updateMapZoom() {
     }
   );
 
-  //   const boundingBox = bbox(currentGeojson);
-  //   const fittedViewport = new WebMercatorViewport(
-  //     state.containerWidth,
-  //     state.containerHeight
-  //   );
-
-  //   const currentLatLonZoom = fittedViewport.fitBounds(
-  //     [
-  //       [boundingBox[0], boundingBox[1]],
-  //       [boundingBox[2], boundingBox[3]],
-  //     ],
-  //     {
-  //       width: state.containerWidth,
-  //       height: state.containerHeight,
-  //       padding: { top: 20, bottom: 20, left: 20, right: 20 },
-  //     }
-  //   );
-
   const mapZoom = {
     longitude: currentLatLonZoom.longitude,
     latitude: currentLatLonZoom.latitude,
@@ -94,6 +88,6 @@ export function updateMapZoom() {
     bearing: 0,
   };
 
-  // do it this way to avoid extensibility errors
+  // unpack to avoid extensibility errors
   state.mapZoom = { ...mapZoom };
 }

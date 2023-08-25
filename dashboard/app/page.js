@@ -43,7 +43,7 @@ export default function Home() {
   }, []);
 
   if (!snapshot.isDataLoaded) {
-    return <div>Loading...</div>;
+    return <div className="p-10">Loading...</div>;
   }
 
   return (

@@ -1,36 +1,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
-import { state, set } from "../lib/state";
+import { state, updateFilteredData } from "../lib/state";
 
 export default function ControlPanel() {
   const snapshot = useSnapshot(state);
   // TODO: should I use both "state" and the react "state"
   const [expanded, setExpanded] = useState(true);
 
-  // TODO: is there a difference between low income and distressed? Probably
-  const layers = [
-    "Justice 40",
-    "Low Income",
-    "Distressed",
-    "Energy",
-    "Counties",
-  ];
   const mapViews = ["Political Basemap", "Satellite Basemap"];
 
   const selectAll = () => {
-    state.filteredLayers = [...layers];
-    // updateFilteredData();
+    state.filteredLayers = [...snapshot.layers];
+    updateFilteredData();
   };
 
   const selectNone = () => {
     state.filteredLayers.length = 0;
-    // updateFilteredData();
+    updateFilteredData();
   };
 
   const handleLayerChange = (event) => {
     const { checked, value } = event.target;
-    // adjust filtered states
+    // adjust filtered layers
     if (checked) {
       state.filteredLayers.push(value);
     } else {
@@ -39,7 +31,7 @@ export default function ControlPanel() {
         state.filteredLayers.splice(index, 1);
       }
     }
-    // updateFilteredData();
+    updateFilteredData();
   };
 
   const handleMapChange = (event) => {
@@ -55,7 +47,7 @@ export default function ControlPanel() {
         }`}
       >
         <div className="divider m-0"></div>
-        {layers.map((option, index) => (
+        {snapshot.layers.map((option, index) => (
           <label key={index} className="label flex cursor-pointer py-1">
             <input
               className="checkbox-sm"
