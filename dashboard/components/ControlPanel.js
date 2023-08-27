@@ -40,7 +40,8 @@ export default function ControlPanel() {
 
   return (
     <div className="w-full max-w-xs mx-auto">
-      <p className="text-center">Select Layers</p>
+      {/* TODO: Messing around with comic sans here */}
+      <p className="text-center font-sans">Select Layers</p>
       <div
         className={`form-control h-0 overflow-hidden ${
           expanded && "h-auto overflow-auto max-h-full"

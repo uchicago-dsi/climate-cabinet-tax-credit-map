@@ -13,6 +13,9 @@ import SummaryStats from "../components/SummaryStats";
 import Footer from "../components/Footer";
 import { loadData } from "@/lib/data";
 
+// TODO: This doesn't work?
+import "../app/globals.css";
+
 export default function Home() {
   const snapshot = useSnapshot(state);
 
