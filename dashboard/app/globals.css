@@ -57,6 +57,6 @@ span {
 }
 
 /* TODO: This button is not quite right but it's getting there */
-button {
+.cc-button {
   @apply bg-ccorange hover:text-white px-[40px] py-[10px] hover:bg-black uppercase text-[15px] font-bold tracking-[2px]
 }

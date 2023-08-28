@@ -32,24 +32,23 @@ export default function AutocompleteLogic() {
     setItems(newItems);
   }, [snapshot.stateNames, query]);
 
-  function handleSubmission() {
+  function handleSubmission(e) {
+    e.preventDefault(); // prevent page reload on submission
     if (items.length > 0) {
       const firstItem = items[0];
       state.searchValue = firstItem;
       updateSearchGeo(snapshot.searchValue);
     }
+    setQuery("");
   }
 
   // The Autocomplete component includes the input
   return (
     <div className="flex flex-row">
-      <Autocomplete items={items} value={query} onChange={setQuery} />
-      <button
-        // className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-        onClick={handleSubmission}
-      >
-        Submit
-      </button>
+      <form onSubmit={handleSubmission}>
+        <Autocomplete items={items} value={query} onChange={setQuery} />
+        <button className="cc-button">Submit</button>
+      </form>
     </div>
   );
 }
