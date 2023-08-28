@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from logging import Logger
+from typing import Any, Iterator
 
 from common.storage import DataReaderFactory, IDataReader
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
@@ -15,7 +16,7 @@ data_reader: IDataReader = DataReaderFactory.get_reader()
 logger: Logger = Logger(__file__)
 
 
-class FileToDbJob():
+class GeographyLoadJob():
     def __init__(self, file_name: str, geography_type_value: str, feature_col_in_src: str):
         """
         Creates a job loading a given parquet file into the DB
@@ -75,20 +76,19 @@ class Command(BaseCommand):
         self._load_geo_types()
 
         # the load geographies from resp files
-        file_load_jobs = [
-            FileToDbJob("state_clean.geoparquet", "state", "State"),
-            FileToDbJob("coal_closure.geoparquet", "energy_coal", "TractID"),
-            FileToDbJob("county_clean.geoparquet", "county", "County"),
-            FileToDbJob("dci_clean.geoparquet", "dci", "zip_code"),
-            FileToDbJob("ffe.geoparquet", "energy_ffe", "TractIDcty"),
-            FileToDbJob("justice40.geoparquet", "justice40", "TractID"),
-            # FileToDbJob("low_income_tracts.geoparquet", "low_income", "tractId"),
-            FileToDbJob("municipal_utils.geoparquet", "municipal_util", "ID"),
-            FileToDbJob("rural_coops.geoparquet", "rural_coop", "NAME"),
-            FileToDbJob("state_clean.geoparquet", "state", "State"),
+        geo_file_load_jobs = [
+            GeographyLoadJob("state_clean.geoparquet", "state", "State"),
+            GeographyLoadJob("coal_closure.geoparquet", "energy_coal", "TractID"),
+            GeographyLoadJob("county_clean.geoparquet", "county", "County"),
+            GeographyLoadJob("dci_clean.geoparquet", "dci", "zip_code"),
+            GeographyLoadJob("ffe.geoparquet", "energy_ffe", "TractIDcty"),
+            GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
+            GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
+            GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
+            GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
         ]
 
-        for job in file_load_jobs:
+        for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
             try:
                 self._load_geography_file(job)
@@ -117,19 +117,20 @@ class Command(BaseCommand):
 
         geography_type = Geography_Type.objects.get(name = job.geography_type_value)
 
-        df = data_reader.read_geoparquet(job.file_name)
+        iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(job.file_name)
         logger.info(f"Read {job.file_name} to dataframe.")
-        geographies: list[Geography] = [
-            Geography(
-                name = row[job.feature_col_in_src],
-                geography_type = geography_type,
-                boundary = self._convert_geometry(row.geometry), # verified this will always return active geometry https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
-                as_of = datetime.now(), # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
-                source = job.file_name, # TODO again this isn't it......
-            ) for _, row in df.iterrows()
-        ]
-        Geography.objects.bulk_create(geographies)
-        del(df)
+
+        for batch in iter_parquet:
+            geographies: list[Geography] = [
+                Geography(
+                    name = row[job.feature_col_in_src],
+                    geography_type = geography_type,
+                    boundary = self._convert_geometry(row["geometry"]),
+                    as_of = datetime.now(), # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
+                    source = job.file_name, # TODO again this isn't it......
+                ) for row in batch
+            ]
+            Geography.objects.bulk_create(geographies)
     
     def _load_geo_types(self) -> None:
         """Helper method specifically to load geography types into Postgres.

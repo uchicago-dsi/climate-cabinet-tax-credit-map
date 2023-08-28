@@ -3,7 +3,7 @@
 import pandas as pd
 from common.storage import DataReaderFactory, IDataReader
 from django.core.management.base import BaseCommand, CommandParser
-from tax_credit.models import Program
+from tax_credit.models import Program, Geography_Type, Geography_Type_Program
 
 data_reader: IDataReader = DataReaderFactory.get_reader()
 
@@ -41,10 +41,10 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        records: list[dict[str, str]] = data_reader.read_csv(
+        # load program names
+        program_df: pd.DataFrame = data_reader.read_csv(
             "program.csv", delimiter="|"
-        ).to_dict(orient="records")
-
+        )
         programs = [
             Program(
                 id=record["Id"],
@@ -53,7 +53,17 @@ class Command(BaseCommand):
                 description=record["Description"],
                 base_benefit=record["Base_benefit"],
             )
-            for record in records
+            for _, record in program_df.iterrows()
         ]
-
         Program.objects.bulk_create(programs)
+
+        # TODO if not geography is loaded, throw error
+        type_program_df: pd.DataFrame = data_reader.read_csv("geography_type_program.csv", delimiter='|')
+        geo_program_matches = [
+            Geography_Type_Program(
+                geography_type=Geography_Type.objects.get(name=row["Geography_Type"]), # TODO will this be super slow?
+                program=Program.objects.get(name=row["Program"]), # TODO this slow too?
+                amount_description=row["Abount_Description"],
+            ) for _, row in type_program_df.iterrows()]
+        Geography_Type_Program.objects.bulk_create(geo_program_matches)
+        
