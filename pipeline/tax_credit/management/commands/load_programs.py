@@ -57,6 +57,7 @@ class Command(BaseCommand):
         ]
         Program.objects.bulk_create(programs)
 
+        # load program specifics for geography types
         # TODO if not geography is loaded, throw error
         type_program_df: pd.DataFrame = data_reader.read_csv("geography_type_program.csv", delimiter='|')
         geo_program_matches = [
