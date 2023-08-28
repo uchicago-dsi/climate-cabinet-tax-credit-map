@@ -44,6 +44,19 @@ h4 {
   @apply text-xl text-ccgray-dark
 }
 
+h5 {
+  @apply text-lg text-ccgray-dark uppercase
+}
+
 p {
   @apply text-base text-ccgray-light
+}
+
+span {
+  @apply text-base text-ccgray-light
+}
+
+/* TODO: This button is not quite right but it's getting there */
+button {
+  @apply bg-ccorange hover:text-white px-[40px] py-[10px] hover:bg-black uppercase text-[15px] font-bold tracking-[2px]
 }

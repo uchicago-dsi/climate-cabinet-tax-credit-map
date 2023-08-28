@@ -41,7 +41,7 @@ export default function ControlPanel() {
   return (
     <div className="w-full max-w-xs mx-auto">
       {/* TODO: Messing around with comic sans here */}
-      <p className="text-center font-sans">Select Layers</p>
+      <h5 className="text-center">Select Layers</h5>
       <div
         className={`form-control h-0 overflow-hidden ${
           expanded && "h-auto overflow-auto max-h-full"
@@ -66,7 +66,7 @@ export default function ControlPanel() {
             </style>
             <span
               // TODO: wtf why won't this text left align
-              className="label-text go-left"
+              className="go-left"
             >
               {option}
             </span>

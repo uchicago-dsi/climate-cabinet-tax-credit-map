@@ -12,6 +12,7 @@ module.exports = {
     extend: {
       colors: {
         ccgray: { dark: "#333333", light: "#737373" },
+        ccorange: "#C36C27",
       },
     },
   },
