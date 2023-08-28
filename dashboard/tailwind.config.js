@@ -6,15 +6,13 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ["Lato", "sans-serif"],
+    },
     extend: {
-      fontFamily: {
-        sans: ["Comic Sans MS", "system-ui", "sans-serif"],
+      colors: {
+        ccgray: { dark: "#333333", light: "#737373" },
       },
-      // backgroundImage: {
-      //   "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-      //   "gradient-conic":
-      //     "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      // },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],

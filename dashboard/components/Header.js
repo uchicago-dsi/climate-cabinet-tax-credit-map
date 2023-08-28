@@ -13,7 +13,7 @@ export default function Header() {
         />
       </div>
       <div className="flex-1">
-        <h1 className="text-2xl">Climate Cabinet's Good Site</h1>
+        <h1>Climate Cabinet's Good Site</h1>
       </div>
     </div>
   );
