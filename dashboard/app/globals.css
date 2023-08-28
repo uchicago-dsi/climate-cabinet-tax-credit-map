@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  /* TODO: What should I do for setting background color */
+  @apply bg-white
+  /* color: rgb(var(--foreground-rgb)); */
+  /* background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb)); */
+}
+
+h1 {
+  @apply text-3xl uppercase text-ccgray-dark
+}
+
+h2 {
+  @apply text-2xl uppercase text-ccgray-dark
+}
+
+h3{
+  @apply text-xl uppercase text-ccgray-dark
+}
+
+h4 {
+  @apply text-xl text-ccgray-dark
+}
+
+h5 {
+  @apply text-lg text-ccgray-dark uppercase
+}
+
+p {
+  @apply text-base text-ccgray-light
+}
+
+span {
+  @apply text-base text-ccgray-light
+}
+
+/* TODO: This button is not quite right but it's getting there */
+button {
+  @apply bg-ccorange hover:text-white px-[40px] py-[10px] hover:bg-black uppercase text-[15px] font-bold tracking-[2px]
+}
