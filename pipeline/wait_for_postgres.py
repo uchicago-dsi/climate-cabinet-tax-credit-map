@@ -18,7 +18,7 @@ settings = {
     "dbname": os.getenv("POSTGRES_DB"),
     "user": os.getenv("POSTGRES_USER"),
     "password": os.getenv("POSTGRES_PASSWORD"),
-    "host": os.getenv("POSTGRES_HOST")
+    "host": os.getenv("POSTGRES_HOST"),
 }
 
 # Attempt database connection until success or timeout
@@ -30,10 +30,10 @@ while time() - start_time < check_timeout:
         conn.close()
         exit(0)
     except psycopg2.OperationalError:
-        logger.info("Postgres isn't ready. Waiting for "
-                    f"{check_interval} second(s)...")
-        sleep(check_interval)    
+        logger.info(
+            "Postgres isn't ready. Waiting for " f"{check_interval} second(s)..."
+        )
+        sleep(check_interval)
 
-logger.error("We could not connect to Postgres "
-             f"within {check_timeout} second(s).")
+logger.error("We could not connect to Postgres " f"within {check_timeout} second(s).")
 exit(1)

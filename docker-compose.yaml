@@ -6,8 +6,8 @@ services:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
-    volumes:
-        - ./pgdata:/var/lib/postgresql/data
+    # volumes:
+        # - ./pgdata:/var/lib/postgresql/data
 
   # PIPELINE
   climate-cabinet-pipeline:      
@@ -22,10 +22,13 @@ services:
       args:
         ENV: DEV
       context: pipeline
+    command: ./cr-entry.sh
     volumes:
       - ./pipeline:/pipeline
+      - ./data:/data
     depends_on:
       - climate-cabinet-postgis
+      - climate-cabinet-pgadmin
 
   # PGADMIN DATABASE GUI
   climate-cabinet-pgadmin:

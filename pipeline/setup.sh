@@ -3,6 +3,8 @@
 # Configure script to exit when any command fails
 set -e
 
+echo 'starting setup script'
+
 # Monitor last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 
@@ -47,7 +49,7 @@ fi
 if $load_programs ; then
     echo "Loading tax credit programs into database."
     ./manage.py load_programs
-
+ 
     echo "Loading geography metrics into database."
     ./manage.py load_geo_metrics
 
