@@ -47,7 +47,7 @@ export default function AutocompleteLogic() {
     <div>
       <form onSubmit={handleSubmission} className="flex flex-row">
         <Autocomplete items={items} value={query} onChange={setQuery} />
-        <button className="cc-button">Submit</button>
+        <button className="cc-button mx-2">Submit</button>
       </form>
     </div>
   );
