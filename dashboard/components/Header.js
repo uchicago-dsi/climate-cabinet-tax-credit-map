@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Header() {
   return (
-    <div className="flex flex-row text-center">
+    <div className="flex flex-row">
       <div className="w-[200px]">
         <Image
           src="/images/climate-cabinet-logo.png"
@@ -12,8 +12,15 @@ export default function Header() {
           height={276} // height of the original image
         />
       </div>
-      <div className="flex-1">
-        <h1>Climate Cabinet's Good Site</h1>
+      <div className="flex flex-1 items-center justify-end">
+        <nav>
+          <ul className="flex space-x-10">
+            <li>Home</li>
+            <li>About</li>
+            <li>Case Studies</li>
+            <li>Map</li>
+          </ul>
+        </nav>
       </div>
     </div>
   );
