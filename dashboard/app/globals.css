@@ -17,8 +17,8 @@
 }
 
 body {
-  /* TODO: What should I do for setting background color */
   @apply bg-white
+  /* TODO: This is the default way that next does this
   /* color: rgb(var(--foreground-rgb)); */
   /* background: linear-gradient(
       to bottom,
