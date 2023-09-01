@@ -6,8 +6,8 @@ services:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
-    # volumes:
-        # - ./pgdata:/var/lib/postgresql/data
+    volumes:
+        - ./pgdata:/var/lib/postgresql/data
 
   # PIPELINE
   climate-cabinet-pipeline:      
