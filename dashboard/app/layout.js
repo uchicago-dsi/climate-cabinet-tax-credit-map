@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Lato, Open_Sans } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 
 export const metadata = {
   title: "Climate Cabinet - Inflation Reduction Act (IRA) Credits",
@@ -10,6 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/public/favicon.ico" />
+      </head>
       <body>
         <div className="flex justify-center max-w-screen-xl  mx-auto">
           {children}

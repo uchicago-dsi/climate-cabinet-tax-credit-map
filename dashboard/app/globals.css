@@ -29,23 +29,23 @@ body {
 }
 
 h1 {
-  @apply text-3xl uppercase text-ccblack
+  @apply text-3xl uppercase text-ccblack-dark
 }
 
 h2 {
-  @apply text-2xl uppercase text-ccblack
+  @apply text-2xl uppercase text-ccblack-dark
 }
 
 h3{
-  @apply text-xl uppercase text-ccblack
+  @apply text-xl uppercase text-ccblack-dark
 }
 
 h4 {
-  @apply text-xl text-ccblack
+  @apply text-xl text-ccblack-dark
 }
 
 h5 {
-  @apply text-lg text-ccblack uppercase
+  @apply text-lg text-ccblack-dark uppercase
 }
 
 p {

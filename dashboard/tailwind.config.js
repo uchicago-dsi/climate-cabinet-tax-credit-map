@@ -11,11 +11,13 @@ module.exports = {
     },
     extend: {
       colors: {
-        ccblack: "#070707",
+        ccblack: { dark: "#070707", light: "#212121" },
         ccwhite: "#fbfbfb",
         ccblue: { dark: "#004AAD", light: "#416BB8" },
-        ccgray: { dark: "#212121", light: "#eceef1" },
+        ccgray: { dark: "#575758", light: "#eceef1" },
+        ccindigo: "#423492",
         ccorange: "#C36C27",
+        ccbeige: "#ecdcbc",
       },
     },
   },
