@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Lato } from "next/font/google";
+import { Lato, Open_Sans } from "next/font/google";
 
 export const metadata = {
   title: "Climate Cabinet - Inflation Reduction Act (IRA) Credits",

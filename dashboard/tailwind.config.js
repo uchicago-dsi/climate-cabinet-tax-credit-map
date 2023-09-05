@@ -7,11 +7,14 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      sans: ["Lato", "sans-serif"],
+      sans: ["Open Sans", "sans-serif"],
     },
     extend: {
       colors: {
-        ccgray: { dark: "#333333", light: "#737373" },
+        ccblack: "#070707",
+        ccwhite: "#fbfbfb",
+        ccblue: { dark: "#004AAD", light: "#416BB8" },
+        ccgray: { dark: "#212121", light: "#eceef1" },
         ccorange: "#C36C27",
       },
     },

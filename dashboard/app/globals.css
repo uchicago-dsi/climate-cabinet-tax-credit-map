@@ -17,8 +17,8 @@
 }
 
 body {
-  @apply bg-white
-  /* TODO: This is the default way that next does this
+  @apply bg-ccwhite
+  /* TODO: This is the default way that Next does this
   /* color: rgb(var(--foreground-rgb)); */
   /* background: linear-gradient(
       to bottom,
@@ -29,34 +29,34 @@ body {
 }
 
 h1 {
-  @apply text-3xl uppercase text-ccgray-dark
+  @apply text-3xl uppercase text-ccblack
 }
 
 h2 {
-  @apply text-2xl uppercase text-ccgray-dark
+  @apply text-2xl uppercase text-ccblack
 }
 
 h3{
-  @apply text-xl uppercase text-ccgray-dark
+  @apply text-xl uppercase text-ccblack
 }
 
 h4 {
-  @apply text-xl text-ccgray-dark
+  @apply text-xl text-ccblack
 }
 
 h5 {
-  @apply text-lg text-ccgray-dark uppercase
+  @apply text-lg text-ccblack uppercase
 }
 
 p {
-  @apply text-base text-ccgray-light
+  @apply text-base text-ccgray-dark
 }
 
 span {
-  @apply text-base text-ccgray-light
+  @apply text-base text-ccgray-dark
 }
 
 /* TODO: This button is not quite right but it's getting there */
 .cc-button {
-  @apply bg-ccorange hover:text-white px-[40px] py-[10px] hover:bg-black uppercase text-[15px] font-bold tracking-[2px]
+  @apply bg-ccblue-dark text-ccwhite px-[40px] py-[10px] hover:bg-ccblue-light uppercase text-[15px] font-bold tracking-[2px]
 }
