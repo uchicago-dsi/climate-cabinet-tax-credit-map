@@ -8,7 +8,7 @@ import Image from "next/image";
 export default function Homepage() {
   return (
     <main className="w-full">
-      <div className="w-full p-5">
+      <div className="w-full px-10">
         <Header />
       </div>
       <div className="w-full text-center justify-center">
@@ -19,15 +19,17 @@ export default function Homepage() {
           impact.
         </p>
       </div>
-      <div className="w-full text-center justify-center">
-        <h2>Search Now</h2>
-        <p className="py-5">
-          Enter the name of a state, county, municipality, or rural electric
-          cooperative to view its Justice 40 communities, energy communities,
-          and designated low-income census tracts and MSAs on an interactive map
-          and a description of available tax credit programs.
-        </p>
-        <AutocompleteLogic />
+      <div className="flex w-full text-center justify-center px-10">
+        <div className="w-2/3">
+          <h2>Search Now</h2>
+          <p>
+            Enter the name of a state, county, municipality, or rural electric
+            cooperative to view its Justice 40 communities, energy communities,
+            and designated low-income census tracts and MSAs on an interactive
+            map and a description of available tax credit programs.
+          </p>
+          <AutocompleteLogic />
+        </div>
       </div>
       <div className="flex justify-center">
         <Image
@@ -37,7 +39,7 @@ export default function Homepage() {
           height={816} // height of the original image
         />{" "}
       </div>
-      <div className="flex flex-row">
+      <div className="flex flex-row px-10 py-10">
         <div className="w-1/2">
           <h4>
             The Inflation Reduction Act (IRA), signed into law on August 16,
@@ -57,8 +59,15 @@ export default function Homepage() {
             areas:
           </p>
         </div>
-        <div className="flex justify-center border w-1/2 mx-20 my-5">
-          <h4>Did you know?</h4>
+        <div className="flex w-1/2 border mx-20 my-5">
+          <div className="flex flex-col w-full text-center">
+            <h4>Did you know?</h4>
+            <p>2/3</p>
+            <p>
+              of the total funding within the IRA will be delivered via clean
+              energy tax credits
+            </p>
+          </div>
         </div>
       </div>
       <div className="flex w-full justify-center">
@@ -66,7 +75,7 @@ export default function Homepage() {
           <Communities />
         </div>
       </div>
-      <div>
+      <div className="flex px-10">
         <p>
           However, to date, no one has mapped these key communities and their
           overlap for cooperative or municipal leaders, forcing them to rely on
@@ -84,11 +93,13 @@ export default function Homepage() {
           amet venenatis urna cursus.{" "}
         </p>
       </div>
-      <div>
+      <div className="flex flex-col w-full px-10">
         <div className="flex w-full justify-end">
           <h3>Locale Spotlight</h3>
         </div>
-        <Locales />
+        <div>
+          <Locales />
+        </div>
       </div>
       <div className="flex w-full justify-center">
         <div className="flex flex-col text-center border w-1/2 mx-20 my-5 p-5">
@@ -101,30 +112,34 @@ export default function Homepage() {
           </p>
         </div>
       </div>
-      <div>
+      <div className="px-10 py-5">
         <h5>Acknowledgements</h5>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Tristique
-          et egestas quis ipsum suspendisse ultrices gravida. Ultricies integer
-          quis auctor elit sed. Arcu bibendum at varius vel. Augue neque gravida
-          in fermentum et sollicitudin ac orci. Egestas erat imperdiet sed
-          euismod nisi porta lorem mollis aliquam. Enim nec dui nunc mattis enim
-          ut. Amet justo donec enim diam vulputate ut. Velit laoreet id donec
-          ultrices tincidunt arcu. Scelerisque purus semper eget duis. Dignissim
-          enim sit amet venenatis urna cursus.{" "}
+          <b>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </b>{" "}
+          Tristique et egestas quis ipsum suspendisse ultrices gravida.
+          Ultricies integer quis auctor elit sed. Arcu bibendum at varius vel.
+          Augue neque gravida in fermentum et sollicitudin ac orci. Egestas erat
+          imperdiet sed euismod nisi porta lorem mollis aliquam. Enim nec dui
+          nunc mattis enim ut. Amet justo donec enim diam vulputate ut. Velit
+          laoreet id donec ultrices tincidunt arcu. Scelerisque purus semper
+          eget duis. Dignissim enim sit amet venenatis urna cursus.{" "}
         </p>
         <h5>Have Questions?</h5>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Tristique
-          et egestas quis ipsum suspendisse ultrices gravida. Ultricies integer
-          quis auctor elit sed. Arcu bibendum at varius vel. Augue neque gravida
-          in fermentum et sollicitudin ac orci. Egestas erat imperdiet sed
-          euismod nisi porta lorem mollis aliquam. Enim nec dui nunc mattis enim
-          ut. Amet justo donec enim diam vulputate ut. Velit laoreet id donec
-          ultrices tincidunt arcu. Scelerisque purus semper eget duis. Dignissim
-          enim sit amet venenatis urna cursus.{" "}
+          <b>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </b>{" "}
+          Tristique et egestas quis ipsum suspendisse ultrices gravida.
+          Ultricies integer quis auctor elit sed. Arcu bibendum at varius vel.
+          Augue neque gravida in fermentum et sollicitudin ac orci. Egestas erat
+          imperdiet sed euismod nisi porta lorem mollis aliquam. Enim nec dui
+          nunc mattis enim ut. Amet justo donec enim diam vulputate ut. Velit
+          laoreet id donec ultrices tincidunt arcu. Scelerisque purus semper
+          eget duis. Dignissim enim sit amet venenatis urna cursus.{" "}
         </p>
       </div>
       <div>

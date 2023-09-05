@@ -7,7 +7,7 @@ export default function Locale({ name, description, location }) {
         <h5>{name}</h5>
         <p>{description}</p>
       </div>
-      <div className="w-1/2">
+      <div className="flex w-1/2 justify-end">
         <div className="w-3/4">
           <Image
             src="/images/locale-placeholder.png"
