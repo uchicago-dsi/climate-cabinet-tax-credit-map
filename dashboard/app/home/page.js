@@ -11,24 +11,27 @@ export default function Homepage() {
       <div className="w-full px-10">
         <Header />
       </div>
-      <div className="w-full text-center justify-center">
-        <h1>Clean Energy Tax Credit Bonus Eligibility Map</h1>
-        <p className="py-5">
-          Discover which Inflation Reduction Act (IRA) bonus territories fall in
-          your jurisdiction to lower utility costs and maximize environmental
-          impact.
-        </p>
-      </div>
-      <div className="flex w-full text-center justify-center px-10">
-        <div className="w-2/3">
-          <h2>Search Now</h2>
-          <p>
-            Enter the name of a state, county, municipality, or rural electric
-            cooperative to view its Justice 40 communities, energy communities,
-            and designated low-income census tracts and MSAs on an interactive
-            map and a description of available tax credit programs.
+      <div className="py-5 bg-ccgray-light">
+        <div className="w-full text-center justify-center px-10">
+          <h1>Clean Energy Tax Credit Bonus Eligibility Map</h1>
+          <p className="py-5">
+            Discover which Inflation Reduction Act (IRA) bonus territories fall
+            in your jurisdiction to lower utility costs and maximize
+            environmental impact.
           </p>
-          <AutocompleteLogic />
+        </div>
+        <div className="flex w-full text-center justify-center px-10">
+          <div className="w-2/3">
+            <h2>Search Now</h2>
+            <p>
+              Enter the name of a state, county, municipality, or rural electric
+              cooperative to view its Justice 40 communities, energy
+              communities, and designated low-income census tracts and MSAs on
+              an interactive map and a description of available tax credit
+              programs.
+            </p>
+            <AutocompleteLogic />
+          </div>
         </div>
       </div>
       <div className="flex justify-center">
