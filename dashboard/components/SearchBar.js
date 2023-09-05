@@ -10,7 +10,7 @@ export default function SearchBar() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="text-center w-1/2">
+      <div className="text-center w-full md:w-3/4">
         <h2>Map Search Tool</h2>
         <p className="px-20 py-5">
           Enter the name of a state, county, municipality or rural electric
