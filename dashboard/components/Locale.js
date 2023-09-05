@@ -2,10 +2,10 @@ import Image from "next/image";
 
 export default function Locale({ name, description, location }) {
   return (
-    <div className="flex flex-row p-5">
+    <div className="flex flex-row">
       <div className="w-1/2">
         <h5>{name}</h5>
-        <p className="py-5">{description}</p>
+        <p>{description}</p>
       </div>
       <div className="w-1/2">
         <div className="w-3/4">

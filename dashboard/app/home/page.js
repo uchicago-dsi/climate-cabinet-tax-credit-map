@@ -61,8 +61,10 @@ export default function Homepage() {
           <h4>Did you know?</h4>
         </div>
       </div>
-      <div>
-        <Communities />
+      <div className="flex w-full justify-center">
+        <div className="w-3/4">
+          <Communities />
+        </div>
       </div>
       <div>
         <p>
@@ -83,16 +85,21 @@ export default function Homepage() {
         </p>
       </div>
       <div>
+        <div className="flex w-full justify-end">
+          <h3>Locale Spotlight</h3>
+        </div>
         <Locales />
       </div>
-      <div className="flex flex-col text-center border w-1/2 mx-20 my-5 p-5">
-        <h4>Did you know?</h4>
-        <p>
-          There is a 30 percent base tax credit for clean energy projects that
-          meet certain criteria, but project developers and utilities can push
-          the value of these credits WAY higher--if they build in the right
-          places.
-        </p>
+      <div className="flex w-full justify-center">
+        <div className="flex flex-col text-center border w-1/2 mx-20 my-5 p-5">
+          <h4>Did you know?</h4>
+          <p>
+            There is a 30 percent base tax credit for clean energy projects that
+            meet certain criteria, but project developers and utilities can push
+            the value of these credits WAY higher--if they build in the right
+            places.
+          </p>
+        </div>
       </div>
       <div>
         <h5>Acknowledgements</h5>

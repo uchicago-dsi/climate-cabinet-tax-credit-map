@@ -11,11 +11,13 @@ export default function Locales() {
   return (
     <div>
       {localeData.map((locale, index) => (
-        <Locale
-          key={index}
-          name={locale.name}
-          description={locale.description}
-        />
+        <div className="my-5">
+          <Locale
+            key={index}
+            name={locale.name}
+            description={locale.description}
+          />
+        </div>
       ))}
     </div>
   );
