@@ -76,7 +76,7 @@ export default function Homepage() {
       <div>
         <Locales />
       </div>
-      <div className="flex flex-col justify-center border w-1/2 mx-20 my-5">
+      <div className="flex flex-col text-center border w-1/2 mx-20 my-5 p-5">
         <h4>Did you know?</h4>
         <p>
           There is a 30 percent base tax credit for clean energy projects that

@@ -1,4 +1,5 @@
 import Locale from "./Locale";
+import Image from "next/image";
 
 export default function Locales() {
   const localeData = [

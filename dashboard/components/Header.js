@@ -7,7 +7,7 @@ export default function Header() {
       <div className="w-[200px]">
         <Image
           src="/images/climate-cabinet-logo.png"
-          alt="Description"
+          alt="Climate Cabinet Education"
           width={424} // width of the original image
           height={276} // height of the original image
         />

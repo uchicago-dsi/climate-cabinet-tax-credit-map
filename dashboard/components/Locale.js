@@ -1,8 +1,20 @@
+import Image from "next/image";
+
 export default function Locale({ name, description, location }) {
   return (
-    <div>
-      <h5>{name}</h5>
-      <p>{description}</p>
+    <div className="flex flex-row">
+      <div className="w-1/2">
+        <h5>{name}</h5>
+        <p>{description}</p>
+      </div>
+      <div className="w-1/2">
+        <Image
+          src="/images/locale-placeholder.png"
+          alt="locale"
+          width={696} // width of the original image
+          height={500} // height of the original image
+        />
+      </div>
     </div>
   );
 }
