@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <div className="text-center">
+    <footer className="text-center">
       <div className="mx-auto w-[250px]">
         <Image
           src="/images/climate-cabinet-logo-black.png"
@@ -17,6 +17,6 @@ export default function Footer() {
         independently of and not authorized or approved by any federal, state,
         or local candidate, candidate’s agent, or committee.
       </p>
-    </div>
+    </footer>
   );
 }
