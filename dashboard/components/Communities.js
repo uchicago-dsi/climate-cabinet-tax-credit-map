@@ -18,13 +18,16 @@ export default function Communities() {
 
   return (
     <div>
-      {communityData.map((community, index) => (
-        <Community
-          key={index}
-          name={community.name}
-          description={community.description}
-        />
-      ))}
+      <ol style={{ listStyleType: "decimal" }}>
+        {communityData.map((community, index) => (
+          <li key={index}>
+            <Community
+              name={community.name}
+              description={community.description}
+            />
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

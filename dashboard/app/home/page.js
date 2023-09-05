@@ -3,6 +3,7 @@ import Communities from "@/components/Communities";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Locales from "@/components/Locales";
+import Image from "next/image";
 
 export default function Homepage() {
   return (
@@ -27,6 +28,14 @@ export default function Homepage() {
           and a description of available tax credit programs.
         </p>
         <AutocompleteLogic />
+      </div>
+      <div className="flex justify-center">
+        <Image
+          src="/images/map-placeholder.png"
+          alt="locale"
+          width={1378} // width of the original image
+          height={816} // height of the original image
+        />{" "}
       </div>
       <div className="flex flex-row">
         <div className="w-1/2">
