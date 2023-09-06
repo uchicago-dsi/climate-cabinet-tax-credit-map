@@ -24,28 +24,30 @@ function Autocomplete(props) {
         placeholder="Type something.."
         tabIndex={0}
       />
-      <div className="dropdown-content bg-base-200 top-14 max-h-96 overflow-auto flex-col rounded-md">
-        <ul
-          className="menu menu-compact"
-          style={{ width: ref.current?.clientWidth }}
-        >
-          {items.map((item, index) => {
-            return (
-              <li
-                key={index}
-                tabIndex={index + 1}
-                onClick={() => {
-                  onChange(item);
-                  setOpen(false);
-                }}
-                className="border-b border-b-base-content/10 w-full"
-              >
-                <button>{item}</button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      {value && (
+        <div className="dropdown-content bg-base-200 top-14 max-h-96 overflow-auto flex-col rounded-md">
+          <ul
+            className="menu menu-compact"
+            style={{ width: ref.current?.clientWidth }}
+          >
+            {items.map((item, index) => {
+              return (
+                <li
+                  key={index}
+                  tabIndex={index + 1}
+                  onClick={() => {
+                    onChange(item);
+                    setOpen(false);
+                  }}
+                  className="border-b border-b-base-content/10 w-full"
+                >
+                  <button>{item}</button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
