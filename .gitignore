@@ -168,7 +168,7 @@ cython_debug/
 
 # Data
 data/
-*/data/
+# */data/ # We actually want this folder in the Next app
 
 #
 
