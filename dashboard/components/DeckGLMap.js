@@ -40,11 +40,6 @@ export default function DeckGLMap() {
 
   const deck = (
     <div>
-      <p>MAPBOX_ACCESS_TOKEN: {MAPBOX_ACCESS_TOKEN}</p>
-      <p>
-        process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN:{" "}
-        {process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-      </p>
       <DeckGL
         //   initialViewState={snapshot.mapZoom}
         viewState={mapView}
