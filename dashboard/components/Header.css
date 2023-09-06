@@ -1,0 +1,12 @@
+.nav-menu a {
+    @apply transition duration-500 px-10 py-5 
+}
+
+.nav-menu a:hover {
+    @apply bg-ccgray-light 
+}
+
+/* TODO: This isn't working right */
+.nav-image a:hover {
+    @apply shadow-lg bg-none
+}
