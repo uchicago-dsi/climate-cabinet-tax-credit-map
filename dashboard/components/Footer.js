@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="text-center">
       <div className="mx-auto w-[250px]">
         <Image
-          src="/images/climate-cabinet-logo-black.png"
+          src="/images/climate-cabinet-education-black.png"
           alt="Description"
           width={424} // width of the original image
           height={276} // height of the original image
