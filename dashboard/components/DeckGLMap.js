@@ -21,6 +21,8 @@ const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 export default function DeckGLMap() {
   const snapshot = useSnapshot(state);
 
+  console.log(MAPBOX_ACCESS_TOKEN);
+
   // Don't render the component until the data is loaded
   if (!snapshot.isDataLoaded || !snapshot.mapZoom) {
     return "";
