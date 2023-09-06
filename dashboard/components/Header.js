@@ -4,7 +4,7 @@ import "./Header.css";
 
 export default function Header() {
   return (
-    <nav className="flex flex-row nav-menu">
+    <nav className="flex flex-row">
       <div className="w-[200px]">
         <a href="https://www.climatecabinetaction.org/">
           <Image
@@ -15,7 +15,7 @@ export default function Header() {
           />
         </a>
       </div>
-      <div className="flex flex-1 items-center justify-end">
+      <div className="flex flex-1 items-center justify-end nav-menu">
         <nav>
           <ul className="flex">
             <li>

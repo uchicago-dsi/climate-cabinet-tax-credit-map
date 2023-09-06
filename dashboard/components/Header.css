@@ -5,3 +5,8 @@
 .nav-menu a:hover {
     @apply bg-ccgray-light 
 }
+
+/* TODO: This isn't working right */
+.nav-image a:hover {
+    @apply shadow-lg bg-none
+}
