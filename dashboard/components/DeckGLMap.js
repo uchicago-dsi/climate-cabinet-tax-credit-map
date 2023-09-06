@@ -21,8 +21,6 @@ const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 export default function DeckGLMap() {
   const snapshot = useSnapshot(state);
 
-  console.log(MAPBOX_ACCESS_TOKEN);
-
   // Don't render the component until the data is loaded
   if (!snapshot.isDataLoaded || !snapshot.mapZoom) {
     return "";
@@ -41,15 +39,22 @@ export default function DeckGLMap() {
   const mapView = { ...snapshot.mapZoom };
 
   const deck = (
-    <DeckGL
-      //   initialViewState={snapshot.mapZoom}
-      viewState={mapView}
-      controller={true}
-      //   layers={displayLayers}
-      pickingRadius={50}
-    >
-      <Map mapStyle={mapStyle} mapboxAccessToken={MAPBOX_ACCESS_TOKEN} />
-    </DeckGL>
+    <div>
+      <p>MAPBOX_ACCESS_TOKEN: {MAPBOX_ACCESS_TOKEN}</p>
+      <p>
+        process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN:{" "}
+        {process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+      </p>
+      <DeckGL
+        //   initialViewState={snapshot.mapZoom}
+        viewState={mapView}
+        controller={true}
+        //   layers={displayLayers}
+        pickingRadius={50}
+      >
+        <Map mapStyle={mapStyle} mapboxAccessToken={MAPBOX_ACCESS_TOKEN} />
+      </DeckGL>
+    </div>
   );
 
   return deck;
