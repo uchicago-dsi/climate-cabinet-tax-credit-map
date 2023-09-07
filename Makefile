@@ -6,8 +6,12 @@ current_abs_path := $(subst Makefile,,$(mkfile_path))
 
 build-pipeline:
 	cd $(current_abs_path)
-	docker-compose build
+	docker-compose --profile pipeline build
 
 run-pipeline:
 	cd $(current_abs_path)
-	docker-compose up
+	docker-compose --profile pipeline up --build
+
+run-dashboard:
+	cd $(current_abs_path)
+	docker-compose --profile dashboard up --build

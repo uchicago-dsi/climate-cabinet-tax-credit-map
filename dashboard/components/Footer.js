@@ -3,7 +3,7 @@
 export default function Footer() {
   return (
     <div className="text-center">
-      <h4>Climate Cabinet's Informative Footer</h4>
+      <h4>Footer Placeholder</h4>
     </div>
   );
 }

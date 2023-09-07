@@ -6,8 +6,8 @@ services:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
-    # volumes:
-        # - ./pgdata:/var/lib/postgresql/data
+    volumes:
+        - ./pgdata:/var/lib/postgresql/data
 
   # PIPELINE
   climate-cabinet-pipeline:      
@@ -29,6 +29,8 @@ services:
     depends_on:
       - climate-cabinet-postgis
       - climate-cabinet-pgadmin
+    profiles:
+      - pipeline
 
   # PGADMIN DATABASE GUI
   climate-cabinet-pgadmin:
@@ -46,3 +48,19 @@ services:
       - "443:443"
     volumes:
       - ./server.local.json:/pgadmin4/servers.json
+
+  # DASHBOARD
+  climate-cabinet-dashboard:
+    build:
+      context: dashboard
+    depends_on:
+      - climate-cabinet-postgis
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+      - /app/.next
+    profiles:
+      - dashboard

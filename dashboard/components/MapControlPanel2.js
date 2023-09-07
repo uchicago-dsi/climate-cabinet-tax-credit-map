@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
-import { state, updateFilteredData } from "../lib/state";
+import { state, updateFilteredData } from "@/lib/state";
 
-export default function ControlPanel() {
+export default function ControlPanel({ mapConfig, updateConfig }) {
   const snapshot = useSnapshot(state);
   // TODO: should I use both "state" and the react "state"
   const [expanded, setExpanded] = useState(true);
@@ -12,6 +12,7 @@ export default function ControlPanel() {
 
   const selectAll = () => {
     state.filteredLayers = [...snapshot.layers];
+
     updateFilteredData();
   };
 
@@ -35,7 +36,10 @@ export default function ControlPanel() {
   };
 
   const handleMapChange = (event) => {
-    state.selectedMap = event.target.value;
+    updateConfig({
+      ...mapConfig,
+      selectedBaseMap: event.target.value
+    })
   };
 
   return (
@@ -88,18 +92,18 @@ export default function ControlPanel() {
         </div>
         <div className="divider m-0"></div>
         {/* TODO: Can't figure out why radio button deselects on initial render*/}
-        {mapViews.map((option, index) => (
+        {Object.entries(mapConfig.baseMaps).map(([baseMapType, baseMapSettings], index) => (
           <label key={index} className="label flex cursor-pointer py-1">
             <input
               className="checkbox-sm"
-              value={option}
+              value={baseMapType}
               type="radio"
-              name="mapLayer"
-              checked={option === snapshot.selectedMap}
+              name={baseMapSettings.name}
+              checked={mapConfig.selectedBaseMap == baseMapType}
               onChange={handleMapChange}
-              key={snapshot.selectedMap} // ChatGPT suggested this as hacky workaround for state handling bug...and it works
+              key={baseMapSettings.name}
             ></input>
-            <span className="label-text px-2">{option}</span>
+            <span className="label-text px-2">{baseMapSettings.name}</span>
           </label>
         ))}
       </div>

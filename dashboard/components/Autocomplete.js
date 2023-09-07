@@ -1,53 +1,66 @@
+/**
+ * An autocomplete search bar.
+ */
+
 "use client";
-import { memo, useRef, useState } from "react";
+
 import classNames from "classnames";
+import { memo, useState, Suspense } from "react";
+import { useGeoSearch } from "@/hooks/useGeoSearch";
+import { useSnapshot } from "valtio";
+import { debounce } from "@/lib/utils";
+import Dropdown from "@/components/Dropdown";
 
-function Autocomplete(props) {
-  const { items, value, onChange } = props;
-  const ref = useRef(null);
-  // TODO: standard question about local vs global state
-  const [open, setOpen] = useState(false);
 
-  return (
-    <div
-      className={classNames({
-        "dropdown w-full": true,
-        "dropdown-open": open,
-      })}
-      ref={ref}
-    >
-      <input
-        type="text"
-        className="input input-bordered w-full"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Type something.."
-        tabIndex={0}
-      />
-      <div className="dropdown-content bg-base-200 top-14 max-h-96 overflow-auto flex-col rounded-md">
-        <ul
-          className="menu menu-compact"
-          style={{ width: ref.current?.clientWidth }}
+const [state] = useGeoSearch("");
+
+function Autocomplete({ onSelect }) {
+
+    const [open, setOpen] = useState(false);
+    const snap = useSnapshot(state);
+    const handleClick = (geo) => {
+        setOpen(false);
+        state.query = geo.name;
+        onSelect(geo.id);
+    }
+
+    return (
+        <div
+            className={classNames({
+                "dropdown w-full": true,
+                "dropdown-open": open,
+            })}
         >
-          {items.map((item, index) => {
-            return (
-              <li
-                key={index}
-                tabIndex={index + 1}
-                onClick={() => {
-                  onChange(item);
-                  setOpen(false);
-                }}
-                className="border-b border-b-base-content/10 w-full"
-              >
-                <button>{item}</button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
-  );
+            <div>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-2">
+                    <button className="p-1 focus:outline-none focus:shadow-outline bg-white border-white">
+                        <svg 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth="2" 
+                            viewBox="0 0 24 24" 
+                            className="w-6 h-6"
+                        >
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </span>
+                <input
+                    type="search"
+                    value={snap.query}
+                    className="input input-bordered w-full pl-10"
+                    onChange={(e) => debounce(state.setQuery(e.target.value), 50)}
+                    placeholder="Type something..."
+                    tabIndex={0}
+                />
+            </div>
+            <Suspense>
+                <Dropdown snap={snap} handleClick={handleClick}/>
+            </Suspense>
+        </div>
+    );
 }
 
 export default memo(Autocomplete);
