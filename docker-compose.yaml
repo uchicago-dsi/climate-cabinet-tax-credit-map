@@ -17,8 +17,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_HOST=climate-cabinet-postgis
-      - STORAGE_BUCKET="ira-map-data"
-      - GOOGLE_APPLICATION_CREDENTIALS="/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json"
+      - CLOUD_STORAGE_BUCKET=ira-map-data
+      - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
     build:
       args:
         ENV: DEV
