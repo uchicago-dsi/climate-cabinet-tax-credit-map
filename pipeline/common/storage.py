@@ -144,6 +144,7 @@ class CloudDataReader(IDataReader):
             None
         """
         storage_client = storage.Client()
+        # TODO: figure out the right way to pass environment variables in settings
         # self.bucket = storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
         self.bucket = storage_client.bucket(os.getenv("CLOUD_STORAGE_BUCKET", ""))
         self.download_retries = download_retries
