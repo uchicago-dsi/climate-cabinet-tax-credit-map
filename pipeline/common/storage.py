@@ -11,6 +11,8 @@ from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry
 from google.cloud import storage
 
+import tempfile
+
 
 class IDataReader(ABC):
     """Duck-typed interface for reading data from a generic source given a file
@@ -39,7 +41,9 @@ class IDataReader(ABC):
         self, file_name: str, batch_size=1_000
     ) -> Iterator[list[dict[str, Any]]]:
         """Returns an iterator that pulls batches of records from a parquet
-        file to be processed until all records in the file have finised. This method should bet set up to pull the data either locally or from cloud storage, then return the _geoparquet_iterator method
+        file to be processed until all records in the file have finised. This
+        method should bet set up to pull the data either locally or from cloud
+        storage, then return the _geoparquet_iterator method
         """
 
         # TODO better documentation
@@ -51,11 +55,13 @@ class IDataReader(ABC):
         # Open a parquet file for sequential reading
         pf = pq.ParquetFile(file_path)
         try:
-            # Capture column names from metadata to reference and note the geometry col
+            # Capture column names from metadata to reference and note the
+            # geometry col
             col_names = pf.schema.names
             geom_col_index = col_names.index("geometry")
 
-            # Iterate over the batches -- parquet file reads return columns, not rows
+            # Iterate over the batches -- parquet file reads return columns,
+            # not rows
             batches = pf.iter_batches(batch_size)
             for columns in batches:
                 # create an empty array to hold the batch of records
@@ -63,7 +69,9 @@ class IDataReader(ABC):
 
                 # Reorient from columns to rows within the batch
                 for arrow_row in zip(*columns):
-                    # build the record up -- if it's a normal column, add it to the record; if it's the geometry, convert it to Django type first
+                    # build the record up -- if it's a normal column, add it to
+                    # the record; if it's the geometry, convert it to Django
+                    # type first
                     py_row: dict[str, Any] = {}
                     for idx, r in enumerate(arrow_row):
                         if idx == geom_col_index:
@@ -136,9 +144,35 @@ class CloudDataReader(IDataReader):
             None
         """
         storage_client = storage.Client()
-        self.bucket = storage_client.bucket(settings.STORAGE_BUCKET)
+        # self.bucket = storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
+        self.bucket = storage_client.bucket(os.getenv("CLOUD_STORAGE_BUCKET", ""))
         self.download_retries = download_retries
         self.download_timeout_in_sec = download_timeout_in_sec
+
+    def download_file(self, file_name: str):
+        """Downloads the specified file from Google Cloud Storage and returns
+        the file. Raises a `FileNotFound` exception if the file doesn't exist.
+
+        TODO: add documentation on args
+        """
+        # Create reference to file/blob
+        blob = self.bucket.blob(file_name)
+
+        # Return if blob doesn't exist
+        if not blob.exists():
+            raise FileNotFoundError(
+                "The requested CSV "
+                f"file was not found at '{file_name}' in "
+                f"Google Cloud Storage bucket {self.bucket}."
+            )
+
+        # Otherwise, download as bytes and read into Pandas DataFrame
+        timeout_params = (
+            self.download_retries,
+            self.download_timeout_in_sec,
+        )
+        file_bytes = blob.download_as_bytes(timeout=timeout_params)
+        return file_bytes
 
     def read_csv(
         self,
@@ -162,29 +196,23 @@ class CloudDataReader(IDataReader):
             - https://googleapis.dev/python/storage/latest/buckets.html
             - https://googleapis.dev/python/storage/latest/blobs.html
         """
-        # Create reference to file/blob
-        blob = self.bucket.blob(file_name)
+        file_bytes = self.download_file(file_name)
 
-        # Return if blob doesn't exist
-        if not blob.exists():
-            raise FileNotFoundError(
-                "The requested CSV "
-                f"file was not found at '{file_name}' in "
-                f"Google Cloud Storage bucket {self.bucket}."
-            )
-
-        # Otherwise, download as bytes and read into Pandas DataFrame
-        timeout_params = (
-            self.download_retries,
-            self.download_timeout_in_sec,
-        )
-        file_bytes = blob.download_as_bytes(timeout=timeout_params)
         return pd.read_table(
             BytesIO(file_bytes),
             encoding="utf-8",
         )
 
-    # TODO implement geoparquet iterator
+    def geoparquet_iterator(
+        self, file_name: str, batch_size: int = 1_000
+    ) -> Iterator[list[dict[str, Any]]]:
+        file_bytes = self.download_file(file_name)
+        # store downloaded file as temporary file
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(file_bytes)
+            temp_file_path = tmp.name
+
+        return self._geoparquet_iterator(temp_file_path)
 
 
 class LocalDataReader(IDataReader):

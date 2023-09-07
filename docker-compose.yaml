@@ -1,16 +1,15 @@
-version: '3.4'
+version: "3.4"
 services:
-
   # POSTGIS
   climate-cabinet-postgis:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
     # volumes:
-        # - ./pgdata:/var/lib/postgresql/data
+    # - ./pgdata:/var/lib/postgresql/data
 
   # PIPELINE
-  climate-cabinet-pipeline:      
+  climate-cabinet-pipeline:
     environment:
       - DJANGO_SECRET_KEY=local
       - ENV=DEV
@@ -18,6 +17,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_HOST=climate-cabinet-postgis
+      - STORAGE_BUCKET="ira-map-data"
+      - GOOGLE_APPLICATION_CREDENTIALS="/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json"
     build:
       args:
         ENV: DEV
@@ -36,7 +37,7 @@ services:
       - climate-cabinet-postgis
     environment:
       - COMPOSE_HTTP_TIMEOUT=300
-      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com 
+      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com
       - PGADMIN_DEFAULT_PASSWORD=p@sssw0rd!123
       - PGADMIN_LISTEN_PORT=443
       - PGADMIN_CONFIG_SERVER_MODE=False

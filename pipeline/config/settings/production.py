@@ -34,7 +34,9 @@ class ProductionConfig(BaseConfig):
     SECURE_SSL_REDIRECT = False
 
     # Google Cloud Storage
-    STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    # TODO: this isn't working correctly?
+    CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
     # If the flag has been set, configure to use proxy
     # https://cloud.google.com/python/django/run
