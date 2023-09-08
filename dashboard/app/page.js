@@ -51,14 +51,14 @@ export default function Home() {
 
   return (
     <main className="w-screen">
-      <div className="max-w-5xl mx-auto p-5">
+      <div className="max-w-7xl mx-auto p-5">
         <Header />
       </div>
-      <div className="max-w-5xl mx-auto px-5">
+      <div className="max-w-7xl mx-auto px-5">
         <SearchBar />
       </div>
       {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
-      <div className="max-w-5xl mx-auto flex py-10">
+      <div className="max-w-7xl mx-auto flex py-10">
         <div className="relative w-3/4 overflow-hidden" ref={containerRef}>
           {/* <Tooltip /> */}
           <DeckGLMap />
