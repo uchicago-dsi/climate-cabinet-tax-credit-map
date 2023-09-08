@@ -5,13 +5,17 @@ import { memo, useState } from "react";
 import AutocompleteLogic from "./AutocompleteLogic";
 
 export default function SearchBar() {
-  const [value, setValue] = useState("");
-  const states = ["Illinois", "California"];
-
   return (
     <div className="flex flex-col items-center">
-      <div className="text-center w-full md:w-3/4">
-        <h2>Map Search Tool</h2>
+      <div
+        className="w-screen px-8 py-10 bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url('/images/c3titlebanner2.jpg')` }}
+      >
+        <div className="container mx-auto">
+          <h1 className="humani-title">Map Search Tool</h1>
+        </div>
+      </div>
+      <div className="w-3/4">
         <p className="px-20 py-5">
           Enter the name of a state, county, municipality or rural electric
           cooperative to view its Justice 40 communities, energy communities,
