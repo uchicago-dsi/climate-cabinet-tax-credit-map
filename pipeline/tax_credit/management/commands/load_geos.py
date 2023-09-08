@@ -57,7 +57,11 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        pass
+        parser.add_argument(
+            "--smoke-test",
+            action="store_true",
+            help="Run the command in testing mode",
+        )
 
     def handle(self, *args, **options) -> None:
         """Executes the command. Accepts variable numbers of keyword and non-
@@ -80,15 +84,20 @@ class Command(BaseCommand):
         # the load geographies from resp files
         geo_file_load_jobs = [
             GeographyLoadJob("state_clean.geoparquet", "state", "State"),
-            # GeographyLoadJob("coal_closure.geoparquet", "energy_coal", "TractID"),
-            # GeographyLoadJob("county_clean.geoparquet", "county", "County"),
-            # GeographyLoadJob("dci_clean.geoparquet", "dci", "zip_code"),
-            # GeographyLoadJob("ffe.geoparquet", "energy_ffe", "TractIDcty"),
-            # GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
-            # GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
-            # GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
-            # GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
+            GeographyLoadJob("coal_closure.geoparquet", "energy_coal", "TractID"),
+            GeographyLoadJob("county_clean.geoparquet", "county", "County"),
+            GeographyLoadJob("dci_clean.geoparquet", "dci", "zip_code"),
+            GeographyLoadJob("ffe.geoparquet", "energy_ffe", "TractIDcty"),
+            GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
+            GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
+            GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
+            GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
         ]
+
+        # TODO: Maybe we want the test to load everything but only a subset
+        # of it?
+        if options["smoke_test"]:
+            geo_file_load_jobs = geo_file_load_jobs[:1]
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
