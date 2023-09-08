@@ -19,15 +19,38 @@ export default function Header() {
         <nav>
           <ul className="flex">
             <li>
-              <a href="https://www.climatecabinetaction.org/#Subscribe">
-                Subscribe
+              <a href="https://climatecabineteducation.org/">Home</a>
+            </li>
+            <li>
+              <a href="https://climatecabineteducation.org/about-whoweare/">
+                About Us
               </a>
             </li>
             <li>
-              <a href="https://secure.actblue.com/donate/ccaf">Donate</a>
+              <a href="https://climatecabineteducation.org/policy_resources/">
+                Policy Resources
+              </a>
             </li>
             <li>
-              <a href="https://www.climatecabinetaction.org/">Home</a>
+              <a href="https://climatecabineteducation.org/climate-bills/#">
+                Data Science
+              </a>
+            </li>
+            <li>
+              <a href="https://climatecabineteducation.org/blog">Media</a>
+            </li>
+            <li>
+              <a href="https://climatecabineteducation.org/contact-us/">
+                Contact Us
+              </a>
+            </li>
+            <li>
+              <a
+                className="btn cc-button"
+                href="https://secure.actblue.com/donate/ccaf"
+              >
+                Donate
+              </a>
             </li>
           </ul>
         </nav>
