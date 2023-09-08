@@ -11,7 +11,7 @@ export default function SearchBar() {
         className="w-screen px-8 py-10 bg-center bg-cover bg-no-repeat"
         style={{ backgroundImage: `url('/images/c3titlebanner2.jpg')` }}
       >
-        <div className="container mx-auto">
+        <div className="container max-w-5xl mx-auto">
           <h1 className="humani-title">Map Search Tool</h1>
         </div>
       </div>
