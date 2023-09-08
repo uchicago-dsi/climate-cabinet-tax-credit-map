@@ -14,12 +14,14 @@ trap '[ $? -eq 1 ] && echo "Pipeline failed."' EXIT
 # Parse command line arguments
 migrate=false
 load_geos=false
+load_geos_test=false
 load_programs=false
 load_geo_metrics=false
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --migrate) migrate=true; shift ;;
         --load-geos) load_geos=true; shift ;;
+        --load-geos-test) load_geos_test=true; shift ;;
         --load-programs) load_programs=true; shift ;;
         --load-geo-metrics) load_geo_metrics=true; shift ;;
         *) echo "Unknown command line parameter received: $1"; exit 1 ;;
@@ -43,6 +45,12 @@ fi
 if $load_geos ; then
     echo "Loading geographies into database."
     ./manage.py load_geos
+fi
+
+# Load geographies in testing mode if indicated
+if $load_geos_test ; then
+    echo "Loading geographies into database."
+    ./manage.py load_geos --smoke-test
 fi
 
 # Load tax credit programs if indicated

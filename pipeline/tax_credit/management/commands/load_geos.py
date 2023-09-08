@@ -16,8 +16,10 @@ data_reader: IDataReader = DataReaderFactory.get_reader()
 logger: Logger = Logger(__file__)
 
 
-class GeographyLoadJob():
-    def __init__(self, file_name: str, geography_type_value: str, feature_col_in_src: str):
+class GeographyLoadJob:
+    def __init__(
+        self, file_name: str, geography_type_value: str, feature_col_in_src: str
+    ):
         """
         Creates a job loading a given parquet file into the DB
 
@@ -29,7 +31,7 @@ class GeographyLoadJob():
         self.file_name = file_name
         self.geography_type_value = geography_type_value
         self.feature_col_in_src = feature_col_in_src
-    
+
     def __str__(self):
         return f"[ Job : [ {self.file_name}, {self.geography_type_value}, {self.feature_col_in_src} ] ]"
 
@@ -55,7 +57,11 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        pass
+        parser.add_argument(
+            "--smoke-test",
+            action="store_true",
+            help="Run the command in testing mode",
+        )
 
     def handle(self, *args, **options) -> None:
         """Executes the command. Accepts variable numbers of keyword and non-
@@ -67,7 +73,7 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        
+
         # TODO need to chunk data. Lots of memory, 137 exit crash
 
         # TODO check right name field used for each... dict? Ideally human readable, otherwise id
@@ -87,6 +93,11 @@ class Command(BaseCommand):
             GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
             GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
         ]
+
+        # TODO: Maybe we want the test to load everything but only a subset
+        # of it?
+        if options["smoke_test"]:
+            geo_file_load_jobs = geo_file_load_jobs[:1]
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
@@ -113,25 +124,28 @@ class Command(BaseCommand):
         # TODO add check that geography_type is valid, i.e. exists and len 1, etc.
         # TODO validate that src_name in columns
         # TODO (probably in reader) load columns with correct types? Load only required columns?
-            # second is maybe too much info to carry around and files too small to be worth it
+        # second is maybe too much info to carry around and files too small to be worth it
 
-        geography_type = Geography_Type.objects.get(name = job.geography_type_value)
+        geography_type = Geography_Type.objects.get(name=job.geography_type_value)
 
-        iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(job.file_name)
+        iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
+            job.file_name
+        )
         logger.info(f"Read {job.file_name} to dataframe.")
 
         for batch in iter_parquet:
             geographies: list[Geography] = [
                 Geography(
-                    name = row[job.feature_col_in_src],
-                    geography_type = geography_type,
-                    boundary = self._convert_geometry(row["geometry"]),
-                    as_of = datetime.now(), # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
-                    source = job.file_name, # TODO again this isn't it......
-                ) for row in batch
+                    name=row[job.feature_col_in_src],
+                    geography_type=geography_type,
+                    boundary=self._convert_geometry(row["geometry"]),
+                    as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
+                    source=job.file_name,  # TODO again this isn't it......
+                )
+                for row in batch
             ]
             Geography.objects.bulk_create(geographies)
-    
+
     def _load_geo_types(self) -> None:
         """Helper method specifically to load geography types into Postgres.
 
@@ -141,9 +155,7 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        records = data_reader.read_csv(
-            "geography_type.csv", delimiter="|"
-        )
+        records = data_reader.read_csv("geography_type.csv", delimiter="|")
         geography_types = [
             Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
             for _, geo_type in records.iterrows()
@@ -168,4 +180,8 @@ class Command(BaseCommand):
             A Django multipolygon that can be inserted into
         """
         django_geom = GEOSGeometry(geom.wkt)
-        return django_geom if geom.geom_type == "MultiPolygon" else MultiPolygon(django_geom)
+        return (
+            django_geom
+            if geom.geom_type == "MultiPolygon"
+            else MultiPolygon(django_geom)
+        )
