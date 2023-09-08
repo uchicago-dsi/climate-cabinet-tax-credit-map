@@ -70,4 +70,7 @@ span {
   @apply text-6xl text-ccwhite capitalize 
 }
 
-/* font-helvetica-nueue-light */
+.checkbox-sm:checked + .label{
+/* TODO: can't get this to select properly */
+}
+

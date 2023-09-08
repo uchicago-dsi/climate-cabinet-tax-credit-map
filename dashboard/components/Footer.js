@@ -12,11 +12,11 @@ export default function Footer() {
           height={276} // height of the original image
         />
       </div>
-      <p className=" w-2/3 mx-auto py-5">
-        Paid Pol. Adv. paid for with regulated funds by Climate Cabinet PAC,
-        independently of and not authorized or approved by any federal, state,
-        or local candidate, candidate’s agent, or committee.
-      </p>
+      <div className="border-b border-ccgray-light">
+        <p className=" w-2/3 mx-auto py-5">
+          We identify and support local climate leaders
+        </p>
+      </div>
     </footer>
   );
 }
