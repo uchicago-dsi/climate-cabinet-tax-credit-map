@@ -15,7 +15,12 @@ class BaseConfig(Configuration):
     PROJECT_DIR = f"{BASE_DIR}/pipeline"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATIC_URL = "/static/"
-    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+    # TODO: I (Todd) moved this here from production.py — is this ok?
+    # Google Cloud Storage
+    CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
     # Installed apps
     INSTALLED_APPS = (
@@ -30,7 +35,7 @@ class BaseConfig(Configuration):
         "corsheaders",
         # Your apps
         "tax_credit",
-        "tests"
+        "tests",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/

@@ -33,9 +33,6 @@ class ProductionConfig(BaseConfig):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = False
 
-    # Google Cloud Storage
-    STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
-
     # If the flag has been set, configure to use proxy
     # https://cloud.google.com/python/django/run
     if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
