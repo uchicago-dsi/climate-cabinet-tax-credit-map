@@ -51,10 +51,10 @@ export default function Home() {
 
   return (
     <main className="w-screen">
-      <div className="max-w-7xl mx-auto p-5">
+      <div className="max-w-7xl mx-auto py-5">
         <Header />
       </div>
-      <div className="max-w-7xl mx-auto px-5">
+      <div className="max-w-7xl mx-auto">
         <SearchBar />
       </div>
       {/* add this in order to resize <div className="relative w-3/4" ref={containerRef}> */}
