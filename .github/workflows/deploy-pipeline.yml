@@ -20,7 +20,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@main
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: your-gcp-project-id
+          project_id: climate-cabinet-398217
           export_default_credentials: true
 
       - name: Build and push Docker image to Artifact Registry
