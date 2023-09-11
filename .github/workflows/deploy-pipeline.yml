@@ -28,6 +28,6 @@ jobs:
         with:
           push: true
           context: .
-          file: ./Dockerfile
+          file: ./pipeline/Dockerfile
           # TODO: should we move this stuff to a config file?
           tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
