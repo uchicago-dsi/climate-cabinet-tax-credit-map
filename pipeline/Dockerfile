@@ -10,7 +10,8 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y --no-install-r
 WORKDIR /pipeline
 
 # Install requirements based on declared environment
-COPY requirements.txt .
+# COPY requirements.txt .
+COPY /pipeline/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy remaining application code to container
