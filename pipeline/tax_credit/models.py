@@ -2,7 +2,6 @@
 """
 
 from django.contrib.gis.db.models import MultiPolygonField, PointField
-# from django.db import models
 from django.db import models
 
 
@@ -37,13 +36,13 @@ class Geography_Type_Program(models.Model):
     amount_description = models.TextField()
 
 
-class Geography_Metric(models.Model):
-    geography = models.ForeignKey(Geography, on_delete=models.CASCADE)
-    source = models.CharField(max_length=255)
-    as_of = models.DateField()
-    name = models.CharField(max_length=255)
-    value = models.DecimalField(max_digits=10, decimal_places=5)
-    methodology = models.TextField()
+# class Geography_Metric(models.Model):
+#     geography = models.ForeignKey(Geography, on_delete=models.CASCADE)
+#     source = models.CharField(max_length=255)
+#     as_of = models.DateField()
+#     name = models.CharField(max_length=255)
+#     value = models.DecimalField(max_digits=10, decimal_places=5)
+#     methodology = models.TextField()
 
 
 class Target_Bonus_Assoc(models.Model):
