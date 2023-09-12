@@ -57,16 +57,16 @@ jobs:
           password: ${{ steps.auth.outputs.access_token }}
 
       - id: docker-push-tagged
-              name: Tag Docker image and push to Google Artifact Registry
-              uses: docker/build-push-action@v2
-              with:
-                push: true
-                # TODO: could also change the build context here and leave the Dockerfile the same?
-                context: .
-                file: ./pipeline/Dockerfile
-                # TODO: should we move this stuff to a config file?
-                tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
-                # push: true
-                # tags: |
-                #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:${{ steps.get-tag.outputs.short_ref }}
-                #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:latest
+        name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          # TODO: could also change the build context here and leave the Dockerfile the same?
+          context: .
+          file: ./pipeline/Dockerfile
+          # TODO: should we move this stuff to a config file?
+          tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
+          # push: true
+          # tags: |
+          #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:${{ steps.get-tag.outputs.short_ref }}
+          #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:latest
