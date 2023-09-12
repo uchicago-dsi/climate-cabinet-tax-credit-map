@@ -12,7 +12,8 @@ services:
   climate-cabinet-pipeline:
     environment:
       - DJANGO_SECRET_KEY=local
-      - ENV=PROD
+      # TODO: do we set env here and on pipeline?
+      - ENV=${ENV}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -22,7 +23,8 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
     build:
       args:
-        ENV: DEV
+        # TODO: yeah so what's up with the two ENVs?
+        ENV: ${ENV}
       context: pipeline
     command: ./cr-entry.sh
     volumes:

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       # TODO: change this eventually
-      - artifact-registry
+      - cloud-csv-reader
 
 jobs:
   build-and-push:

@@ -3,6 +3,7 @@ from django.core.management import call_command
 from unittest.mock import patch
 from django.conf import settings
 from common.storage import CloudDataReader, LocalDataReader
+from tax_credit.models import Geography, Geography_Type
 
 
 class Test_Load_Geos(
@@ -34,4 +35,10 @@ class TestDataReaders(SimpleTestCase):
         iterator = reader.geoparquet_iterator(filepath)
         first_item = next(iterator)
 
-    # TODO: should we have tests for reading CSVs also?
+    def test_read_google_cloud_csv(self):
+        reader = CloudDataReader()
+        records = reader.read_csv("geography_type.csv", delimiter="|")
+        geography_types = [
+            Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
+            for _, geo_type in records.iterrows()
+        ]
