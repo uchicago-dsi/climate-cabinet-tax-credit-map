@@ -64,6 +64,6 @@ jobs:
           push: true
           # TODO: could also change the build context here and leave the Dockerfile the same?
           context: ./pipeline
-          file: Dockerfile
+          file: ./pipeline/Dockerfile
           # TODO: should we move this stuff to a config file?
           tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
