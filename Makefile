@@ -11,3 +11,9 @@ build-pipeline:
 run-pipeline:
 	cd $(current_abs_path)
 	docker-compose up
+
+clean:
+	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
+	rm -rf pgdata/*
+
+.PHONY: clean

@@ -39,15 +39,17 @@ export default function DeckGLMap() {
   const mapView = { ...snapshot.mapZoom };
 
   const deck = (
-    <DeckGL
-      //   initialViewState={snapshot.mapZoom}
-      viewState={mapView}
-      controller={true}
-      //   layers={displayLayers}
-      pickingRadius={50}
-    >
-      <Map mapStyle={mapStyle} mapboxAccessToken={MAPBOX_ACCESS_TOKEN} />
-    </DeckGL>
+    <div>
+      <DeckGL
+        //   initialViewState={snapshot.mapZoom}
+        viewState={mapView}
+        controller={true}
+        //   layers={displayLayers}
+        pickingRadius={50}
+      >
+        <Map mapStyle={mapStyle} mapboxAccessToken={MAPBOX_ACCESS_TOKEN} />
+      </DeckGL>
+    </div>
   );
 
   return deck;

@@ -18,6 +18,11 @@ class BaseConfig(Configuration):
     STATIC_URL = "/static/"
     DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+    # TODO: I (Todd) moved this here from production.py — is this ok?
+    # Google Cloud Storage
+    CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+
     # Installed apps
     INSTALLED_APPS = (
         # Default

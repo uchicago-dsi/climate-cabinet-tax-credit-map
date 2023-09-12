@@ -1,26 +1,57 @@
 "use client";
 import Image from "next/image";
+import "./Header.css";
 
 export default function Header() {
   return (
     <div className="flex flex-row">
-      <div className="w-[200px]">
-        <Image
-          src="/images/climate-cabinet-logo.png"
-          alt="Climate Cabinet Education"
-          width={424} // width of the original image
-          height={276} // height of the original image
-        />
+      <div className="flex flex-1 justify-start items-center">
+        <a href="https://www.climatecabinetaction.org/">
+          <Image
+            src="/images/climate-cabinet-education-black.png"
+            alt="Climate Cabinet Education"
+            width={176} // width of the original image
+            height={115} // height of the original image
+          />
+        </a>
       </div>
-      <div className="flex flex-1 items-center justify-end">
-        <nav>
-          <ul className="flex space-x-10">
-            <li>Home</li>
-            <li>About</li>
-            <li>Case Studies</li>
-            <li>Map</li>
-          </ul>
-        </nav>
+      <nav className="flex flex-6 items-center justify-center nav-menu">
+        <ul className="flex">
+          <li>
+            <a href="https://climatecabineteducation.org/">Home</a>
+          </li>
+          <li>
+            <a href="https://climatecabineteducation.org/about-whoweare/">
+              About Us
+            </a>
+          </li>
+          <li>
+            <a href="https://climatecabineteducation.org/policy_resources/">
+              Policy Resources
+            </a>
+          </li>
+          <li>
+            <a href="https://climatecabineteducation.org/climate-bills/#">
+              Data Science
+            </a>
+          </li>
+          <li>
+            <a href="https://climatecabineteducation.org/blog">Media</a>
+          </li>
+          <li>
+            <a href="https://climatecabineteducation.org/contact-us/">
+              Contact Us
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div className="flex flex-1 justify-end items-center">
+        <a
+          className="btn cc-button"
+          href="https://secure.actblue.com/donate/ccaf"
+        >
+          Donate
+        </a>
       </div>
     </div>
   );

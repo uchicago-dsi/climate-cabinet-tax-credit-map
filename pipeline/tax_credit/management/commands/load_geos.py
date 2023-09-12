@@ -19,12 +19,10 @@ logger: Logger = Logger(__file__)
 
 class GeographyLoadJob:
     def __init__(
-        self,
-        file_name: str,
-        geography_type_value: str,
-        feature_col_in_src: str,
+        self, file_name: str, geography_type_value: str, feature_col_in_src: str
     ):
-        """Creates a job loading a given parquet file into the DB.
+        """
+        Creates a job loading a given parquet file into the DB
 
         Args:
             file_name (str): the name of the parquet file to laod
@@ -60,7 +58,11 @@ class Command(BaseCommand):
         Returns:
             None
         """
-        pass
+        parser.add_argument(
+            "--smoke-test",
+            action="store_true",
+            help="Run the command in testing mode",
+        )
 
     def handle(self, *args, **options) -> None:
         """Executes the command. Accepts variable numbers of keyword and non-
@@ -91,6 +93,11 @@ class Command(BaseCommand):
             GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
             GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
         ]
+
+        # TODO: Maybe we want the test to load everything but only a subset
+        # of it?
+        if options["smoke_test"]:
+            geo_file_load_jobs = geo_file_load_jobs[:1]
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
