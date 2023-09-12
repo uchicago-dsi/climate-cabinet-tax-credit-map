@@ -29,7 +29,8 @@ jobs:
       # This example uses the docker login action
       - uses: "docker/login-action@v1"
         with:
-          registry: "gcr.io"
+          # registry: "gcr.io"
+          registry: "us-central1-docker.pkg.dev"
           username: "oauth2accesstoken"
           password: "${{ steps.auth.outputs.access_token }}"
 
@@ -65,7 +66,7 @@ jobs:
           context: .
           file: ./pipeline/Dockerfile
           # TODO: should we move this stuff to a config file?
-          tags: gcr.io/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
+          tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
           # push: true
           # tags: |
           #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:${{ steps.get-tag.outputs.short_ref }}
