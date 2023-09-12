@@ -23,7 +23,6 @@ jobs:
         uses: "google-github-actions/auth@v1"
         with:
           workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
-          # testing
           service_account: "artifact-registry@climate-cabinet-398217.iam.gserviceaccount.com"
 
       # This example uses the docker login action
@@ -52,7 +51,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           # TODO: add region to config file?
-          registry: us-central1-docker.pkg.dev
+          registry: "gcr.io"
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
