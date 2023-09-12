@@ -30,7 +30,8 @@ jobs:
           token_format: "access_token"
 
       # Login with Docker action using the token from the Google Cloud auth step
-      - uses: "docker/login-action@v1"
+      # - uses: "docker/login-action@v1"
+      - uses: "docker/login-action@v3"
         with:
           registry: "us-central1-docker.pkg.dev" # TODO: this should maybe be in config
           username: "oauth2accesstoken"
@@ -38,7 +39,8 @@ jobs:
 
       - id: "docker-push-tagged"
         name: "Tag Docker image and push to Google Artifact Registry"
-        uses: "docker/build-push-action@v2"
+        # uses: "docker/build-push-action@v2"
+        uses: "docker/build-push-action@v5"
         with:
           push: true
           # TODO: this stuff should probably be in a config file also
