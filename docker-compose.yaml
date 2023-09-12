@@ -13,11 +13,6 @@ services:
     environment:
       - DJANGO_SECRET_KEY=local
       - ENV=DEV
-      # TODO: do we want to save these credentials somewhere?
-      # - POSTGRES_DB=postgres
-      # - POSTGRES_USER=postgres
-      # - POSTGRES_PASSWORD=postgres
-      # - POSTGRES_HOST=climate-cabinet-postgis
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

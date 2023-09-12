@@ -14,6 +14,8 @@ WORKDIR /pipeline
 COPY /pipeline/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# TODO: Set up Google Cloud to inject environment variables in Cloud run
+
 # Copy remaining application code to container
 COPY . .
 
