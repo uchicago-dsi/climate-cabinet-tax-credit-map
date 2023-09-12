@@ -11,14 +11,12 @@ WORKDIR /pipeline
 
 # Install requirements based on declared environment
 COPY requirements.txt .
-# COPY /pipeline/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# TODO: Set up Google Cloud to inject environment variables in Cloud run
 
 # Copy remaining application code to container
 COPY . .
 
 # Run the development server
+# TODO: trying to track down error in production cloud run
 # CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
 CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs"]
