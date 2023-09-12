@@ -70,4 +70,3 @@ jobs:
           # push: true
           # tags: |
           #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:${{ steps.get-tag.outputs.short_ref }}
-          #   <your-gar-region>-docker.pkg.dev/<your-project-id>/<your-gar-repo-name>/<your-docker-image-name>:latest
