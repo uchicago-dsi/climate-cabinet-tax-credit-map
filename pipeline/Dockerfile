@@ -20,4 +20,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the development server
-CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
+# CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
+CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs"]
