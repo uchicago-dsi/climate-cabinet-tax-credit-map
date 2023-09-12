@@ -23,6 +23,7 @@ jobs:
         uses: "google-github-actions/auth@v1"
         with:
           workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
+          # testing
           service_account: "artifact-registry@climate-cabinet-398217.iam.gserviceaccount.com"
           token_format: "access_token"
 
