@@ -10,60 +10,38 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    # Add "id-token" with the intended permissions.
+    # Add "id-token" with the intended permissions. Used for OIDC connection with GitHub
     permissions:
       contents: "read"
       id-token: "write"
 
     steps:
+      # Needs to be run before "auth" action
       - uses: "actions/checkout@v3"
 
+      # Use OIDC authentication to get an access token from GitHub
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v1"
         with:
+          # TODO: put these settings in config
           workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
           service_account: "artifact-registry@climate-cabinet-398217.iam.gserviceaccount.com"
           token_format: "access_token"
 
-      # This example uses the docker login action
+      # Login with Docker action using the token from the Google Cloud auth step
       - uses: "docker/login-action@v1"
         with:
-          # registry: "gcr.io"
-          registry: "us-central1-docker.pkg.dev"
+          registry: "us-central1-docker.pkg.dev" # TODO: this should maybe be in config
           username: "oauth2accesstoken"
           password: "${{ steps.auth.outputs.access_token }}"
 
-      # # This example runs "docker login" directly to Artifact Registry.
-      # - run: |-
-      #     echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v1
-
-      # - name: Build and push Docker image to Artifact Registry
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     context: .
-      #     file: ./pipeline/Dockerfile
-      #     # TODO: should we move this stuff to a config file?
-      #     tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
-      # - name: Login to Artifact Registry
-      #   uses: docker/login-action@v1
-      #   with:
-      #     # TODO: add region to config file?
-      #     registry: "gcr.io"
-      #     username: oauth2accesstoken
-      #     password: ${{ steps.auth.outputs.access_token }}
-
-      - id: docker-push-tagged
-        name: Tag Docker image and push to Google Artifact Registry
-        uses: docker/build-push-action@v2
+      - id: "docker-push-tagged"
+        name: "Tag Docker image and push to Google Artifact Registry"
+        uses: "docker/build-push-action@v2"
         with:
           push: true
-          # TODO: could also change the build context here and leave the Dockerfile the same?
+          # TODO: this stuff should probably be in a config file also
           context: ./pipeline
           file: ./pipeline/Dockerfile
-          # TODO: should we move this stuff to a config file?
           tags: us-central1-docker.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
