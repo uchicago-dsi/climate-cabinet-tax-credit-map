@@ -35,7 +35,8 @@ jobs:
       # Login with Docker action using the token from the Google Cloud auth step
       - uses: "docker/login-action@v3"
         with:
-          registry: $${{ vars.CLOUD_REGION }}.pkg.dev
+          # registry: $${{ vars.CLOUD_REGION }}.pkg.dev
+          registry: us-central1-docker.pkg.dev
           username: "oauth2accesstoken"
           password: "${{ steps.auth.outputs.access_token }}"
 
