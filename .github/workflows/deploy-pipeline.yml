@@ -12,6 +12,7 @@ on:
 
 jobs:
   build-and-push:
+    environment: "Climate Cabinet"
     runs-on: ubuntu-latest
 
     # Add "id-token" with the intended permissions. Used for OIDC connection with GitHub
@@ -25,7 +26,6 @@ jobs:
 
       # Use OIDC authentication to get an access token from GitHub
       - id: "auth"
-        environment: "Climate Cabinet"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v1"
         with:
