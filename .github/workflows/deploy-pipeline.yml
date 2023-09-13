@@ -48,7 +48,7 @@ jobs:
           # TODO: should we put context stuff in config?
           context: ./pipeline
           file: ./pipeline/Dockerfile
-          tags: $${{ vars.CLOUD_REGION }}.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest
+          tags: "$${{ vars.CLOUD_REGION }}.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest"
           # climate-cabinet-398217
           # ira-pipeline
           # climate-cabinet-pipeline
