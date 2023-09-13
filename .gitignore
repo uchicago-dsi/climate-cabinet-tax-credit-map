@@ -198,7 +198,7 @@ cython_debug/
 
 # Data
 data/
-*/data/
+# */data/ # We actually want this folder in the Next app
 
 # Old pipeline
 old_pipeline/notebooks
@@ -217,4 +217,6 @@ old_pipeline/scripts/maps.py
 old_pipeline/scripts/overlays.py
 old_pipeline/main_untracked.py
 old_pipeline/scripts/footprint_converter.py
+
+.DS_Store
 

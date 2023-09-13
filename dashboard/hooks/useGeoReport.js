@@ -4,35 +4,26 @@
 
 "server only"
 
-import { get } from "@/lib/utils";
-import { proxy } from "valtio";
-import { derive } from "valtio/utils";
+import { get } from "@/lib/http";
 
 
-function useGeoReport(initialGeographyId) {
+function getGeoReport(geoId) {
 
     /**
      * A private function to fetch a report for a geography.
      * 
-     * @param {*} geographyId 
+     * @param {*} geoId 
      * @returns An object representing the report.
      */
-    const _getGeographyReport = async (geographyId) => {
-        if (!geographyId) return null
-        const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/report/${geographyId}`;
-        const errMsg = `Failed to retrieve report for geography ${geographyId}.`;
-        return await get(url, errMsg);
+    const _getGeographyReport = (geoId) => {
+        console.log(`Fetching geoId ${geoId}`)
+        if (!geoId) return null
+        const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/report/${geoId}`;
+        const errMsg = `Failed to retrieve report for geography ${geoId}.`;
+        return get(url, errMsg);
     }
 
-    // Define state variables
-    const state = proxy({
-        // geoId: initialGeographyId,
-        // setGeoId: (value) => state.geoId = value,
-        report: (geoId) => _getGeographyReport(geoId).then(r => r)
-    });
-
-
-    return [ state ]
+    return _getGeographyReport(geoId);
 }
 
-export { useGeoReport };
+export { getGeoReport };

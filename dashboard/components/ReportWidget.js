@@ -6,32 +6,17 @@
 
 import MapWidget from '@/components/MapWidget';
 import { Suspense, useEffect, useState } from "react";
-import { useGeoReport } from '@/hooks/useGeoReport';
-import { useSnapshot } from "valtio";
-import { get } from "@/lib/utils";
 
 
-function ReportWidget({ geoId }) {
 
-    const [report, setReport] = useState(null);
-
-    useEffect(()=> {
-        console.log("fetching")
-        const getGeographyReport = async (geographyId) => {
-            if (!geographyId) return null
-            const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/report/${geographyId}`;
-            const errMsg = `Failed to retrieve report for geography ${geographyId}.`;
-            return await get(url, errMsg);
-        }
-        getGeographyReport(geoId).then(report => setReport(report));
-    }, [geoId])
+function ReportWidget() {
 
 
     return (
         <Suspense fallback={<h1>Is Loading</h1>}>
             <div className="flex w-full px-20" style={{ paddingTop: 20 }}>
                 {/** MAP */}
-                <MapWidget geographies={report} />
+                <MapWidget />
                 
                 {/** SIDEBAR */}
                 {/* <div className="grid grid-cols-8" style={{backgroundColor: "yellow"}}>

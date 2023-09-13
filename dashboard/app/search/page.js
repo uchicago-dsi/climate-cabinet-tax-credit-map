@@ -7,12 +7,11 @@
 
 import Autocomplete from "@/components/Autocomplete";
 import ReportWidget from "@/components/ReportWidget";
+import SummaryStats from "@/components/SummaryStats";
 import { useState } from "react";
 
 
 export default function SearchPage() {
-
-    const [geoId, setGeoId] = useState(null);
 
     return (
         <div className="w-full p-5">
@@ -30,11 +29,11 @@ export default function SearchPage() {
                 {/** AUTOCOMPLETE SEARCH BAR */}
                 <div className="relative m-2 z-50 w-1/2">
                     <div className="flex flex-row">
-                        <Autocomplete onSelect={setGeoId} />
+                        <Autocomplete />
                     </div>
                 </div>
-                {/** REPORT WIDGET */}
-                <ReportWidget geoId={geoId} />
+                    {/** REPORT WIDGET */}
+                    <ReportWidget />
             </div>
         </div>
     )

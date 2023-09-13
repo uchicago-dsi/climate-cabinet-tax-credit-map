@@ -8,17 +8,18 @@ import Checkbox from "@/components/Checkbox";
 import RadioButton from "@/components/RadioButton";
 import { useState } from "react";
 import { useSnapshot } from "valtio";
+import { useLayers } from "@/hooks/useLayers";
+import { baseMapStore, reportStore, layerStore } from "@/states/search";
 
-function MapControlPanel({
-    snap,
-    isLayerToggled,
-    shouldDisableLayer,
-    selectAllToggableLayers,
-    clearToggableLayers,
-    handleLayerChecked,
-    setBasemap
- }) {
 
+function MapControlPanel() {
+
+    const baseMapSnap = useSnapshot(baseMapStore);
+    const layerSnap = useSnapshot(layerStore);
+    const layerActions = useLayers(reportStore.report, layerStore);
+
+
+    // Intialize panel visiblity
     const [expanded, setExpanded] = useState(true);
 
     return (
@@ -34,13 +35,13 @@ function MapControlPanel({
                 <div className="divider m-0"></div>
 
                 {/** DATA LAYER CHECKBOXES */}
-                {snap.layers.toggleOptions.map((option, index) => {
+                {layerActions.getToggleOptions().map((option, index) => {
                     return <Checkbox
                         key={index}
                         option={option}
-                        checked={isLayerToggled(option)}
-                        disabled={shouldDisableLayer(option)}
-                        onClick={handleLayerChecked}
+                        checked={layerSnap[option].visible}
+                        disabled={!layerSnap[option].hasData}
+                        onClick={(e) => layerActions.toggleLayer(e)}
                     />
                 })}
 
@@ -48,13 +49,13 @@ function MapControlPanel({
                 <div className="join justify-center py-2">
                     <button
                         className="btn join-item btn-sm normal-case"
-                        onClick={(_) => selectAllToggableLayers()}
+                        onClick={(_) => layerActions.showAllLayers()}
                     >
                         All
                     </button>
                     <button
                         className="btn join-item btn-sm normal-case"
-                        onClick={(_) => clearToggableLayers()}
+                        onClick={(_) => layerActions.hideAllLayers()}
                     >
                         None
                     </button>
@@ -65,14 +66,14 @@ function MapControlPanel({
 
                 {/** BASE MAP RADIO BUTTONS */}
                 {Object
-                    .entries(snap.basemap.options)
+                    .entries(baseMapSnap.options)
                     .map(([mapType, settings], index) => (
                         <RadioButton
                             key={index}
                             option={mapType}
                             name={settings.name}
-                            isChecked={settings.name == snap.basemap.selected.name}
-                            onChange={setBasemap}
+                            isChecked={settings.name == baseMapSnap.selected.name}
+                            onChange={(e) => baseMapSnap.setMap(e.target.value)}
                         />
                 ))}
             </div>

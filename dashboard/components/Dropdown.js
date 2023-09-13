@@ -8,7 +8,7 @@ import DropdownNullOption from "@/components/DropdownNullOption";
 import DropdownOption from "@/components/DropdownOption";
 
 
-function Dropdown({ snap, handleClick}) {
+function Dropdown({ snap, handleClick, nullMessage}) {
 
     let results = snap.results?.data
 
@@ -25,7 +25,7 @@ function Dropdown({ snap, handleClick}) {
                         }) 
                     : <DropdownNullOption 
                         index={0} 
-                        message="No geographies found." />
+                        message={nullMessage} />
                 }
             </ul>
         </div>

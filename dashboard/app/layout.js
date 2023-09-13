@@ -1,6 +1,6 @@
-import "./globals.css";
-import { Lato } from "next/font/google";
 import Header from "@/components/Header";
+import "./globals.css";
+import { Open_Sans } from "next/font/google";
 import Footer from "@/components/Footer";
 
 export const metadata = {
@@ -12,18 +12,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/public/favicon.ico" />
+      </head>
       <body>
-        <main className="w-full">
-          <div className="w-full p-5">
-            <Header />
-          </div>
-          <div>
-            {children}
-          </div>
-          <div className="p-5">
-            <Footer />
-          </div>
-        </main>
+        <Header />
+        <div className="flex justify-center max-w-screen-xl  mx-auto">
+          {children}
+        </div>
+        <Footer />
       </body>
     </html>
   );

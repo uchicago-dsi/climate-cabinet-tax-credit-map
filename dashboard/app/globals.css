@@ -17,8 +17,8 @@
 }
 
 body {
-  /* TODO: What should I do for setting background color */
-  @apply bg-white
+  @apply bg-ccwhite
+  /* TODO: This is the default way that Next does this
   /* color: rgb(var(--foreground-rgb)); */
   /* background: linear-gradient(
       to bottom,
@@ -29,34 +29,38 @@ body {
 }
 
 h1 {
-  @apply text-3xl uppercase text-ccgray-dark
+  @apply text-3xl uppercase text-ccblack-dark
 }
 
 h2 {
-  @apply text-2xl uppercase text-ccgray-dark
+  @apply text-2xl uppercase text-ccblack-dark
 }
 
 h3{
-  @apply text-xl uppercase text-ccgray-dark
+  @apply text-xl uppercase text-ccblack-dark
 }
 
 h4 {
-  @apply text-xl text-ccgray-dark
+  @apply text-xl text-ccblack-dark
 }
 
 h5 {
-  @apply text-lg text-ccgray-dark uppercase
+  @apply text-lg text-ccblack-dark uppercase
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply py-2.5
 }
 
 p {
-  @apply text-base text-ccgray-light
+  @apply text-base text-ccgray-dark py-2.5
 }
 
 span {
-  @apply text-base text-ccgray-light
+  @apply text-base text-ccgray-dark
 }
 
 /* TODO: This button is not quite right but it's getting there */
-button {
-  @apply bg-ccorange hover:text-white px-[40px] py-[10px] hover:bg-black uppercase text-[15px] font-bold tracking-[2px]
+.cc-button {
+  @apply bg-ccblue-dark text-ccwhite px-[40px] py-[10px] hover:bg-ccblue-light uppercase text-[15px] font-bold tracking-[2px]
 }

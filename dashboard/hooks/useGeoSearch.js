@@ -4,9 +4,9 @@
 
 "server only"
 
-import { post } from "@/lib/utils";
-import { proxy } from "valtio"
-import { derive } from "valtio/utils"
+import { post } from "@/lib/http";
+import { proxy } from "valtio";
+import { derive } from "valtio/utils";
 
 
 function useGeoSearch(initialSearchQuery) {
@@ -31,7 +31,9 @@ function useGeoSearch(initialSearchQuery) {
     // Define state variables
     const state = proxy({
         query: initialSearchQuery,
-        setQuery: (value) => state.query = value
+        selected: null,
+        setQuery: (value) => state.query = value,
+        setSelected: (value) => state.selected = value
     });
 
     // Add derived property to state

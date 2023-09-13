@@ -1,20 +1,37 @@
 "use client";
 import Image from "next/image";
+import "./Header.css";
 
 export default function Header() {
   return (
-    <div className="flex flex-row text-center">
+    <nav className="flex flex-row pb-2 pt-2">
       <div className="w-[200px]">
-        <Image
-          src="/images/climate-cabinet-logo.png"
-          alt="Description"
-          width={424} // width of the original image
-          height={276} // height of the original image
-        />
+        <a href="https://www.climatecabinetaction.org/">
+          <Image
+            src="/images/climate-cabinet-education-black.png"
+            alt="Climate Cabinet Education"
+            width={424} // width of the original image
+            height={276} // height of the original image
+          />
+        </a>
       </div>
-      <div className="flex-1">
-        <h1>Navbar placeholder</h1>
+      <div className="flex flex-1 items-center justify-end nav-menu">
+        <nav>
+          <ul className="flex">
+            <li>
+              <a href="https://www.climatecabinetaction.org/#Subscribe">
+                Subscribe
+              </a>
+            </li>
+            <li>
+              <a href="https://secure.actblue.com/donate/ccaf">Donate</a>
+            </li>
+            <li>
+              <a href="https://www.climatecabinetaction.org/">Home</a>
+            </li>
+          </ul>
+        </nav>
       </div>
-    </div>
+    </nav>
   );
 }
