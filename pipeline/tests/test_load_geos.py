@@ -1,8 +1,9 @@
-from django.test import SimpleTestCase
-from django.core.management import call_command
 from unittest.mock import patch
 from django.conf import settings
 from common.storage import CloudDataReader, LocalDataReader
+from django.core.management import call_command
+from django.test import SimpleTestCase
+
 
 
 class Test_Load_Geos(

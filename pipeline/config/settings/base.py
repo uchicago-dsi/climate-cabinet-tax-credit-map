@@ -2,9 +2,10 @@
 """
 
 import os
-from configurations import Configuration
 from distutils.util import strtobool
 from pathlib import Path
+
+from configurations import Configuration
 
 
 class BaseConfig(Configuration):
@@ -118,6 +119,7 @@ class BaseConfig(Configuration):
             "HOST": os.getenv("POSTGRES_HOST", "postgres"),
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 600)),
+            "DISABLE_SERVER_SIDE_CURSORS": False,
         }
     }
 

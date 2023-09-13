@@ -2,8 +2,10 @@
 """
 
 import os
-from .base import BaseConfig
+
 from corsheaders.defaults import default_headers
+
+from .base import BaseConfig
 
 
 class ProductionConfig(BaseConfig):
