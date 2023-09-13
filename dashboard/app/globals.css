@@ -64,3 +64,13 @@ span {
 .cc-button {
   @apply bg-ccblue-dark text-ccwhite px-[40px] py-[10px] hover:bg-ccblue-light uppercase text-[15px] font-bold tracking-[2px]
 }
+
+/* TODO: What font are they actually using here for their title? */
+.humani-title {
+  @apply text-6xl text-ccwhite capitalize 
+}
+
+.checkbox-sm:checked + .label{
+/* TODO: can't get this to select properly */
+}
+

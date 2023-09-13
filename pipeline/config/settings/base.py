@@ -2,9 +2,10 @@
 """
 
 import os
-from configurations import Configuration
 from distutils.util import strtobool
 from pathlib import Path
+
+from configurations import Configuration
 
 
 class BaseConfig(Configuration):
@@ -15,7 +16,12 @@ class BaseConfig(Configuration):
     PROJECT_DIR = f"{BASE_DIR}/pipeline"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATIC_URL = "/static/"
-    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+    # TODO: I (Todd) moved this here from production.py — is this ok?
+    # Google Cloud Storage
+    CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
     # Installed apps
     INSTALLED_APPS = (
@@ -30,7 +36,7 @@ class BaseConfig(Configuration):
         "corsheaders",
         # Your apps
         "tax_credit",
-        "tests"
+        "tests",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/
@@ -113,6 +119,7 @@ class BaseConfig(Configuration):
             "HOST": os.getenv("POSTGRES_HOST", "postgres"),
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 600)),
+            "DISABLE_SERVER_SIDE_CURSORS": False,
         }
     }
 

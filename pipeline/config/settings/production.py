@@ -2,8 +2,10 @@
 """
 
 import os
-from .base import BaseConfig
+
 from corsheaders.defaults import default_headers
+
+from .base import BaseConfig
 
 
 class ProductionConfig(BaseConfig):
@@ -32,9 +34,6 @@ class ProductionConfig(BaseConfig):
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = False
-
-    # Google Cloud Storage
-    STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
 
     # If the flag has been set, configure to use proxy
     # https://cloud.google.com/python/django/run
