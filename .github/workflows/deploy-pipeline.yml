@@ -32,7 +32,7 @@ jobs:
           # TODO: put these settings in config
           workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
           # service_account: "artifact-registry@climate-cabinet-398217.iam.gserviceaccount.com"
-          service_account: $ARTIFACT_SERVICE_ACCOUNT
+          service_account: ${{ vars.ARTIFACT_SERVICE_ACCOUNT }}
           token_format: "access_token"
 
       # Login with Docker action using the token from the Google Cloud auth step
