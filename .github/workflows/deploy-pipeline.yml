@@ -27,16 +27,15 @@ jobs:
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v1"
         with:
-          # TODO: put these settings in config
-          workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
-          # service_account: "artifact-registry@climate-cabinet-398217.iam.gserviceaccount.com"
+          # workload_identity_provider: "projects/586636400432/locations/global/workloadIdentityPools/artifact-registry/providers/github"
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.ARTIFACT_SERVICE_ACCOUNT }}
           token_format: "access_token"
 
       # Login with Docker action using the token from the Google Cloud auth step
       - uses: "docker/login-action@v3"
         with:
-          registry: $${{ vars.CLOUD_REGION }}.pkg.dev # TODO: this should maybe be in config
+          registry: $${{ vars.CLOUD_REGION }}.pkg.dev
           username: "oauth2accesstoken"
           password: "${{ steps.auth.outputs.access_token }}"
 
@@ -45,7 +44,10 @@ jobs:
         uses: "docker/build-push-action@v5"
         with:
           push: true
-          # TODO: this stuff should probably be in a config file also
+          # TODO: should we put context stuff in config?
           context: ./pipeline
           file: ./pipeline/Dockerfile
-          tags: $${{ vars.CLOUD_REGION }}.pkg.dev/climate-cabinet-398217/ira-pipeline/climate-cabinet-pipeline:latest
+          tags: $${{ vars.CLOUD_REGION }}.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest
+          # climate-cabinet-398217
+          # ira-pipeline
+          # climate-cabinet-pipeline
