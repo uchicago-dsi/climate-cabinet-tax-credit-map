@@ -19,7 +19,9 @@ logger: Logger = Logger(__file__)
 
 class GeographyLoadJob:
     def __init__(
-        self, file_name: str, geography_type_value: str, feature_col_in_src: str
+        self, file_name: str,
+        geography_type_value: str, 
+        feature_col_in_src: str,
     ):
         """
         Creates a job loading a given parquet file into the DB
@@ -32,6 +34,7 @@ class GeographyLoadJob:
         self.file_name = file_name
         self.geography_type_value = geography_type_value
         self.feature_col_in_src = feature_col_in_src
+
 
     def __str__(self):
         return f"[ Job : [ {self.file_name}, {self.geography_type_value}, {self.feature_col_in_src} ] ]"
@@ -75,17 +78,17 @@ class Command(BaseCommand):
             None
         """
 
-        # TODO need to chunk data. Lots of memory, 137 exit crash
 
         # TODO check right name field used for each... dict? Ideally human readable, otherwise id
 
         # first load geotypes
         self._load_geo_types()
+        self._load_counties()
 
         # the load geographies from resp files
         geo_file_load_jobs = [
             GeographyLoadJob("state_clean.geoparquet", "state", "State"),
-            GeographyLoadJob("county_clean.geoparquet", "county", "County"),
+            # GeographyLoadJob("county_clean.geoparquet", "county", "County"),
             GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
             GeographyLoadJob("ffe.geoparquet", "fossil_fuel", "TractIDcty"),
             GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
@@ -125,7 +128,7 @@ class Command(BaseCommand):
                 )
                 for row in batch
             ]
-            Census_Tract.objects.bulk_create(geographies)
+            Census_Tract.objects.bulk_create(geographies, ignore_conflicts=True)
 
     def _build_target_geo_asoc(self) -> None:
         print("LOADING THE ASSOCIATION TABLE")
@@ -157,7 +160,33 @@ class Command(BaseCommand):
                     )
                 )
             if assocs:
-                Target_Bonus_Assoc.objects.bulk_create(assocs)
+                Target_Bonus_Assoc.objects.bulk_create(assocs, ignore_conflicts=True)
+    
+    def _load_counties(self) -> None:
+        """This needs custom handling as we must transform the name to include the state as well as the county itself
+        """
+        print("Loading counties")
+        geography_type = Geography_Type.objects.get(name="county")
+
+        iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
+            "county_clean.geoparquet"
+        )
+
+        for batch in iter_parquet:
+            # r = batch[0]
+            # print(f"First row : {r}")
+
+            geographies: list[Geography] = [
+                Geography(
+                    name=f'{row["County"]}, {row["State"]}'.title(),
+                    geography_type=geography_type,
+                    boundary=self._ensure_multipolygon(row["geometry"]),
+                    as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
+                    source="county_clean.geoparquet",  # TODO again this isn't it......
+                )
+                for row in batch
+            ]
+            Geography.objects.bulk_create(geographies, ignore_conflicts=True)
 
     def _load_geography_file(self, job) -> None:
         """Helper method to load a set of geographies from a given geoparquet
@@ -182,7 +211,7 @@ class Command(BaseCommand):
         geography_type = Geography_Type.objects.get(name=job.geography_type_value)
 
         iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
-            job.file_name
+            job.file_name, batch_size=100
         )
         logger.info(f"Read {job.file_name} to dataframe.")
 
@@ -197,7 +226,9 @@ class Command(BaseCommand):
                 )
                 for row in batch
             ]
-            Geography.objects.bulk_create(geographies)
+            Geography.objects.bulk_create(geographies, ignore_conflicts=True)
+            # geographies = None
+            # del(geographies)
 
     def _load_geo_types(self) -> None:
         """Helper method specifically to load geography types into Postgres.
@@ -213,7 +244,7 @@ class Command(BaseCommand):
             Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
             for _, geo_type in records.iterrows()
         ]
-        Geography_Type.objects.bulk_create(geography_types)
+        Geography_Type.objects.bulk_create(geography_types, ignore_conflicts=True)
 
     def _ensure_multipolygon(self, geom: GEOSGeometry):
         """Ensures that the Django Geometry type is a multipolygon as opposed

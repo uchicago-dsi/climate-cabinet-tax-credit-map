@@ -20,6 +20,9 @@ class Geography(models.Model):
     as_of = models.DateField()
     source = models.CharField(max_length=255)
 
+    class Meta:
+        unique_together = [['name', 'geography_type']]
+
 
 class Program(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -35,14 +38,8 @@ class Geography_Type_Program(models.Model):
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     amount_description = models.TextField()
 
-
-# class Geography_Metric(models.Model):
-#     geography = models.ForeignKey(Geography, on_delete=models.CASCADE)
-#     source = models.CharField(max_length=255)
-#     as_of = models.DateField()
-#     name = models.CharField(max_length=255)
-#     value = models.DecimalField(max_digits=10, decimal_places=5)
-#     methodology = models.TextField()
+    class Meta:
+        unique_together = [['geography_type', 'program']]
 
 
 class Target_Bonus_Assoc(models.Model):
@@ -55,6 +52,9 @@ class Target_Bonus_Assoc(models.Model):
         Geography, related_name="bonus_geo_set", on_delete=models.CASCADE
     )
     bonus_geography_type = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = [['target_geography', 'bonus_geography']]
 
 
 class Census_Tract(models.Model):

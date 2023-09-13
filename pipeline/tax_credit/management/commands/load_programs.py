@@ -71,4 +71,4 @@ class Command(BaseCommand):
             )
             for _, row in type_program_df.iterrows()
         ]
-        Geography_Type_Program.objects.bulk_create(geo_program_matches)
+        Geography_Type_Program.objects.bulk_create(geo_program_matches, ignore_conflicts=True)
