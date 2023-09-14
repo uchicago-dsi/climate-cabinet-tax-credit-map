@@ -20,5 +20,4 @@ run-dashboard:
 clean:
 	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
 	rm -rf pgdata/*
-
-.PHONY: clean
+	

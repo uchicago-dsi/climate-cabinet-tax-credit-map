@@ -5,13 +5,16 @@ FROM node:alpine
 WORKDIR /app
 
 # Copy node packages
-COPY package*.json /app
+COPY package*.json ./
+
+# Copy prisma schema
+COPY prisma ./prisma/
 
 # Install dependencies
 RUN npm install
 
 # Copy the remaining app components
-COPY . /app
+COPY . .
 
 # Expose port for app development server
 EXPOSE 3000

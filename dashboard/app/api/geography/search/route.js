@@ -27,7 +27,7 @@ export async function POST(request) {
     let { searchTerm, limit } = await request.json();
     let regex = `${searchTerm.trim().split(" ").join("%")}%`;
     let data = await prisma.$queryRaw`
-      SELECT id, name
+      SELECT id::varchar(255), name
       FROM tax_credit_geography
       WHERE name ILIKE ${regex}
       LIMIT ${limit};

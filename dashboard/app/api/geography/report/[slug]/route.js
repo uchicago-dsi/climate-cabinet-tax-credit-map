@@ -49,7 +49,8 @@ export async function GET(request, { params }) {
                 geo_type.id = candidates.geography_type_id
             WHERE candidates.boundary && target.bbox AND 
                 ST_Intersects(candidates.boundary, target.boundary)
-            ) AS t;
+            ) AS t
+        WHERE geography_type != 'state';
     `;
     let geographies = rows.map(r => JSON.parse(r.data));
     return NextResponse.json(geographies);
