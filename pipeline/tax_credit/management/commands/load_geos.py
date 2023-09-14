@@ -11,6 +11,9 @@ from geopandas import GeoDataFrame
 from tax_credit.models import (Census_Tract, Geography, GeographyType,
                                Target_Bonus_Assoc)
 
+import tracemalloc
+from pprint import pprint
+
 # from shapely.geometry.Multipolygon
 
 data_reader: IDataReader = DataReaderFactory.get_reader()
@@ -78,6 +81,7 @@ class Command(BaseCommand):
             None
         """
 
+        tracemalloc.start()
 
         # TODO check right name field used for each... dict? Ideally human readable, otherwise id
 
@@ -89,7 +93,8 @@ class Command(BaseCommand):
         geo_file_load_jobs = [
             GeographyLoadJob("state_clean.geoparquet", "state", "State"),
             GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
-            GeographyLoadJob("ffe.geoparquet", "fossil_fuel", "TractIDcty"),
+            GeographyLoadJob("ffe.geoparquet", "energy", "TractIDcty"),
+            GeographyLoadJob("coal_closure.geoparquet", "energy", "TractID"),
             GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
             GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
             GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
@@ -98,10 +103,16 @@ class Command(BaseCommand):
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
+            snap0 = tracemalloc.take_snapshot()
             try:
                 self._load_geography_file(job, options)
             except Exception as e:
                 raise RuntimeError(f"Error loading the file : {job}") from e
+            snap1 = tracemalloc.take_snapshot()
+            top_stats = snap1.compare_to(snap0, 'lineno')
+            print()
+            print(f"STAT CHANGE FOR : {job.file_name}")
+            pprint(top_stats[:25])
 
         self._load_census_tracts()
         self._build_target_geo_asoc()
@@ -216,7 +227,7 @@ class Command(BaseCommand):
         for batch in iter_parquet:
             geographies: list[Geography] = [
                 Geography(
-                    name=row[job.feature_col_in_src],
+                    name=f'{row[job.feature_col_in_src]}'.title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
                     # simple_boundary=self._ensure_multipolygon(row["geometry"]),
