@@ -3,7 +3,7 @@
 import pandas as pd
 from common.storage import DataReaderFactory, IDataReader
 from django.core.management.base import BaseCommand, CommandParser
-from tax_credit.models import Geography_Type, Geography_Type_Program, Program
+from tax_credit.models import GeographyType, Geography_Type_Program, Program
 
 data_reader: IDataReader = DataReaderFactory.get_reader()
 
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         geo_program_matches = [
             Geography_Type_Program(
                 id=row["Id"],
-                geography_type=Geography_Type.objects.get(
+                geography_type=GeographyType.objects.get(
                     name=row["Geography_Type"]
                 ),  # TODO will this be super slow?
                 program=Program.objects.get(name=row["Program"]),  # TODO this slow too?

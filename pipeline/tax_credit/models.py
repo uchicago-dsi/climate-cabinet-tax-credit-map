@@ -5,9 +5,12 @@ from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db import models
 
 
-class Geography_Type(models.Model):
+class GeographyType(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        db_table = "tax_credit_geography_type"
 
 
 class Geography(models.Model):
@@ -15,8 +18,9 @@ class Geography(models.Model):
     id = models.BigAutoField(primary_key=True)
     # id = models.CharField(max_length=255, primary_key=True) # TODO should be source + name
     name = models.CharField(max_length=255)
-    geography_type = models.ForeignKey(Geography_Type, on_delete=models.CASCADE)
+    geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     boundary = MultiPolygonField()
+    # simple_boundary = MultiPolygonField()
     as_of = models.DateField()
     source = models.CharField(max_length=255)
 
@@ -34,7 +38,7 @@ class Program(models.Model):
 
 class Geography_Type_Program(models.Model):
     id = models.IntegerField(primary_key=True)
-    geography_type = models.ForeignKey(Geography_Type, on_delete=models.CASCADE)
+    geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     amount_description = models.TextField()
 
