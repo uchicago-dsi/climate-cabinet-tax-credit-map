@@ -41,6 +41,6 @@ class ProductionConfig(BaseConfig):
         BaseConfig.DATABASES["default"]["HOST"] = "127.0.0.1"
         BaseConfig.DATABASES["default"]["PORT"] = 5432
         ALLOWED_HOSTS += ("0.0.0.0",)
-        DEBUG = True
+        DEBUG = False
         SECURE_PROXY_SSL_HEADER = None
         SECURE_SSL_REDIRECT = False

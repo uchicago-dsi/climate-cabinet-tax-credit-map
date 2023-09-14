@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from geopandas import GeoDataFrame
 from tax_credit.models import (Census_Tract, Geography, GeographyType,
                                Target_Bonus_Assoc)
+from django.db import reset_queries
 
 import tracemalloc
 from pprint import pprint
@@ -113,6 +114,7 @@ class Command(BaseCommand):
             print()
             print(f"STAT CHANGE FOR : {job.file_name}")
             pprint(top_stats[:25])
+            reset_queries() # Memory leak without this when DEBUG = True, https://stackoverflow.com/questions/60972577/django-postgres-memory-leak
 
         self._load_census_tracts()
         self._build_target_geo_asoc()
