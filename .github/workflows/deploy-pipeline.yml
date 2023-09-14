@@ -3,8 +3,7 @@ name: Deploy to Google Artifact Registry
 on:
   push:
     branches:
-      # TODO: change this eventually
-      - cloud-csv-reader
+      - dev
 
 jobs:
   build-and-push:
