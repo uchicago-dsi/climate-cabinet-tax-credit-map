@@ -240,6 +240,7 @@ class Command(BaseCommand):
             None
         """
         records = data_reader.read_csv("geography_type.csv", delimiter="|")
+        print(records.head())
         geography_types = [
             Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
             for _, geo_type in records.iterrows()

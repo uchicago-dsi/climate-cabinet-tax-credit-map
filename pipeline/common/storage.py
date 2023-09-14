@@ -197,10 +197,7 @@ class CloudDataReader(IDataReader):
         """
         file_bytes = self.download_file(file_name)
 
-        return pd.read_table(
-            BytesIO(file_bytes),
-            encoding="utf-8",
-        )
+        return pd.read_table(BytesIO(file_bytes), encoding="utf-8", delimiter=delimiter)
 
     def geoparquet_iterator(
         self, file_name: str, batch_size: int = 1_000
