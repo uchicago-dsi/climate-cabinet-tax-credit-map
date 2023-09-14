@@ -5,10 +5,10 @@ services:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
-    # volumes:
-    # - ./pgdata:/var/lib/postgresql/data
+    volumes:
+        - ./pgdata:/var/lib/postgresql/data
 
-  # PIPELINE
+  # # PIPELINE
   climate-cabinet-pipeline:
     environment:
       - DJANGO_SECRET_KEY=local
@@ -38,6 +38,8 @@ services:
   climate-cabinet-pgadmin:
     depends_on:
       - climate-cabinet-postgis
+    image: dpage/pgadmin4
+    platform: linux/arm64
     environment:
       - COMPOSE_HTTP_TIMEOUT=300
       - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com
@@ -45,7 +47,6 @@ services:
       - PGADMIN_LISTEN_PORT=443
       - PGADMIN_CONFIG_SERVER_MODE=False
       - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
-    image: dpage/pgadmin4
     ports:
       - "443:443"
     volumes:

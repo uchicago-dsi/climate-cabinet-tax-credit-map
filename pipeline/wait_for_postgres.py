@@ -3,8 +3,9 @@
 
 import logging
 import os
+from time import sleep, time
+
 import psycopg2
-from time import time, sleep
 
 # Configure logger
 logger = logging.getLogger()

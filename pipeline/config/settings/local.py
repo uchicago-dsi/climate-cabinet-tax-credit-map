@@ -1,8 +1,9 @@
 """Settings to use when running the Django project locally.
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 from .base import BaseConfig
 
 SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
