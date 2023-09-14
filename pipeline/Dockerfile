@@ -4,6 +4,7 @@ FROM python:3.9
 # Configure Python logs to stream to stdout without buffering
 ENV PYTHONUNBUFFERED 1
 
+# Install GDAL and related dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gdal-bin libgdal-dev python3-gdal
 
@@ -18,4 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the development server
-CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
+# TODO: trying to track down error in production cloud run
+# CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
+CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs"]

@@ -3,7 +3,7 @@
 # Configure script to exit when any command fails
 set -e
 
-echo 'starting setup script'
+echo "Starting setup script."
 
 # Monitor last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG

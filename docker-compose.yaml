@@ -20,8 +20,6 @@ services:
       - CLOUD_STORAGE_BUCKET=ira-map-data
       - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
     build:
-      args:
-        ENV: DEV
       context: pipeline
     command: ./cr-entry.sh
     volumes:
@@ -30,6 +28,8 @@ services:
     depends_on:
       - climate-cabinet-postgis
       - climate-cabinet-pgadmin
+    profiles:
+      - pipeline
 
   # PGADMIN DATABASE GUI
   climate-cabinet-pgadmin:
@@ -48,3 +48,19 @@ services:
       - "443:443"
     volumes:
       - ./server.local.json:/pgadmin4/servers.json
+
+  # DASHBOARD
+  climate-cabinet-dashboard:
+    build:
+      context: dashboard
+    depends_on:
+      - climate-cabinet-postgis
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+      - /app/.next
+    profiles:
+      - dashboard
