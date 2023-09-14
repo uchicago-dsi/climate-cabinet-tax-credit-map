@@ -4,6 +4,7 @@ FROM python:3.9
 # Configure Python logs to stream to stdout without buffering
 ENV PYTHONUNBUFFERED 1
 
+# Install GDAL and related dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gdal-bin libgdal-dev python3-gdal
 
