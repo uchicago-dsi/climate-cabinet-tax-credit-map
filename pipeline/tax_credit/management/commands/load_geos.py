@@ -213,7 +213,7 @@ class Command(BaseCommand):
         geography_type = GeographyType.objects.get(name=job.geography_type_value)
 
         iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
-            job.file_name, batch_size=100
+            job.file_name, batch_size=50
         )
         if options["smoke_test"]:
             from itertools import islice
