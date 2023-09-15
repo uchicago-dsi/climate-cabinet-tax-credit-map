@@ -8,8 +8,7 @@ from common.storage import DataReaderFactory, IDataReader
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand, CommandParser
 from geopandas import GeoDataFrame
-from tax_credit.models import (Census_Tract, Geography, GeographyType,
-                               Target_Bonus_Assoc)
+from tax_credit.models import Census_Tract, Geography, GeographyType, Target_Bonus_Assoc
 from django.db import reset_queries
 
 import tracemalloc
@@ -23,8 +22,9 @@ logger: Logger = Logger(__file__)
 
 class GeographyLoadJob:
     def __init__(
-        self, file_name: str,
-        geography_type_value: str, 
+        self,
+        file_name: str,
+        geography_type_value: str,
         feature_col_in_src: str,
     ):
         """
@@ -38,7 +38,6 @@ class GeographyLoadJob:
         self.file_name = file_name
         self.geography_type_value = geography_type_value
         self.feature_col_in_src = feature_col_in_src
-
 
     def __str__(self):
         return f"[ Job : [ {self.file_name}, {self.geography_type_value}, {self.feature_col_in_src} ] ]"
@@ -110,11 +109,11 @@ class Command(BaseCommand):
             except Exception as e:
                 raise RuntimeError(f"Error loading the file : {job}") from e
             snap1 = tracemalloc.take_snapshot()
-            top_stats = snap1.compare_to(snap0, 'lineno')
+            top_stats = snap1.compare_to(snap0, "lineno")
             print()
             print(f"STAT CHANGE FOR : {job.file_name}")
             pprint(top_stats[:25])
-            reset_queries() # Memory leak without this when DEBUG = True, https://stackoverflow.com/questions/60972577/django-postgres-memory-leak
+            reset_queries()  # Memory leak without this when DEBUG = True, https://stackoverflow.com/questions/60972577/django-postgres-memory-leak
 
         self._load_census_tracts()
         self._build_target_geo_asoc()
@@ -147,17 +146,19 @@ class Command(BaseCommand):
         for target in target_iter:
             print(f"\t{target}")
             assocs = []
-            bonus_iter = Geography.objects.filter(
-                geography_type__name__in=[
-                    "distressed",
-                    "fossil_fuel",
-                    "justice40",
-                    "low_income",
-                ],
-                boundary__intersects=target.boundary,
-            ).exclude(
-                boundary__touches=target.boundary
-            ).iterator()
+            bonus_iter = (
+                Geography.objects.filter(
+                    geography_type__name__in=[
+                        "distressed",
+                        "fossil_fuel",
+                        "justice40",
+                        "low_income",
+                    ],
+                    boundary__intersects=target.boundary,
+                )
+                .exclude(boundary__touches=target.boundary)
+                .iterator()
+            )
             for bonus in bonus_iter:
                 print(f"\t\t{bonus}")
                 assocs.append(
@@ -170,10 +171,9 @@ class Command(BaseCommand):
                 )
             if assocs:
                 Target_Bonus_Assoc.objects.bulk_create(assocs, ignore_conflicts=True)
-    
+
     def _load_counties(self) -> None:
-        """This needs custom handling as we must transform the name to include the state as well as the county itself
-        """
+        """This needs custom handling as we must transform the name to include the state as well as the county itself"""
         print("Loading counties")
         geography_type = GeographyType.objects.get(name="county")
 
@@ -190,7 +190,7 @@ class Command(BaseCommand):
                     name=f'{row["County"]}, {row["State"]}'.title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
-                    # simple_boundary=self._ensure_multipolygon(row["geometry"]),
+                    simple_boundary=self._ensure_multipolygon(row["geometry"]),
                     as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
                     source="county_clean.geoparquet",  # TODO again this isn't it......
                 )
@@ -225,13 +225,14 @@ class Command(BaseCommand):
         )
         if options["smoke_test"]:
             from itertools import islice
+
             iter_parquet = islice(iter_parquet, 1)
         logger.info(f"Read {job.file_name} to dataframe.")
 
         for batch in iter_parquet:
             geographies: list[Geography] = [
                 Geography(
-                    name=f'{row[job.feature_col_in_src]}'.title(),
+                    name=f"{row[job.feature_col_in_src]}".title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
                     simple_boundary=self._ensure_multipolygon(row["geometry"]),
