@@ -8,7 +8,7 @@ from common.storage import DataReaderFactory, IDataReader
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand, CommandParser
 from geopandas import GeoDataFrame
-from tax_credit.models import (Census_Tract, Geography, Geography_Type,
+from tax_credit.models import (Census_Tract, Geography, GeographyType,
                                Target_Bonus_Assoc)
 
 # from shapely.geometry.Multipolygon
@@ -88,7 +88,6 @@ class Command(BaseCommand):
         # the load geographies from resp files
         geo_file_load_jobs = [
             GeographyLoadJob("state_clean.geoparquet", "state", "State"),
-            # GeographyLoadJob("county_clean.geoparquet", "county", "County"),
             GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
             GeographyLoadJob("ffe.geoparquet", "fossil_fuel", "TractIDcty"),
             GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
@@ -97,15 +96,10 @@ class Command(BaseCommand):
             GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
         ]
 
-        # TODO: Maybe we want the test to load everything but only a subset
-        # of it?
-        if options["smoke_test"]:
-            geo_file_load_jobs = geo_file_load_jobs[:1]
-
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
             try:
-                self._load_geography_file(job)
+                self._load_geography_file(job, options)
             except Exception as e:
                 raise RuntimeError(f"Error loading the file : {job}") from e
 
@@ -166,7 +160,7 @@ class Command(BaseCommand):
         """This needs custom handling as we must transform the name to include the state as well as the county itself
         """
         print("Loading counties")
-        geography_type = Geography_Type.objects.get(name="county")
+        geography_type = GeographyType.objects.get(name="county")
 
         iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
             "county_clean.geoparquet"
@@ -181,6 +175,7 @@ class Command(BaseCommand):
                     name=f'{row["County"]}, {row["State"]}'.title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
+                    # simple_boundary=self._ensure_multipolygon(row["geometry"]),
                     as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
                     source="county_clean.geoparquet",  # TODO again this isn't it......
                 )
@@ -188,7 +183,7 @@ class Command(BaseCommand):
             ]
             Geography.objects.bulk_create(geographies, ignore_conflicts=True)
 
-    def _load_geography_file(self, job) -> None:
+    def _load_geography_file(self, job, options) -> None:
         """Helper method to load a set of geographies from a given geoparquet
         file into Postgres. This method makes the assumption that all records
         in a given geoparquet file are from the same source. the method does
@@ -208,11 +203,14 @@ class Command(BaseCommand):
         # TODO (probably in reader) load columns with correct types? Load only required columns?
         # second is maybe too much info to carry around and files too small to be worth it
 
-        geography_type = Geography_Type.objects.get(name=job.geography_type_value)
+        geography_type = GeographyType.objects.get(name=job.geography_type_value)
 
         iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
             job.file_name, batch_size=100
         )
+        if options["smoke_test"]:
+            from itertools import islice
+            iter_parquet = islice(iter_parquet, 1)
         logger.info(f"Read {job.file_name} to dataframe.")
 
         for batch in iter_parquet:
@@ -221,6 +219,7 @@ class Command(BaseCommand):
                     name=row[job.feature_col_in_src],
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
+                    # simple_boundary=self._ensure_multipolygon(row["geometry"]),
                     as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
                     source=job.file_name,  # TODO again this isn't it......
                 )
@@ -242,10 +241,10 @@ class Command(BaseCommand):
         records = data_reader.read_csv("geography_type.csv", delimiter="|")
         print(records.head())
         geography_types = [
-            Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
+            GeographyType(id=geo_type["Id"], name=geo_type["Name"])
             for _, geo_type in records.iterrows()
         ]
-        Geography_Type.objects.bulk_create(geography_types, ignore_conflicts=True)
+        GeographyType.objects.bulk_create(geography_types, ignore_conflicts=True)
 
     def _ensure_multipolygon(self, geom: GEOSGeometry):
         """Ensures that the Django Geometry type is a multipolygon as opposed
