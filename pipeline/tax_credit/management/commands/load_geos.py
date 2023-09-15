@@ -155,6 +155,8 @@ class Command(BaseCommand):
                     "low_income",
                 ],
                 boundary__intersects=target.boundary,
+            ).exclude(
+                boundary__touches=target.boundary
             ).iterator()
             for bonus in bonus_iter:
                 print(f"\t\t{bonus}")
@@ -232,7 +234,7 @@ class Command(BaseCommand):
                     name=f'{row[job.feature_col_in_src]}'.title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
-                    # simple_boundary=self._ensure_multipolygon(row["geometry"]),
+                    simple_boundary=self._ensure_multipolygon(row["geometry"]),
                     as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
                     source=job.file_name,  # TODO again this isn't it......
                 )
