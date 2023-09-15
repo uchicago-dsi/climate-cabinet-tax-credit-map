@@ -88,11 +88,11 @@ class Command(BaseCommand):
 
         # the load geographies from resp files
         geo_file_load_jobs = [
-            GeographyLoadJob("state_clean.geoparquet", "state", "State"),
-            GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
-            GeographyLoadJob("ffe.geoparquet", "energy", "TractIDcty"),
-            GeographyLoadJob("coal_closure.geoparquet", "energy", "TractID"),
-            GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
+            # GeographyLoadJob("state_clean.geoparquet", "state", "State"),
+            # GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
+            # GeographyLoadJob("ffe.geoparquet", "energy", "TractIDcty"),
+            # GeographyLoadJob("coal_closure.geoparquet", "energy", "TractID"),
+            # GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
             GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
             GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
             GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
