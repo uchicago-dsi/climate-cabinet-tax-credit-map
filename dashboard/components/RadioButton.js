@@ -13,7 +13,7 @@ function RadioButton({ option, name, isChecked, onChange }) {
                 checked={isChecked}
                 onChange={onChange}
             />
-            <span className="label-text px-2">
+            <span className="px-2">
                 {name}
             </span>
         </label>

@@ -29,9 +29,9 @@ function MapWidget() {
     const layerClient = useLayers(reportSnap.report, layerStore);
 
     return (
-        <div className="grid grid-cols-12 m-0 p-0">
+        <div className="grid grid-cols-2 m-0 p-0">
             <div 
-                className="relative w-3/4 overflow-hidden" 
+                className="relative overflow-hidden" 
                 style={{width: 1000, height: 1000}}
             >
                 <Suspense fallback={<Banner notificationText={"Loading geographies..."} />}>

@@ -15,7 +15,7 @@ export default function Header() {
           />
         </a>
       </div>
-      <nav className="flex flex-6 items-center justify-center nav-menu">
+      <nav className="flex flex-6 items-center justify-center nav-menu font-bold text-base">
         <ul className="flex">
           <li>
             <a href="https://climatecabineteducation.org/">Home</a>
@@ -47,10 +47,10 @@ export default function Header() {
       </nav>
       <div className="flex flex-1 justify-end items-center">
         <a
-          className="btn cc-button"
+          className="btn cc-button rounded-full"
           href="https://secure.actblue.com/donate/ccaf"
         >
-          Donate
+          DONATE NOW
         </a>
       </div>
     </div>
