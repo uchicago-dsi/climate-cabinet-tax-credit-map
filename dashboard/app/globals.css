@@ -23,7 +23,7 @@
   }
 }
 
-body {
+main {
   @apply bg-ccwhite
   /* TODO: This is the default way that Next does this
   /* color: rgb(var(--foreground-rgb)); */

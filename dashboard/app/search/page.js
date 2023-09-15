@@ -13,7 +13,7 @@ export default function SearchPage() {
 
     return (
         <main className="w-screen">
-            <div className="max-w-7xl mx-auto py-5">
+            <div className="max-w-7xl mx-auto py-2">
                 {/** HEADER  */}
                 <div className="flex flex-col items-center">
                     {/** TITLE BANNER */}
@@ -27,7 +27,7 @@ export default function SearchPage() {
                     </div>
                     {/** DESCRIPTION */}
                     <div>
-                        <p className="px-20 pt-8 text-xl">
+                        <p className="px-20 pt-8 text-lg">
                             Enter the name of a state, county, municipality or rural electric
                             cooperative to view its Justice 40 communities, energy communities,
                             and designated low-income census tracts and MSAs on an interactive
