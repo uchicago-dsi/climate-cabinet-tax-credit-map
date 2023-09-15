@@ -4,24 +4,24 @@
 
 "use client"
 
-import MapWidget from '@/components/MapWidget';
+import MapWidget from "@/components/MapWidget";
+import SummaryStats from "@/components/SummaryStats";
 
 
 function ReportWidget() {
 
     return (
         <div className="flex w-full px-20" style={{ paddingTop: 20 }}>
-            {/** MAP */}
-            <MapWidget />
-            
-            {/** SIDEBAR */}
-            {/* <div className="grid grid-cols-8" style={{backgroundColor: "yellow"}}>
-            <h2>Summary Stats</h2>
-        </div> */}
-
-            {/* <div className="flex flex-col w-1/4 h-[75vh] overflow-hidden px-5">
-            <SummaryStats />
-        </div> */}
+            <div className="grid grid-cols-8 m-0 p-0">
+                {/** MAP */}
+                <div className="col-span-6">
+                    <MapWidget />
+                </div>
+                {/** SUMMARY STATISTICS SIDEBAR */}
+                <div className="col-span-2 flex flex-col w-full h-[75vh] px-5 bg-white border-2 border-slate-100">
+                    <SummaryStats />
+                </div>
+            </div>
         </div>
     );
 }

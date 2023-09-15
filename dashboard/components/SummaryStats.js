@@ -1,6 +1,10 @@
+/**
+ * Summarizes population and tax credit program data for a geography.
+ */
+
 "use client";
 
-export default function SummaryStats() {
+function SummaryStats() {
   return (
     //TODO: Add program summary up top
     // Then include population
@@ -18,3 +22,5 @@ export default function SummaryStats() {
     </div>
   );
 }
+
+export default SummaryStats;

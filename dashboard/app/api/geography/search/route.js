@@ -30,6 +30,7 @@ export async function POST(request) {
       SELECT id::varchar(255), name
       FROM tax_credit_geography
       WHERE name ILIKE ${regex}
+      ORDER BY name
       LIMIT ${limit};
     `;
     return NextResponse.json({ data })
