@@ -11,7 +11,6 @@ from geopandas import GeoDataFrame
 from tax_credit.models import Census_Tract, Geography, GeographyType, Target_Bonus_Assoc
 from django.db import reset_queries
 
-import tracemalloc
 from pprint import pprint
 
 # from shapely.geometry.Multipolygon
@@ -81,8 +80,6 @@ class Command(BaseCommand):
             None
         """
 
-        tracemalloc.start()
-
         # TODO check right name field used for each... dict? Ideally human readable, otherwise id
 
         # first load geotypes
@@ -103,16 +100,11 @@ class Command(BaseCommand):
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
-            snap0 = tracemalloc.take_snapshot()
             try:
                 self._load_geography_file(job, options)
             except Exception as e:
                 raise RuntimeError(f"Error loading the file : {job}") from e
-            snap1 = tracemalloc.take_snapshot()
-            top_stats = snap1.compare_to(snap0, "lineno")
             print()
-            print(f"STAT CHANGE FOR : {job.file_name}")
-            pprint(top_stats[:25])
             reset_queries()  # Memory leak without this when DEBUG = True, https://stackoverflow.com/questions/60972577/django-postgres-memory-leak
 
         self._load_census_tracts()
@@ -221,7 +213,7 @@ class Command(BaseCommand):
         geography_type = GeographyType.objects.get(name=job.geography_type_value)
 
         iter_parquet: Iterator[dict[str, Any]] = data_reader.geoparquet_iterator(
-            job.file_name, batch_size=100
+            job.file_name, batch_size=25
         )
         if options["smoke_test"]:
             from itertools import islice
