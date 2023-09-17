@@ -50,7 +50,7 @@ fi
 # Load geographies in testing mode if indicated
 if $load_geos_test ; then
     echo "Loading geographies into database."
-    ./manage.py load_geos #--smoke-test
+    ./manage.py load_geos --smoke-test --load-all
 fi
 
 # Load tax credit programs if indicated
