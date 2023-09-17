@@ -46,7 +46,6 @@ function MapWidget() {
             initialViewState={viewportStore.current}
             controller={true}
           >
-            {/* { layerClient.hoverInfo && <Tooltip hoverInfo={layerClient.hoverInfo} />} */}
             <Map
               mapStyle={baseMapSnap.selected.url}
               mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}

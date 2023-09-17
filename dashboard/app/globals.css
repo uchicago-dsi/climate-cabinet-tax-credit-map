@@ -81,3 +81,11 @@ span {
 /* TODO: can't get this to select properly */
 }
 
+.tooltip {
+  @apply bg-ccgray-light z-10 absolute
+}
+
+.tooltip p {
+  @apply text-xs p-2
+}
+
