@@ -69,6 +69,78 @@ class Command(BaseCommand):
             help="Run the command in testing mode",
         )
 
+        parser.add_argument(
+            "--load-all",
+            action="store_true",
+            help="Load all data into the database",
+        )
+
+        parser.add_argument(
+            "--load-states",
+            action="store_true",
+            help="Load state data into the database",
+        )
+
+        parser.add_argument(
+            "--load-distressed",
+            action="store_true",
+            help="Load distressed community data into the database",
+        )
+
+        parser.add_argument(
+            "--load-energy",
+            action="store_true",
+            help="Load energy community data into the database",
+        )
+
+        parser.add_argument(
+            "--load-coal",
+            action="store_true",
+            help="Load coal closure community data into the database",
+        )
+
+        parser.add_argument(
+            "--load-justice",
+            action="store_true",
+            help="Load Justice 40 community data into the database",
+        )
+
+        parser.add_argument(
+            "--load-low-income",
+            action="store_true",
+            help="Load low income community data into the database",
+        )
+
+        parser.add_argument(
+            "--load-municipal",
+            action="store_true",
+            help="Load municipal utility data into the database",
+        )
+
+        parser.add_argument(
+            "--load-rural",
+            action="store_true",
+            help="Load rural coop data into the database",
+        )
+
+        parser.add_argument(
+            "--load-census",
+            action="store_true",
+            help="Load census tract data into the database",
+        )
+
+        parser.add_argument(
+            "--load-counties",
+            action="store_true",
+            help="Load county data into the database",
+        )
+
+        parser.add_argument(
+            "--load-assoc",
+            action="store_true",
+            help="Loads associations between different geometries into the database",
+        )
+
     def handle(self, *args, **options) -> None:
         """Executes the command. Accepts variable numbers of keyword and non-
         keyword arguments.
@@ -84,19 +156,37 @@ class Command(BaseCommand):
 
         # first load geotypes
         self._load_geo_types()
-        self._load_counties()
 
-        # the load geographies from resp files
-        geo_file_load_jobs = [
-            # GeographyLoadJob("state_clean.geoparquet", "state", "State"),
-            # GeographyLoadJob("dci_clean.geoparquet", "distressed", "zip_code"),
-            # GeographyLoadJob("ffe.geoparquet", "energy", "TractIDcty"),
-            # GeographyLoadJob("coal_closure.geoparquet", "energy", "TractID"),
-            # GeographyLoadJob("justice40.geoparquet", "justice40", "TractID"),
-            GeographyLoadJob("low_income_tracts.geoparquet", "low_income", "tractId"),
-            GeographyLoadJob("municipal_utils.geoparquet", "municipal_util", "ID"),
-            GeographyLoadJob("rural_coops.geoparquet", "rural_coop", "NAME"),
-        ]
+        if options.get("load_counties", False) or options.get("load_all", False):
+            self._load_counties()
+
+        command2job = {
+            "load_states": GeographyLoadJob("state_clean.geoparquet", "state", "State"),
+            "load_distressed": GeographyLoadJob(
+                "dci_clean.geoparquet", "distressed", "zip_code"
+            ),
+            "load_energy": GeographyLoadJob("ffe.geoparquet", "energy", "TractIDcty"),
+            "load_coal": GeographyLoadJob(
+                "coal_closure.geoparquet", "energy", "TractID"
+            ),
+            "load_justice": GeographyLoadJob(
+                "justice40.geoparquet", "justice40", "TractID"
+            ),
+            "load_low_income": GeographyLoadJob(
+                "low_income_tracts.geoparquet", "low_income", "tractId"
+            ),
+            "load_municipal": GeographyLoadJob(
+                "municipal_utils.geoparquet", "municipal_util", "ID"
+            ),
+            "load_rural": GeographyLoadJob(
+                "rural_coops.geoparquet", "rural_coop", "NAME"
+            ),
+        }
+
+        geo_file_load_jobs = []
+        for command, job in command2job.items():
+            if options.get(command, False) or options.get("load_all", False):
+                geo_file_load_jobs.append(job)
 
         for job in geo_file_load_jobs:
             print(f"Loading job : {job}")
@@ -107,8 +197,11 @@ class Command(BaseCommand):
             print()
             reset_queries()  # Memory leak without this when DEBUG = True, https://stackoverflow.com/questions/60972577/django-postgres-memory-leak
 
-        self._load_census_tracts()
-        self._build_target_geo_asoc()
+        if options.get("load_census", False) or options.get("load_all", False):
+            self._load_census_tracts()
+
+        if options.get("load_assoc", False) or options.get("load_all", False):
+            self._build_target_geo_asoc()
 
     def _load_census_tracts(self) -> None:
         print("Loading census tracts")
