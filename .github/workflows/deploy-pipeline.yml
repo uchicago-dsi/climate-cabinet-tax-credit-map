@@ -1,7 +1,6 @@
 name: Deploy to Google Artifact Registry
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - dev
