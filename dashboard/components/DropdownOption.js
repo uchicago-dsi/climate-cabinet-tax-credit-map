@@ -9,7 +9,7 @@ function DropdownOption({ index, onClick, item }) {
         <li
           key={index}
           tabIndex={index + 1}
-          className="border-b border-b-base-content/10 w-full"
+          className="border-b border-b-base-content/10 w-full text-lg"
         >
           <button value={item} onClick={onClick}>
             {item.name}

@@ -1,6 +1,5 @@
-import Header from "@/components/Header";
 import "./globals.css";
-import { Open_Sans } from "next/font/google";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata = {
@@ -15,12 +14,18 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/public/favicon.ico" />
       </head>
-      <body>
-        <Header />
-        <div className="flex justify-center max-w-screen-xl  mx-auto">
-          {children}
+      <body className="h-screen">
+        <div className="flex justify-center max-w-screen-xl mx-auto">
+          <main className="w-screen">
+            <div className="max-w-7xl mx-auto py-5">
+              <Header />
+            </div>
+            {children}
+            <div className="w-full py-5">
+              <Footer />
+            </div>
+          </main>
         </div>
-        <Footer />
       </body>
     </html>
   );

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer base {
+  html {
+    font-family: Arial, "Noto Sans", sans-serif;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -16,7 +23,7 @@
   }
 }
 
-body {
+main {
   @apply bg-ccwhite
   /* TODO: This is the default way that Next does this
   /* color: rgb(var(--foreground-rgb)); */
@@ -72,5 +79,13 @@ span {
 
 .checkbox-sm:checked + .label{
 /* TODO: can't get this to select properly */
+}
+
+.tooltip {
+  @apply bg-ccgray-light z-10 absolute
+}
+
+.tooltip p {
+  @apply text-xs p-2
 }
 

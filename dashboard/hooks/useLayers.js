@@ -32,7 +32,7 @@ function useLayers(features, layerState) {
             features.reduce((grp, geo) => {
                     let key = geo.properties.geography_type;
                     if (key === "state") return grp;
-                    if (["energy_ffe", "energy_coal"].includes(key)) {
+                    if (["fossil_fuel"].includes(key)) {
                         key = "energy";
                     };
                     grp[key] = grp[key] ?? [];

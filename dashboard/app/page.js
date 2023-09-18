@@ -159,9 +159,6 @@ export default async function Home() {
           eget duis. Dignissim enim sit amet venenatis urna cursus.{" "}
         </p>
       </div>
-      <div className="w-full py-5">
-        <Footer />
-      </div>
     </main>
   );
 }

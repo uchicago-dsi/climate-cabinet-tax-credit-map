@@ -46,7 +46,7 @@ function MapControlPanel() {
                 })}
 
                 {/** DATA LAYER BULK OPERATION BUTTONS */}
-                <div className="join justify-center py-2">
+                <div className="justify-center py-2">
                     <button
                         className="btn join-item btn-sm normal-case"
                         onClick={(_) => layerActions.showAllLayers()}

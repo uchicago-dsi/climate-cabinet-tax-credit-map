@@ -18,7 +18,7 @@ const layerConfig = [
         canToggle: true
     },
     {
-        externalId: "dci",
+        externalId: "distressed",
         id: "Distressed Communities",
         fillColor: [153, 0, 153, 255],
         opacity: 0.5,

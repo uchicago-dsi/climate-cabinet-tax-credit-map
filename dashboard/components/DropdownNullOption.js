@@ -9,7 +9,7 @@ function DropdownNullOption({ index, message }) {
         <li
           key={index}
           tabIndex={index + 1}
-          className="border-b border-b-base-content/10 w-full"
+          className="border-b border-b-base-content/10 w-full text-lg"
         >
           {message}
         </li>
