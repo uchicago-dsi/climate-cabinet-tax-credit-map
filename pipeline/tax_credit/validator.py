@@ -19,7 +19,6 @@ class Validator():
 
         # TODO Custom errors
 
-        # logger.info(f"Validating : {load_job.file_name}")
         Validator.file_exists(load_job, data_reader)
         Validator.cols_exist(load_job, data_reader)
         Validator.required_tables_loaded(load_job)

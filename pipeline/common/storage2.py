@@ -52,10 +52,13 @@ class CloudFileSystemHelper(FileSystemHelper):
         return blobs
     
     @contextmanager
-    def get_file(self, filename: str, bucket, mode='rt'):
-        blob = bucket.blob(filename)
-        file_bytes = BytesIO(blob.download_as_bytes(timeout=(3, 30)))
-        yield file_bytes
+    def get_file(self, filename: str, mode='rt'):
+        blob = self.bucket.blob(filename)
+        if mode[-1] == 'r':
+            yield blob.download_as_string(timeout=(3, 30))
+        if mode[-1] == 'b':
+            yield BytesIO(blob.download_as_bytes(timeout=(3, 30)))
+        raise RuntimeError(f"Invalid file open mode for {filename} , mode={mode}")
 
     pass
 
