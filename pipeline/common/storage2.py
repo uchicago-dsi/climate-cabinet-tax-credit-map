@@ -10,11 +10,8 @@ from .logger import LoggerFactory
 from django.conf import settings
 
 from pyarrow import parquet as pq
-from google.cloud import storage
 
 logger = LoggerFactory.get(__name__)
-storage_client = storage.Client()
-bucket = storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
 
 class FileSystemHelper(ABC):
 
@@ -45,18 +42,22 @@ class LocalFileSystemHelper(FileSystemHelper):
 
 class CloudFileSystemHelper(FileSystemHelper):
 
+    def __init__(self, storage_client, bucket):
+        self.storage_client = storage_client
+        self.bucket = bucket
+
     def get_data_bucket_contents(self) -> list[str]:
-        blobs = storage_client.list_blobs(bucket)
+        blobs = self.storage_client.list_blobs(self.bucket)
         logger.warn(f'Blobs : {blobs}')
         return blobs
     
     @contextmanager
-    def get_file(self, filename: str, mode='rt'):
+    def get_file(self, filename: str, bucket, mode='rt'):
         blob = bucket.blob(filename)
         file_bytes = BytesIO(blob.download_as_bytes(timeout=(3, 30)))
         yield file_bytes
 
-    # TODO implement
+    pass
 
 
 class FileSystemHelperFactory:
@@ -66,10 +67,14 @@ class FileSystemHelperFactory:
             "ENV",
             "DEV",
         )
+        logger.info(f"Running env : {env}")
         if env == "DEV":
             return LocalFileSystemHelper()
         elif env == "PROD":
-            return CloudFileSystemHelper()
+            from google.cloud import storage
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
+            return CloudFileSystemHelper(storage_client, bucket)
         else:
             raise RuntimeError(
                 "Unable to instantiate FileSystemHelper, invalid environment variable passed for 'ENV'. Value passed : {env} ."
