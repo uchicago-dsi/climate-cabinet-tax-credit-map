@@ -16,7 +16,6 @@ class GeographyType(models.Model):
 class Geography(models.Model):
     # Autogenerate id field
     id = models.BigAutoField(primary_key=True)
-    # id = models.CharField(max_length=255, primary_key=True) # TODO should be source + name
     name = models.CharField(max_length=255)
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     boundary = MultiPolygonField()
@@ -25,7 +24,8 @@ class Geography(models.Model):
     source = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = [['name', 'geography_type']]
+        db_table = "tax_credit_geography"
+        unique_together = [["name", "geography_type"]]
 
 
 class Program(models.Model):
@@ -36,17 +36,18 @@ class Program(models.Model):
     base_benefit = models.TextField()
 
 
-class Geography_Type_Program(models.Model):
+class GeographyTypeProgram(models.Model):
     id = models.IntegerField(primary_key=True)
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     amount_description = models.TextField()
 
     class Meta:
-        unique_together = [['geography_type', 'program']]
+        db_table = 'tax_credit_geography_type_program'
+        unique_together = [["geography_type", "program"]]
 
 
-class Target_Bonus_Assoc(models.Model):
+class TargetBonusAssoc(models.Model):
     # Auto create ID
     target_geography = models.ForeignKey(
         Geography, related_name="target_geo_set", on_delete=models.CASCADE
@@ -58,10 +59,17 @@ class Target_Bonus_Assoc(models.Model):
     bonus_geography_type = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = [['target_geography', 'bonus_geography']]
+        db_table = "tax_credit_target_bonus_assoc"
+        unique_together = [["target_geography", "bonus_geography"]]
+    
+    def __str__(self):
+        return f'{self.target_geography.name} <-> {self.bonus_geography.name}'
 
 
-class Census_Tract(models.Model):
+class CensusTract(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     centroid = PointField()
     population = models.IntegerField()
+
+    class Meta:
+        db_table = "tax_credit_census_tract"
