@@ -28,8 +28,9 @@ class Validator():
     @staticmethod
     def file_exists(load_job: LoadJob, data_reader: DataReader):
         filename = load_job.file_name
-        if not filename in data_reader.get_data_bucket_contents():
-            raise RuntimeError(f"Requeste file is missing from data folder : {filename} ")
+        bucket_contents = data_reader.get_data_bucket_contents()
+        if not filename in bucket_contents:
+            raise RuntimeError(f"Requeste file is missing from data folder : {filename} . Available files : {bucket_contents} .")
 
     @staticmethod
     def cols_exist(load_job: LoadJob, data_reader: DataReader):
