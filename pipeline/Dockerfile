@@ -21,4 +21,4 @@ COPY . .
 # Run the development server
 # TODO: trying to track down error in production cloud run
 # CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
-CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs"]
+CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables", "--load-assoc-table"]

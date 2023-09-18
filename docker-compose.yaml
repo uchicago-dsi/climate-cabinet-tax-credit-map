@@ -21,7 +21,9 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
     build:
       context: pipeline
-    command: ./cr-entry.sh
+    command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
+    # command: bash setup.sh --migrate --load-dependent-tables
+    # command: bash setup.sh --load-assoc-table
     volumes:
       - ./pipeline:/pipeline
       - ./data:/data
