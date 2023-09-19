@@ -70,7 +70,7 @@ class _CloudFileSystemHelper(FileSystemHelper):
             tmp = tempfile.NamedTemporaryFile(delete=False)
             blob = self.bucket.blob(filename)
             with open(tmp.name, 'wb') as f:
-                blob.download_to_file(tmp)
+                blob.download_to_file(f)
             logger.info(f"Temp file name : {tmp.name}")
 
             f = open(tmp.name, 'rt')
