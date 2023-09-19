@@ -6,6 +6,7 @@ import io
 import tempfile
 import json
 from contextlib import contextmanager
+from django.conf import settings
 
 from .logger import LoggerFactory
 
@@ -81,6 +82,8 @@ class _CloudFileSystemHelper(FileSystemHelper):
 
         # if it's a parquet file, establish a connection with the filesystem
         elif fmt.lower() in ['parquet', 'geoparquet']:
+            logger.info("Loading geoparquet")
+            logger.info(f"Gcp info file : {settings.GOOGLE_APPLICATION_CREDENTIALS}")
             with open(settings.GOOGLE_APPLICATION_CREDENTIALS, 'rb') as f:
                 info = json.load(f)
                 logger.warn(f"GCP connect info : {info.keys()}")
