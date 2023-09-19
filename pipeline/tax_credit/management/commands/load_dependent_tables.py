@@ -15,6 +15,7 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.conf import settings
 
 from django.db import connections
+from psycopg2 import OperationalError
 
 
 
@@ -85,6 +86,7 @@ class Command(BaseCommand):
             reader: DataReader = DataReaderFactory.get(job.file_format)
 
             Validator.validate(job, reader)
+
             objs = (job.row_to_model(row) for row in reader.iterate(job.file_name))
             while True: # See django docs here for pattern, https://docs.djangoproject.com/en/4.2/ref/models/querysets/#bulk-create
                 batch = list(islice(objs, settings.MAX_BATCH_LOAD_SIZE))
@@ -92,15 +94,26 @@ class Command(BaseCommand):
                     logger.info(f"Job - {job.job_name} - load finished")
                     break
                 logger.info(f"Job - {job.job_name} - batch in progress")
-                job.model.objects.bulk_create(
-                    batch, 
-                    settings.MAX_BATCH_LOAD_SIZE, 
-                    update_conflicts=True, 
-                    unique_fields=job.unique_fields, 
-                    update_fields=job.update_fields
-                    )
+                try:
+                    job.model.objects.bulk_create(
+                        batch, 
+                        settings.MAX_BATCH_LOAD_SIZE, 
+                        update_conflicts=True, 
+                        unique_fields=job.unique_fields, 
+                        update_fields=job.update_fields
+                        )
             
-            self.recycle_connection(job)
+                except OperationalError as oe:
+                    # Problematic error : psycopg2.OperationalError: SSL SYSCALL error: EOF detected
+                    logger.warn(f"An error occured : {oe}")
+                    self.recycle_connection(job)
+                    job.model.objects.bulk_create(
+                        batch, 
+                        settings.MAX_BATCH_LOAD_SIZE, 
+                        update_conflicts=True, 
+                        unique_fields=job.unique_fields, 
+                        update_fields=job.update_fields
+                        )
         
         logger.info("Finished loading dependent tables")
 
