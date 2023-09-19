@@ -144,7 +144,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row['geometry']),
             simple_boundary = Command._ensure_geos_multipolygon(row['simple_boundary']),
-            as_of = 2020,
+            as_of = '2020-01-01',
             source = 'United States Census Bureau',
         )
 
@@ -174,7 +174,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2020,
+            as_of = '2020-01-01',
             source = 'United States Census Bureau',
         )
     
@@ -203,7 +203,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2020,
+            as_of = '2020-01-01',
             source = 'Economic Innovation Group',
         )
     
@@ -232,7 +232,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2023,
+            as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
         )
     
@@ -261,7 +261,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2023,
+            as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
         )
     
@@ -290,7 +290,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2022,
+            as_of = '2022-01-01',
             source = 'Climate and Economic Justice Screening Tool',
         )
     
@@ -319,7 +319,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2020,
+            as_of = '2020-01-01',
             source = 'United States Census Bureau',
         )
     
@@ -348,7 +348,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2022,
+            as_of = '2022-01-01',
             source = 'Homeland Infrastructure Foundation-Level Data',
         )
     
@@ -378,7 +378,7 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = 2022,
+            as_of = '2022-01-01',
             source = 'Homeland Infrastructure Foundation-Level Data',
         )
     

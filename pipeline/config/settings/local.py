@@ -33,3 +33,17 @@ class LocalConfig(BaseConfig):
     # Cross-origin requests
     # https://github.com/adamchainz/django-cors-headers
     CORS_ORIGIN_ALLOW_ALL = True
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": os.getenv("POSTGRES_DB", "postgres"),
+            "USER": os.getenv("POSTGRES_USER", "postgres"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+            "HOST": os.getenv("POSTGRES_HOST", "postgres"),
+            "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
+            "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
+            "DISABLE_SERVER_SIDE_CURSORS": False,
+            # 'OPTIONS': {'sslmode': 'require'}
+        }
+    }
