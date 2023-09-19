@@ -25,6 +25,7 @@ services:
     command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
     # command: bash setup.sh --migrate --load-dependent-tables
     # command: bash setup.sh --load-assoc-table
+    # python3 -m manage load_dependent_tables --skip-file dci_clean.geoparquet justice40.geoparquet
     volumes:
       - ./pipeline:/pipeline
       - ./data:/data

@@ -32,12 +32,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         """
         """
-        pass
+        parser.add_argument(
+            '--skip-file',
+            nargs='+',
+            default=[]
+        )
 
     def handle(self, *args, **options) -> None:
         """This funciton builds load jobs and loads data for all tables that have a dependency on one of the base tables.
         The tables loaded here, Geography_Type_Program and Geography have the base tables as direct dependencies.
         """
+        skip_files = options['skip_file']
 
         logger.info("Loading dependent tables tables: geographies and geography-program match, and census tracts")
         geography_program_match_load_job = self._get_geography_program_match_load_job()
@@ -69,18 +74,22 @@ class Command(BaseCommand):
         logger.info("Building job for rural coop geography load")
         rural_coop_load_job = self._get_rural_coop_load_job()
 
-        jobs = [
-            geography_program_match_load_job, 
-            state_geography_load_job, 
-            dci_geography_load_job, 
-            county_geography_load_job,
-            fossil_fuel_geography_load_job,
-            coal_geography_load_job,
-            j40_geography_load_job,
-            low_income_geography_load_job,
-            util_geography_load_job,
-            rural_coop_load_job,
-        ]
+        logger.info(f"Skipping files : {skip_files}")
+
+        jobs = filter(lambda j: j.file_name not in skip_files, 
+                      [
+                          geography_program_match_load_job, 
+                          state_geography_load_job, 
+                          dci_geography_load_job, 
+                          county_geography_load_job,
+                          fossil_fuel_geography_load_job,
+                          coal_geography_load_job,
+                          j40_geography_load_job,
+                          low_income_geography_load_job,
+                          util_geography_load_job,
+                          rural_coop_load_job,
+                          ]
+                    )
         for job in jobs:
             logger.info(f"Loading job : {job.job_name} , file : {job.file_name}")
 
