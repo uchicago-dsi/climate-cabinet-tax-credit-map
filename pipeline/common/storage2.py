@@ -59,11 +59,20 @@ class _CloudFileSystemHelper(FileSystemHelper):
         
         # if it's a csv file, save it to a temp file and return it open
         if fmt.lower() == 'csv':
+            # tempdir = tempfile.gettempdir()
+            # if filename in os.listdir(tempdir):
+            #   f = open(f'{tempdir}/{filename}, 'rt')
+            #   try:
+            #       yield f
+            #   finally:
+            #       f.close()
+            # else:
             tmp = tempfile.NamedTemporaryFile(delete=False)
             blob = self.bucket.blob(filename)
             blob.download_to_file(tmp)
             logger.info(f"Temp file name : {tmp.name}")
             f = open(tmp.name, 'rt')
+            logger.info(f"Lines from file : {f.readlines()}")
             try:
                 yield f
             finally:
