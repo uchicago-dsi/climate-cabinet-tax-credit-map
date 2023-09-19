@@ -63,7 +63,7 @@ class _CloudFileSystemHelper(FileSystemHelper):
             blob = self.bucket.blob(filename)
             blob.download_to_file(tmp)
             logger.info(f"Temp file name : {tmp.name}")
-            f = open(tmp, 'rt')
+            f = open(tmp.name, 'rt')
             try:
                 yield f
             finally:
