@@ -39,7 +39,7 @@ class BaseConfig(Configuration):
     MUNICIPAL_UTIL_GEOGRAPHY_FILE = "municipal_utils.geoparquet"
     RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
 
-    MAX_BATCH_LOAD_SIZE = 10_000
+    MAX_BATCH_LOAD_SIZE = 100
     PQ_CHUNK_SIZE = 1_000
     
 
