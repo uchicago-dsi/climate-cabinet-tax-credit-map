@@ -44,7 +44,7 @@ derive({
             (getGeoReport(geoId)
                 .then(r => {
                     get(reportStore).setReport(r);
-                    get(viewportStore).zoomToGeography(r);
+                    get(viewportStore).zoomToGeography(r.geographies);
                 }))
         }
     }

@@ -32,13 +32,11 @@ function useLayers(features, layerState) {
             features.reduce((grp, geo) => {
                     let key = geo.properties.geography_type;
                     if (key === "state") return grp;
-                    if (["fossil_fuel"].includes(key)) {
-                        key = "energy";
-                    };
                     grp[key] = grp[key] ?? [];
                     grp[key].push(geo);
                     return grp;
                 }, {}));
+
     
         // Map datasets to GeoJSON layers
         // TODO: Use a DeckGL update trigger

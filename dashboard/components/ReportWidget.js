@@ -4,24 +4,44 @@
 
 "use client"
 
-import MapWidget from '@/components/MapWidget';
+import MapWidget from "@/components/MapWidget";
+import SummaryStats from "@/components/SummaryStats";
+import { reportStore } from "@/states/search";
+import classNames from "classnames";
+import { useSnapshot } from "valtio";
 
 
 function ReportWidget() {
 
-    return (
-        <div className="flex w-full px-20" style={{ paddingTop: 20 }}>
-            {/** MAP */}
-            <MapWidget />
-            
-            {/** SIDEBAR */}
-            {/* <div className="grid grid-cols-8" style={{backgroundColor: "yellow"}}>
-            <h2>Summary Stats</h2>
-        </div> */}
+    const reportSnapshot = useSnapshot(reportStore);
+    const targetGeo = reportSnapshot?.report?.geographies?.find(m => m.properties.is_target)
 
-            {/* <div className="flex flex-col w-1/4 h-[75vh] overflow-hidden px-5">
-            <SummaryStats />
-        </div> */}
+    return (
+        <div className="px-20">
+            {
+                targetGeo &&
+                <>
+                    <h2 className="font-bold m-0 pt-5">
+                        {targetGeo.properties.name}{" "}
+                        <span className="shadow-md no-underline rounded-full bg-cyan-500 text-white text-xs font-semibold p-2">
+                            {targetGeo.properties.geography_type.replace("_", " ")}
+                        </span>
+                    </h2>
+                </>
+            }
+            
+            <div className="flex w-full pt-10">
+                <div className="grid grid-cols-8 m-0">
+                    {/** MAP */}
+                    <div className="col-span-6">
+                        <MapWidget />
+                    </div>
+                    {/** SUMMARY STATISTICS SIDEBAR */}
+                    <div className={"col-span-2 flex flex-col w-full h-[75vh] px-5 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar " + classNames({ "justify-center": !targetGeo})}>
+                        <SummaryStats />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

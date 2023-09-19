@@ -44,7 +44,6 @@ const get = async (url, errMsg) => {
         };
     };
     let json = await r.json();
-    console.log(json.length)
     return json
 }
 

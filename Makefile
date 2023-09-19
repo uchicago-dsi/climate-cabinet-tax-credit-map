@@ -18,6 +18,6 @@ run-dashboard:
 	docker-compose up
 
 clean:
-	find . | grep -E "(/__pycache__\$$|/migrations/.[0-9]+_.*.py$$)" | xargs rm -rf
-	rm -rf pgdata/*
+	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
+	rm -rf pgdata
 	

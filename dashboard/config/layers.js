@@ -36,7 +36,7 @@ const layerConfig = [
         id: "Municipal Utilities",
         fillColor: [255, 255, 100, 255],
         opacity: 0.5,
-        canToggle: true
+        canToggle: false
     },
     {
         externalId: "rural_coop",

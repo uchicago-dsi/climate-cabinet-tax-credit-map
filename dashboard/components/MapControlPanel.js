@@ -16,8 +16,7 @@ function MapControlPanel() {
 
     const baseMapSnap = useSnapshot(baseMapStore);
     const layerSnap = useSnapshot(layerStore);
-    const layerActions = useLayers(reportStore.report, layerStore);
-
+    const layerActions = useLayers(reportStore.report?.geographies, layerStore);
 
     // Intialize panel visiblity
     const [expanded, setExpanded] = useState(true);

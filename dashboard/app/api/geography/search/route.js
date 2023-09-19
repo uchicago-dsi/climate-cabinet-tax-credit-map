@@ -27,9 +27,17 @@ export async function POST(request) {
     let { searchTerm, limit } = await request.json();
     let regex = `${searchTerm.trim().split(" ").join("%")}%`;
     let data = await prisma.$queryRaw`
-      SELECT id::varchar(255), name
-      FROM tax_credit_geography
-      WHERE name ILIKE ${regex}
+      SELECT geo.id::varchar(255), geo.name
+      FROM tax_credit_geography AS geo
+      JOIN tax_credit_geography_type AS geo_type
+        ON geo_type.id = geo.geography_type_id
+      WHERE geo_type.name IN (
+        'county',
+        'state',
+        'municipal_util',
+        'rural_coop'
+      ) AND geo.name ILIKE ${regex}
+      ORDER BY geo.name
       LIMIT ${limit};
     `;
     return NextResponse.json({ data })
