@@ -6,7 +6,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-        - ./pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
 
   # PIPELINE
   climate-cabinet-pipeline:
@@ -19,9 +19,12 @@ services:
       - POSTGRES_HOST=climate-cabinet-postgis
       - CLOUD_STORAGE_BUCKET=ira-map-data
       - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
+      - POSTGRES_CHECK_TIMEOUT=120
     build:
       context: pipeline
-    command: ./cr-entry.sh
+    command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
+    # command: bash setup.sh --migrate --load-dependent-tables
+    # command: bash setup.sh --load-assoc-table
     volumes:
       - ./pipeline:/pipeline
       - ./data:/data

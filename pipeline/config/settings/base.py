@@ -23,6 +23,26 @@ class BaseConfig(Configuration):
     CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
+    # DATA FILES
+    GEOGRAPHY_TYPE_FILE = 'geography_type.csv'
+    PROGRAM_FILE = 'program.csv'
+    CENSUS_TRACT_FILE = 'census_tract_pop.geoparquet'
+    
+    GEOGRAPHY_TYPE_PROGRAM_FILE = 'geography_type_program.csv'
+    STATE_GEOGRAPHY_FILE = 'state_clean.geoparquet'
+    COUNTY_GEOGRAPHY_FILE = 'county_clean.geoparquet'
+    DCI_GEOGRAPHY_FILE = 'dci_clean.geoparquet'
+    FOSSIL_FUEL_GEOGRAPHY_FILE = 'ffe.geoparquet'
+    COAL_GEOGRAPHY_FILE = "coal_closure.geoparquet"
+    J40_GEOGRAPHY_FILE = "justice40.geoparquet"
+    LOW_INCOME_GEOGRAPHY_FILE = "low_income_tracts.geoparquet"
+    MUNICIPAL_UTIL_GEOGRAPHY_FILE = "municipal_utils.geoparquet"
+    RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
+
+    MAX_BATCH_LOAD_SIZE = 10_000
+    PQ_CHUNK_SIZE = 1_000
+    
+
     # Installed apps
     INSTALLED_APPS = (
         # Default
@@ -118,7 +138,7 @@ class BaseConfig(Configuration):
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
             "HOST": os.getenv("POSTGRES_HOST", "postgres"),
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
-            "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 600)),
+            "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 30)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
         }
     }
