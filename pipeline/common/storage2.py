@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod, abstractproperty
 from typing import Any, Iterator
 import os
 import csv
-from io import BytesIO
+import io
+import tempfile
+import json
 from contextlib import contextmanager
 
 from .logger import LoggerFactory
@@ -22,17 +24,17 @@ class FileSystemHelper(ABC):
     
     @abstractmethod
     @contextmanager
-    def get_file(self, filename: str, mode='rt'):
+    def get_file(self, filename: str, mode='rt', fmt='csv'):
         raise NotImplementedError
 
 
-class LocalFileSystemHelper(FileSystemHelper):
+class _LocalFileSystemHelper(FileSystemHelper):
 
     def get_data_bucket_contents(self) -> list[str]:
         return os.listdir(settings.DATA_DIR)
     
     @contextmanager
-    def get_file(self, filename: str, mode='rt'):
+    def get_file(self, filename: str, mode='rt', fmt='csv'):
         f = open(settings.DATA_DIR / filename, mode)
         try:
             yield f
@@ -40,48 +42,64 @@ class LocalFileSystemHelper(FileSystemHelper):
             f.close()
 
 
-class CloudFileSystemHelper(FileSystemHelper):
+class _CloudFileSystemHelper(FileSystemHelper):
 
-    def __init__(self, storage_client, bucket):
-        self.storage_client = storage_client
-        self.bucket = bucket
+    def __init__(self):
+        from google.cloud import storage
+        self.storage_client = storage.Client()
+        self.bucket = self.storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
 
     def get_data_bucket_contents(self) -> list[str]:
-        blobs = self.storage_client.list_blobs(self.bucket)
+        blobs = [item.name for item in self.storage_client.list_blobs(self.bucket)]
         logger.warn(f'Blobs : {blobs}')
         return blobs
     
     @contextmanager
-    def get_file(self, filename: str, mode='rt'):
-        blob = self.bucket.blob(filename)
-        if mode[-1] == 'r':
-            yield blob.download_as_string(timeout=(3, 30))
-        if mode[-1] == 'b':
-            yield BytesIO(blob.download_as_bytes(timeout=(3, 30)))
-        raise RuntimeError(f"Invalid file open mode for {filename} , mode={mode}")
+    def get_file(self, filename: str, mode='rt', fmt='csv'):
+        
+        # if it's a csv file, save it to a temp file and return it open
+        if fmt.lower() == 'csv':
+            tmp = tempfile.NamedTemporaryFile(delete=False)
+            blob = self.bucket.blob(filename)
+            blob.download_to_file(tmp)
+            logger.info(f"Temp file name : {tmp.name}")
+            f = open(tmp, 'rt')
+            try:
+                yield f
+            finally:
+                f.close()
 
-    pass
+        # if it's a parquet file, establish a connection with the filesystem
+        elif fmt.lower() in ['parquet', 'geoparquet']:
+            with open(settings.GOOGLE_APPLICATION_CREDENTIALS, 'rb') as f:
+                info = json.load(f)
+                logger.warn(f"GCP connect info : {info.keys()}")
+
+        else:
+            raise ValueError(f'Error opening Google Cloud file, invalid format passed [{ fmt }] . Format should be one of [ csv, parquet, geoparquet ] .')
 
 
 class FileSystemHelperFactory:
+    _fileSystemHelper: FileSystemHelper = None
+
     @staticmethod
     def get() -> FileSystemHelper:
-        env = os.environ.get(
-            "ENV",
-            "DEV",
-        )
-        logger.info(f"Running env : {env}")
-        if env == "DEV":
-            return LocalFileSystemHelper()
-        elif env == "PROD":
-            from google.cloud import storage
-            storage_client = storage.Client()
-            bucket = storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
-            return CloudFileSystemHelper(storage_client, bucket)
-        else:
-            raise RuntimeError(
-                "Unable to instantiate FileSystemHelper, invalid environment variable passed for 'ENV'. Value passed : {env} ."
-            )
+        if not FileSystemHelperFactory._fileSystemHelper:
+            env = os.environ.get("ENV", "DEV")
+            logger.info(f"Running env : {env}")
+
+            if env == "DEV":
+                FileSystemHelperFactory._fileSystemHelper = _LocalFileSystemHelper()
+                return FileSystemHelperFactory._fileSystemHelper
+            elif env == "PROD":
+                FileSystemHelperFactory._fileSystemHelper = _CloudFileSystemHelper()
+                return FileSystemHelperFactory._fileSystemHelper
+            else:
+                raise RuntimeError(
+                    f"Unable to instantiate FileSystemHelper, invalid environment variable passed for 'ENV'. Value passed : {env} ."
+                )
+        
+        return FileSystemHelperFactory._fileSystemHelper
 
 
 class DataReader(ABC):
@@ -100,7 +118,7 @@ class DataReader(ABC):
         return self.fileSystemHelper.get_data_bucket_contents()
 
 
-class CsvDataReader(DataReader):
+class _CsvDataReader(DataReader):
 
     def col_names(self, filename) -> list[str]:
         logger.info(f"Getting col names : {filename}")
@@ -115,7 +133,7 @@ class CsvDataReader(DataReader):
                 yield row
 
 
-class ParquetDataReader(DataReader):
+class _ParquetDataReader(DataReader):
 
     def col_names(self, filename) -> list[str]:
         with self.fileSystemHelper.get_file(filename, mode='rb') as f:
@@ -136,6 +154,8 @@ class ParquetDataReader(DataReader):
                     yield row
 
 class DataReaderFactory:
+    csv_data_reader = _CsvDataReader()
+    parquet_data_reader = _ParquetDataReader()
 
     @staticmethod
     def get(type: str) -> DataReader:
@@ -144,7 +164,7 @@ class DataReaderFactory:
             raise TypeError("A value of { csv, parquet, geoparquet } must be given to DataReaderFactory for type")
 
         if type.lower() in [ "parquet", "geoparquet" ]:
-            return ParquetDataReader()
+            return DataReaderFactory.parquet_data_reader
         if type.lower() == "csv":
-            return CsvDataReader()
+            return DataReaderFactory.csv_data_reader
         raise TypeError(f"A valid value must be given to DataReaderFactory. Value given : {type} .")
