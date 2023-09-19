@@ -56,41 +56,20 @@ class _CloudFileSystemHelper(FileSystemHelper):
         return blobs
     
     @contextmanager
-    def get_file(self, filename: str, mode='rt', fmt='csv'):
-        
+    def get_file(self, filename: str, mode='rt'):
+
         # if it's a csv file, save it to a temp file and return it open
-        if fmt.lower() == 'csv':
-            # tempdir = tempfile.gettempdir()
-            # if filename in os.listdir(tempdir):
-            #   f = open(f'{tempdir}/{filename}, 'rt')
-            #   try:
-            #       yield f
-            #   finally:
-            #       f.close()
-            # else:
-            tmp = tempfile.NamedTemporaryFile(delete=False)
+        tempdir = tempfile.gettempdir()
+        if not filename in os.listdir(tempdir):
             blob = self.bucket.blob(filename)
-            with open(tmp.name, 'wb') as f:
+            with open(f'{tempdir}/{filename}', 'wb') as f:
                 blob.download_to_file(f)
-            logger.info(f"Temp file name : {tmp.name}")
-
-            f = open(tmp.name, 'rt')
-            try:
-                yield f
-            finally:
-                f.close()
-
-        # if it's a parquet file, establish a connection with the filesystem
-        elif fmt.lower() in ['parquet', 'geoparquet']:
-            logger.info("Loading geoparquet")
-            logger.info(f"Gcp info file : {settings.GOOGLE_APPLICATION_CREDENTIALS}")
-            with open(settings.GOOGLE_APPLICATION_CREDENTIALS, 'rb') as f:
-                info = json.load(f)
-                logger.warn(f"GCP connect info : {info.keys()}")
-
-        else:
-            raise ValueError(f'Error opening Google Cloud file, invalid format passed [{ fmt }] . Format should be one of [ csv, parquet, geoparquet ] .')
-
+                
+        f = open(f'{tempdir}/{filename}', mode)
+        try:
+            yield f
+        finally:
+            f.close()
 
 class FileSystemHelperFactory:
     _fileSystemHelper: FileSystemHelper = None
