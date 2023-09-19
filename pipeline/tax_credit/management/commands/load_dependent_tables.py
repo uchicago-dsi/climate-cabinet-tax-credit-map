@@ -114,6 +114,8 @@ class Command(BaseCommand):
                         unique_fields=job.unique_fields, 
                         update_fields=job.update_fields
                         )
+                    
+            self.recycle_connection(job)
         
         logger.info("Finished loading dependent tables")
 
