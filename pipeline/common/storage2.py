@@ -69,10 +69,11 @@ class _CloudFileSystemHelper(FileSystemHelper):
             # else:
             tmp = tempfile.NamedTemporaryFile(delete=False)
             blob = self.bucket.blob(filename)
-            blob.download_to_file(tmp)
+            with open(tmp.name, 'wb') as f:
+                blob.download_to_file(tmp)
             logger.info(f"Temp file name : {tmp.name}")
+
             f = open(tmp.name, 'rt')
-            logger.info(f"Lines from file : {f.readlines()}")
             try:
                 yield f
             finally:
