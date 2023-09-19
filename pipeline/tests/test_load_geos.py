@@ -98,23 +98,13 @@ class TestBuffering(TestCase):
             geography_type=geography_type_instance,
         )
 
-        # Implement the buffering and querying logic
         buffered_boundary = target_boundary.buffer(
-            -0.0001
-        )  # Using a small negative buffer
+            -0.001
+        )  # maybe this is a good number for degrees?
         overlapping_geos = Geography.objects.filter(
-            boundary__intersects=target_boundary
-        ).exclude(boundary__intersects=buffered_boundary)
+            boundary__intersects=buffered_boundary
+        )
 
-        def contains_geometry(geometries, target_geometry):
-            for geom in geometries:
-                if geom.boundary.equals(target_geometry):
-                    return True
-            return False
-
-        # Assertions
-        self.assertTrue(contains_geometry(overlapping_geos, barely_touch))
-
-        # self.assertNotIn(barely_touch, [geo.boundary for geo in overlapping_geos])
+        self.assertNotIn(barely_touch, [geo.boundary for geo in overlapping_geos])
         self.assertIn(overlap_significantly, [geo.boundary for geo in overlapping_geos])
         self.assertNotIn(no_intersection, [geo.boundary for geo in overlapping_geos])
