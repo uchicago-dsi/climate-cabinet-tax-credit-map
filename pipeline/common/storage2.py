@@ -25,7 +25,7 @@ class FileSystemHelper(ABC):
     
     @abstractmethod
     @contextmanager
-    def get_file(self, filename: str, mode='rt', fmt='csv'):
+    def get_file(self, filename: str, mode='rt'):
         raise NotImplementedError
 
 
@@ -35,7 +35,7 @@ class _LocalFileSystemHelper(FileSystemHelper):
         return os.listdir(settings.DATA_DIR)
     
     @contextmanager
-    def get_file(self, filename: str, mode='rt', fmt='csv'):
+    def get_file(self, filename: str, mode='rt'):
         f = open(settings.DATA_DIR / filename, mode)
         try:
             yield f
@@ -128,7 +128,7 @@ class _CsvDataReader(DataReader):
 class _ParquetDataReader(DataReader):
 
     def col_names(self, filename) -> list[str]:
-        with self.fileSystemHelper.get_file(filename, mode='rb', fmt="parquet") as f:
+        with self.fileSystemHelper.get_file(filename, mode='rb') as f:
             pf: pq.ParquetFile = pq.ParquetFile(f)
             try:
                 return [c.name for c in pf.schema]
