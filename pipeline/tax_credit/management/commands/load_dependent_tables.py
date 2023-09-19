@@ -15,7 +15,8 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.conf import settings
 
 from django.db import connections
-from psycopg2 import OperationalError
+# from psycopg2 import OperationalError
+from django.db.utils import OperationalError
 
 
 
