@@ -149,7 +149,7 @@ class _CsvDataReader(DataReader):
 class _ParquetDataReader(DataReader):
 
     def col_names(self, filename) -> list[str]:
-        with self.fileSystemHelper.get_file(filename, mode='rb') as f:
+        with self.fileSystemHelper.get_file(filename, mode='rb', fmt="parquet") as f:
             pf: pq.ParquetFile = pq.ParquetFile(f)
             try:
                 return [c.name for c in pf.schema]
