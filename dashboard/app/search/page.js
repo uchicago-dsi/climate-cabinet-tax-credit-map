@@ -30,7 +30,7 @@ export default function SearchPage() {
                         Enter the name of a state, county, municipality or rural electric
                         cooperative to view its Justice 40 communities, energy communities,
                         and designated low-income census tracts and MSAs on an interactive
-                        map. The map will also show a description of available tax credit
+                        map. The sidebar will also show a description of available tax credit
                         programs.
                     </p>
                 </div>

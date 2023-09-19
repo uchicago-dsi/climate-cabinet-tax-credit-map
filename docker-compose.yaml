@@ -28,8 +28,8 @@ services:
     depends_on:
       - climate-cabinet-postgis
       - climate-cabinet-pgadmin
-    # profiles:
-      # - pipeline
+    profiles:
+      - pipeline
 
   # PGADMIN DATABASE GUI
   climate-cabinet-pgadmin:

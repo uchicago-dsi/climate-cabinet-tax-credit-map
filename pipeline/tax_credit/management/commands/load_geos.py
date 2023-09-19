@@ -190,7 +190,7 @@ class Command(BaseCommand):
                     name=f'{row["County"]}, {row["State"]}'.title(),
                     geography_type=geography_type,
                     boundary=self._ensure_multipolygon(row["geometry"]),
-                    # simple_boundary=self._ensure_multipolygon(row["geometry"]),
+                    simple_boundary=self._ensure_multipolygon(row["geometry"]),
                     as_of=datetime.now(),  # TODO this is wrong, need to look into finding as of... probbly a column header to validate and use
                     source="county_clean.geoparquet",  # TODO again this isn't it......
                 )

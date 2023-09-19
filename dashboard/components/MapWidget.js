@@ -4,6 +4,7 @@
 
 "use client";
 
+import 'mapbox-gl/dist/mapbox-gl.css';
 import Banner from "@/components/Banner";
 import DeckGL from "@deck.gl/react";
 import MapControlPanel from "@/components/MapControlPanel";
@@ -25,7 +26,7 @@ function MapWidget() {
     const reportSnap = useSnapshot(reportStore);
     const baseMapSnap = useSnapshot(baseMapStore);
     const layerSnap = useSnapshot(layerStore);
-    const layerClient = useLayers(reportSnap.report, layerStore);
+    const layerClient = useLayers(reportSnap.report?.geographies, layerStore);
 
     return (
         <div 

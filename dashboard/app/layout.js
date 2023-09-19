@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/public/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="h-full">
         <div className="flex justify-center max-w-screen-xl mx-auto bg-ccwhite">

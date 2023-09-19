@@ -16,7 +16,6 @@ function getGeoReport(geoId) {
      * @returns An object representing the report.
      */
     const _getGeographyReport = (geoId) => {
-        console.log(`Fetching geoId ${geoId}`)
         if (!geoId) return null
         const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/report/${geoId}`;
         const errMsg = `Failed to retrieve report for geography ${geoId}.`;

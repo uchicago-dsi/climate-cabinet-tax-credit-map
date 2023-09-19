@@ -5,7 +5,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="text-center">
+    <footer className="text-center pt-20">
       <div className="mx-auto w-[250px]">
         <Image
           src="/images/climate-cabinet-education-black.png"
