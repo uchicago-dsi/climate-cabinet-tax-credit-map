@@ -52,7 +52,6 @@ class _CloudFileSystemHelper(FileSystemHelper):
 
     def get_data_bucket_contents(self) -> list[str]:
         blobs = [item.name for item in self.storage_client.list_blobs(self.bucket)]
-        logger.warn(f'Blobs : {blobs}')
         return blobs
     
     @contextmanager

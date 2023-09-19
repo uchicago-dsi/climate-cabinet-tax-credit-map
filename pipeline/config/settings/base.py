@@ -138,8 +138,9 @@ class BaseConfig(Configuration):
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
             "HOST": os.getenv("POSTGRES_HOST", "postgres"),
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
-            "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 30)),
+            "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
+            'OPTIONS': {'sslmode': 'require'}
         }
     }
 
