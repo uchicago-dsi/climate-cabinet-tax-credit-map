@@ -36,7 +36,8 @@ class LocalConfig(BaseConfig):
 
     DATABASES = {
         "default": {
-            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            # "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "ENGINE": "tax_credit.logging_db_backend",
             "NAME": os.getenv("POSTGRES_DB", "postgres"),
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),

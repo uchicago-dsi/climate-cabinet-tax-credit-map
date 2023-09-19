@@ -14,6 +14,8 @@ from django.core.management.base import BaseCommand, CommandParser
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.conf import settings
 
+from django.db import connections
+
 
 
 logger = LoggerFactory.get(__name__)
@@ -97,8 +99,17 @@ class Command(BaseCommand):
                     unique_fields=job.unique_fields, 
                     update_fields=job.update_fields
                     )
+            
+            self.recycle_connection(job)
         
-        logger.info("Finished loading base tables")
+        logger.info("Finished loading dependent tables")
+
+    @staticmethod
+    def recycle_connection(job: LoadJob):
+        """Recycles the connection from the model from the previous job. Without this the connection will expire and cause SSL errors when working with Neon Postgres."""
+        db_string = job.model.objects.db
+        logger.info(f"Recycling connection : {job.model}, {db_string}")
+        connections[db_string].close()
 
     @staticmethod
     def _ensure_geos_multipolygon(geom):

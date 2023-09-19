@@ -5,6 +5,9 @@ from django.core.management.base import BaseCommand, CommandParser
 from tax_credit.models import Geography, TargetBonusAssoc
 from common.logger import LoggerFactory
 
+from django.db import connections
+from django.db.models import Model
+
 logger = LoggerFactory.get(__name__)
 
 class Command(BaseCommand):
@@ -45,6 +48,8 @@ class Command(BaseCommand):
         for target in [t for t in ["state", "county", "municipal_util", "rural_coop"] if t not in skip_assoc]:
             for bonus in [b for b in ["distressed", "energy", "justice40", "low_income"] if b not in skip_assoc]:
                 self._find_and_load_overlaps(target, bonus)
+                self.recycle_connection(Geography)
+                self.recycle_connection(TargetBonusAssoc)
         
         logger.info("Association table is finished")
 
@@ -76,3 +81,10 @@ class Command(BaseCommand):
             if assocs:
                 logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
                 TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+
+    @staticmethod
+    def recycle_connection(model: Model):
+        """Recycles the connection from the model from the previous job. Without this the connection will expire and cause SSL errors when working with Neon Postgres."""
+        db_string = model.objects.db
+        logger.info(f"Recycling connection : {model}, {db_string}")
+        connections[db_string].close()
