@@ -1,10 +1,13 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from django.conf import settings
 from common.storage import CloudDataReader, LocalDataReader
-from tax_credit.models import Geography, Geography_Type
+from tax_credit.models import Geography, GeographyType
+
+from datetime import datetime
 
 from django.core.management import call_command
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 
 
 class Test_Load_Geos(
@@ -43,3 +46,75 @@ class TestDataReaders(SimpleTestCase):
             Geography_Type(id=geo_type["Id"], name=geo_type["Name"])
             for _, geo_type in records.iterrows()
         ]
+
+
+class TestBuffering(TestCase):
+    # @patch("tax_credit.models.GeographyType")
+    def test_buffering_intersections(self):
+        geography_type_instance = GeographyType(id=1, name="test")
+        geography_type_instance.save()
+
+        # Create a target boundary for testing
+        geom = GEOSGeometry("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
+        geom.srid = 4326
+        target_boundary = MultiPolygon(geom)
+
+        # Geometries that barely touch, overlap significantly, and don't intersect at all
+        geom = GEOSGeometry("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
+        geom.srid = 4326
+        overlap_significantly = MultiPolygon(geom)
+
+        geom = GEOSGeometry("POLYGON((10 5, 15 5, 15 15, 10 15, 10 5))")
+        geom.srid = 4326
+        barely_touch = MultiPolygon(geom)
+
+        geom = GEOSGeometry("POLYGON((20 20, 30 20, 30 30, 20 30, 20 20))")
+        geom.srid = 4326
+        no_intersection = MultiPolygon(geom)
+
+        # Creating the Geography objects for testing
+        Geography.objects.create(
+            name="barely_touch",
+            boundary=barely_touch,
+            simple_boundary=barely_touch,
+            as_of=datetime.now(),
+            source="test_case",
+            geography_type=geography_type_instance,
+        )
+        Geography.objects.create(
+            name="overlap_significantly",
+            boundary=overlap_significantly,
+            simple_boundary=overlap_significantly,
+            as_of=datetime.now(),
+            source="test_case",
+            geography_type=geography_type_instance,
+        )
+        Geography.objects.create(
+            name="no_intersection",
+            boundary=no_intersection,
+            simple_boundary=no_intersection,
+            as_of=datetime.now(),
+            source="test_case",
+            geography_type=geography_type_instance,
+        )
+
+        # Implement the buffering and querying logic
+        buffered_boundary = target_boundary.buffer(
+            -0.0001
+        )  # Using a small negative buffer
+        overlapping_geos = Geography.objects.filter(
+            boundary__intersects=target_boundary
+        ).exclude(boundary__intersects=buffered_boundary)
+
+        def contains_geometry(geometries, target_geometry):
+            for geom in geometries:
+                if geom.boundary.equals(target_geometry):
+                    return True
+            return False
+
+        # Assertions
+        self.assertTrue(contains_geometry(overlapping_geos, barely_touch))
+
+        # self.assertNotIn(barely_touch, [geo.boundary for geo in overlapping_geos])
+        self.assertIn(overlap_significantly, [geo.boundary for geo in overlapping_geos])
+        self.assertNotIn(no_intersection, [geo.boundary for geo in overlapping_geos])

@@ -231,6 +231,9 @@ class Command(BaseCommand):
         for target in target_iter:
             print(f"\t{target}")
             assocs = []
+            buffered_boundary = target.boundary.buffer(
+                -0.001
+            )  # degrees are inconsistent but better than converting all geometries back
             bonus_iter = (
                 Geography.objects.filter(
                     geography_type__name__in=[
@@ -240,8 +243,8 @@ class Command(BaseCommand):
                         "low_income",
                     ],
                     boundary__intersects=target.boundary,
-                )
-                .exclude(boundary__touches=target.boundary)
+                ).exclude(boundary__intersects=buffered_boundary)
+                # .exclude(boundary__touches=target.boundary)
                 .iterator()
             )
             for bonus in bonus_iter:
