@@ -144,8 +144,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row['geometry']),
             simple_boundary = Command._ensure_geos_multipolygon(row['simple_boundary']),
-            as_of = datetime.now(),
-            source = settings.STATE_GEOGRAPHY_FILE,
+            as_of = 2020,
+            source = 'United States Census Bureau',
         )
 
     def _get_state_geography_load_job(self):
@@ -174,8 +174,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.COUNTY_GEOGRAPHY_FILE,
+            as_of = 2020,
+            source = 'United States Census Bureau',
         )
     
     def _get_county_load_job(self):
@@ -203,8 +203,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.DCI_GEOGRAPHY_FILE,
+            as_of = 2020,
+            source = 'Economic Innovation Group',
         )
     
     def _get_dci_geography_load_job(self):
@@ -232,8 +232,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.FOSSIL_FUEL_GEOGRAPHY_FILE,
+            as_of = 2023,
+            source = 'National Energy Technology Laboratory',
         )
     
     def _get_fossil_fuel_geography_load_job(self):
@@ -261,8 +261,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.COAL_GEOGRAPHY_FILE,
+            as_of = 2023,
+            source = 'National Energy Technology Laboratory',
         )
     
     def _get_coal_geography_load_job(self):
@@ -290,8 +290,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.J40_GEOGRAPHY_FILE,
+            as_of = 2022,
+            source = 'Climate and Economic Justice Screening Tool',
         )
     
     def _get_j40_geography_load_job(self):
@@ -319,8 +319,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.LOW_INCOME_GEOGRAPHY_FILE,
+            as_of = 2020,
+            source = 'United States Census Bureau',
         )
     
     def _get_low_income_geography_load_job(self):
@@ -348,8 +348,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.MUNICIPAL_UTIL_GEOGRAPHY_FILE,
+            as_of = 2022,
+            source = 'Homeland Infrastructure Foundation-Level Data',
         )
     
     def _get_utilities_geography_load_job(self):
@@ -378,8 +378,8 @@ class Command(BaseCommand):
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
-            as_of = datetime.now(),
-            source = settings.RURAL_COOP_GEOGRAPHY_FILE,
+            as_of = 2022,
+            source = 'Homeland Infrastructure Foundation-Level Data',
         )
     
     def _get_rural_coop_load_job(self):
