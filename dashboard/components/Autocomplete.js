@@ -22,6 +22,7 @@ function Autocomplete() {
   // Define function to collapse search results and update selection on click
   const handleClick = (geo) => {
     setOpen(false);
+    setInnerValue(geo.name);
     searchStore.setQuery(geo.name);
     searchStore.setSelected(geo);
   };
