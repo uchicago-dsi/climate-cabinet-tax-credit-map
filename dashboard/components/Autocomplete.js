@@ -3,17 +3,19 @@
  */
 
 "use client";
-import { useCallback } from "react";
+
 import Dropdown from "@/components/Dropdown";
 import classNames from "classnames";
-import { memo, useState, Suspense } from "react";
-import { useSnapshot } from "valtio";
-// import { debounce } from "@/lib/utils";
 import debounce from "lodash/debounce";
+import { memo, useCallback, useState, Suspense } from "react";
+import { useSnapshot } from "valtio";
 import { searchStore } from "@/states/search";
 
 function Autocomplete() {
+
+  // Initialize value for search box
   const [innerValue, setInnerValue] = useState("");
+
   // Initialize visiblity of search results dropdown
   const [open, setOpen] = useState(false);
 
@@ -24,21 +26,22 @@ function Autocomplete() {
     searchStore.setSelected(geo);
   };
 
-  // Take snapshot of state for rendering
-  const snap = useSnapshot(searchStore);
-
+  // Define function to debounce user search queries
   const handleSearch = useCallback(
     debounce((value) => {
-      // Do something with the search term
       searchStore.setQuery(value);
-    }, 500),
+    }, 100),
     []
   );
 
+  // Define function to handle new user search queries
   const handleTextInput = (e) => {
     setInnerValue(e.target.value);
     handleSearch(e.target.value);
   };
+
+  // Take snapshot of state for rendering
+  const snap = useSnapshot(searchStore);
 
   return (
     <div
