@@ -50,9 +50,7 @@ function MapWidget() {
                 />
             </DeckGL>
             {/* TODO: add a picking radius here to layers?*/}
-            {layerClient.hoverInfo && (
-              <Tooltip hoverInfo={layerClient.hoverInfo} />
-            )}
+              <Tooltip />
             <div className="absolute right-4 top-4 bg-white p-2">
                 <MapControlPanel 
                     baseMapSnap={baseMapSnap}
