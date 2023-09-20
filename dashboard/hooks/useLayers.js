@@ -1,95 +1,68 @@
 /**
  * A custom "hook" for managing DeckGL GeoJSON map layers.
  */
-
-"server only"
-
+import { useMemo } from "react";
 import { layerConfig } from "@/config/layers";
 import { GeoJsonLayer } from "@deck.gl/layers";
-import { useState } from "react";
-
+import { useSetTooltipStore } from "./useTooltipStore";
 
 function useLayers(features, layerState) {
 
     /**
      * Initializes data for hover events.
      */
-    const [hoverInfo, setHoverInfo] = useState(null);
+    const setHoverInfo = useSetTooltipStore();
 
-    /**
-     * Builds deck.gl GeoJsonLayer instances from a list of GeoJSON features.
-     * 
-     * @param {*} features The features.
-     * @returns The layers.
-     */
-    const _buildLayers = (features) => {
-
-        // Handle case of null or undefined geographies
-        if (!features) return []
-
-        // Group datasets by geography type        
-        const geoDatasets = (
-            features.reduce((grp, geo) => {
-                    let key = geo.properties.geography_type;
-                    if (key === "state") return grp;
-                    grp[key] = grp[key] ?? [];
-                    grp[key].push(geo);
-                    return grp;
-                }, {}));
-
-    
-        // Map datasets to GeoJSON layers
-        // TODO: Use a DeckGL update trigger
-        let layers = [];
-        Object.entries(geoDatasets).forEach(([key, dataset], _) => {
-            let config = layerConfig.find(c => c.externalId === key);
-            let active = layerState?.[config.id]?.visible || true;
-            layers.push(new GeoJsonLayer({
-                id: config.id,
-                data: dataset,
-                opacity: config.opacity,
-                stroked: true,
-                filled: true,
-                extruded: false,
-                wireframe: true,
-                getFillColor: config.fillColor,
-                getLineColor: [255, 255, 255],
-                getLineWidth: 300,
-                pickable: active,
-                visible: active,
-                onHover: (layer) => {
-                    // Parse properties from layer object
-                    let props = layer?.object?.properties;
-                    let geoType = props?.geography_type;
-                    let geoName = `${config.id}: ${props?.name}`;
-
-                    // If still hovering over same geography, don't update state
-                    if (hoverInfo?.name == geoName) return
-
-                    // If hovering over new geography, update state
-                    if (geoType) {
-                        setHoverInfo({
-                            name: geoName,
-                            x: layer?.x,
-                            y: layer?.y
-                        });
-                        return;
-                    }
-                    
-                    // Otherwise, if not hovering over a geography, reset state
-                    setHoverInfo(null); 
-                }
-            }));
-            layerState[config.id].hasData = true;
-        });
-
-        return layers;
-    };
+    const geoDatasets = useMemo(() => features?.reduce((grp, geo) => {
+            let key = geo.properties.geography_type;
+            if (key === "state") return grp;
+            grp[key] = grp[key] ?? [];
+            grp[key].push(geo);
+            return grp;
+        }, {}),[features]);
 
     /**
      * A constant reference to all the GeoJSON layers currently holding data.
      */
-    const _allLayers = _buildLayers(features);
+    const _allLayers =  Object.entries(geoDatasets || {}).map(([key, dataset], _) => {
+        let config = layerConfig.find(c => c.externalId === key);
+        let active = layerState?.[config.id]?.visible || true;
+        const layer = new GeoJsonLayer({
+            id: config.id,
+            data: dataset,
+            opacity: config.opacity,
+            stroked: true,
+            filled: true,
+            extruded: false,
+            wireframe: true,
+            getFillColor: config.fillColor,
+            getLineColor: [255, 255, 255],
+            getLineWidth: 300,
+            pickable: active,
+            visible: active,
+            onHover: (layer) => {
+                // Parse properties from layer object
+                let props = layer?.object?.properties;
+                let geoType = props?.geography_type;
+                let geoName = `${config.id}: ${props?.name}`;
+                // // If still hovering over same geography, don't update state
+                // If hovering over new geography, update state
+                if (geoType) {
+                    setHoverInfo({
+                        name: geoName,
+                        x: layer?.x,
+                        y: layer?.y
+                    });
+                    return;
+                }
+                
+                // Otherwise, if not hovering over a geography, reset state
+                setHoverInfo(null); 
+            }
+        })
+        layerState[config.id].hasData = true;
+        return layer
+    });
 
     /**
      * A snapshot of the current layer state. Used for GET requests.
@@ -187,7 +160,7 @@ function useLayers(features, layerState) {
     };
 
     return {
-        hoverInfo,
+        // hoverInfo,
         getLayer,
         getAllLayers,
         getVisibleLayers,

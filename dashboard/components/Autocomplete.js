@@ -6,13 +6,15 @@
 
 import Dropdown from "@/components/Dropdown";
 import classNames from "classnames";
-import { memo, useState, Suspense } from "react";
+import debounce from "lodash/debounce";
+import { memo, useCallback, useState, Suspense } from "react";
 import { useSnapshot } from "valtio";
-import { debounce } from "@/lib/utils";
 import { searchStore } from "@/states/search";
 
-
 function Autocomplete() {
+
+  // Initialize value for search box
+  const [innerValue, setInnerValue] = useState("");
 
   // Initialize visiblity of search results dropdown
   const [open, setOpen] = useState(false);
@@ -20,9 +22,24 @@ function Autocomplete() {
   // Define function to collapse search results and update selection on click
   const handleClick = (geo) => {
     setOpen(false);
+    setInnerValue(geo.name);
     searchStore.setQuery(geo.name);
     searchStore.setSelected(geo);
-  }
+  };
+
+  // Define function to debounce user search queries
+  const handleSearch = useCallback(
+    debounce((value) => {
+      searchStore.setQuery(value);
+    }, 100),
+    []
+  );
+
+  // Define function to handle new user search queries
+  const handleTextInput = (e) => {
+    setInnerValue(e.target.value);
+    handleSearch(e.target.value);
+  };
 
   // Take snapshot of state for rendering
   const snap = useSnapshot(searchStore);
@@ -52,18 +69,18 @@ function Autocomplete() {
         </span>
         <input
           type="search"
-          value={snap.query}
+          value={innerValue}
           className="input input-bordered w-full pl-10"
-          onChange={(e) => debounce(searchStore.setQuery(e.target.value), 50)}
+          onChange={handleTextInput}
           placeholder="Type something..."
           tabIndex={0}
         />
       </div>
       <Suspense>
-        <Dropdown 
-          snap={snap} 
+        <Dropdown
+          snap={snap}
           handleClick={handleClick}
-          nullMessage={"No results found."} 
+          nullMessage={"No results found."}
         />
       </Suspense>
     </div>
