@@ -30,6 +30,7 @@ const [searchStore] = useGeoSearch("");
 // Initialize report store
 const reportStore = proxy({
     report: null,
+    status: null,
     setReport: (value) => reportStore.report = value,
 })
 
@@ -37,14 +38,14 @@ const reportStore = proxy({
 derive({
     fetchReports: (get) => {
         let geoId = get(searchStore).selected?.id;
-        let prevQuery = get(searchStore).selected?.name;
-        let currentQuery = get(searchStore).query;
-
-        if (geoId && prevQuery == currentQuery){
+        const status = reportStore.status;
+        if (geoId && status !== `${geoId} loading` && status !== `${geoId} success`){
+            reportStore.status = `${geoId} loading`;
             (getGeoReport(geoId)
                 .then(r => {
-                    get(reportStore).setReport(r);
-                    get(viewportStore).zoomToGeography(r.geographies);
+                    reportStore.setReport(r);
+                    viewportStore.zoomToGeography(r.geographies);
+                    reportStore.status = `${geoId} success`;
                 }))
         }
     }
