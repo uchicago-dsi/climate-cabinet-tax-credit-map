@@ -32,7 +32,7 @@ class Validator():
     def cols_exist(load_job: LoadJob, data_reader: DataReader):
 
         missing_cols = []
-        actual_cols = data_reader.col_names(load_job.file_name)
+        actual_cols = data_reader.col_names(load_job.file_name, delimiter=load_job.delimiter)
         for required_col in load_job.file_field_names:
             if not required_col in actual_cols:
                 missing_cols.append(required_col)

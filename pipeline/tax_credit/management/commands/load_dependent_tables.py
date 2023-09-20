@@ -182,6 +182,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row['simple_boundary']),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
+            fips_info = row['STATEFP']
         )
 
     def _get_state_geography_load_job(self):
@@ -212,6 +213,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
+            fips_info = row['COUNTYFP']
         )
     
     def _get_county_load_job(self):
@@ -270,6 +272,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
+            fips_info = row['TractIDcty'][-5:]
         )
     
     def _get_fossil_fuel_geography_load_job(self):
@@ -299,6 +302,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
+            fips_info = row['TractID'][:5]
         )
     
     def _get_coal_geography_load_job(self):
@@ -328,6 +332,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2022-01-01',
             source = 'Climate and Economic Justice Screening Tool',
+            fips_info = row["TractID"][:5]
         )
     
     def _get_j40_geography_load_job(self):
@@ -357,6 +362,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
+            fips_info = row["tractId"][:5]
         )
     
     def _get_low_income_geography_load_job(self):

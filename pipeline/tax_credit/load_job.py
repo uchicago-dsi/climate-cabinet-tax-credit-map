@@ -27,4 +27,6 @@ class LoadJob:
     unique_fields: list[str]
     update_fields: list[str]
 
+    delimiter: str = '|'
+
     # Note that when loading, a final pitfall is foreign keys -- this can't be readily checked until load time

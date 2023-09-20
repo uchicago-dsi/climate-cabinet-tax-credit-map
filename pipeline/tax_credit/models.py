@@ -22,6 +22,7 @@ class Geography(models.Model):
     simple_boundary = MultiPolygonField()
     as_of = models.DateField()
     source = models.CharField(max_length=255)
+    fips_info = models.CharField(max_length=255, null=True)
 
     class Meta:
         db_table = "tax_credit_geography"
@@ -73,3 +74,11 @@ class CensusTract(models.Model):
 
     class Meta:
         db_table = "tax_credit_census_tract"
+
+class CensusBlockGroup(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    centroid = PointField()
+    population = models.IntegerField()
+
+    class Meta:
+        db_table = "tax_credit_census_block_group"

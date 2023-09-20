@@ -98,11 +98,11 @@ class DataReader(ABC):
         self.fileSystemHelper: FileSystemHelper = FileSystemHelperFactory.get()
 
     @abstractmethod
-    def col_names(self, filename) -> list[str]:
+    def col_names(self, filename, delimiter='|') -> list[str]:
         raise NotImplementedError
     
     @abstractmethod
-    def iterate() -> Iterator[dict[str, Any]]:
+    def iterate(self, filename, delimiter='|') -> Iterator[dict[str, Any]]:
         raise NotImplementedError
     
     def get_data_bucket_contents(self):
@@ -111,22 +111,22 @@ class DataReader(ABC):
 
 class _CsvDataReader(DataReader):
 
-    def col_names(self, filename) -> list[str]:
+    def col_names(self, filename, delimiter='|') -> list[str]:
         logger.info(f"Getting col names : {filename}")
         with self.fileSystemHelper.get_file(filename) as f:
-            reader = csv.DictReader(f, delimiter='|')
+            reader = csv.DictReader(f, delimiter=delimiter)
             return reader.fieldnames
 
-    def iterate(self, filename) -> Iterator[dict[str, Any]]:
+    def iterate(self, filename, delimiter='|') -> Iterator[dict[str, Any]]:
         with self.fileSystemHelper.get_file(filename) as f:
-            reader = csv.DictReader(f, delimiter='|')
+            reader = csv.DictReader(f, delimiter=delimiter)
             for row in reader:
                 yield row
 
 
 class _ParquetDataReader(DataReader):
 
-    def col_names(self, filename) -> list[str]:
+    def col_names(self, filename, delimiter='|') -> list[str]:
         with self.fileSystemHelper.get_file(filename, mode='rb') as f:
             pf: pq.ParquetFile = pq.ParquetFile(f)
             try:
@@ -135,7 +135,7 @@ class _ParquetDataReader(DataReader):
                 pf.close()
 
     
-    def iterate(self, filename) -> Iterator[dict[str, Any]]:
+    def iterate(self, filename, delimiter='|') -> Iterator[dict[str, Any]]:
         with self.fileSystemHelper.get_file(filename, mode='rb') as f:
             pf = pq.ParquetFile(f)
             pf_iter = pf.iter_batches(settings.PQ_CHUNK_SIZE)

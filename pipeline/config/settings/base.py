@@ -27,6 +27,7 @@ class BaseConfig(Configuration):
     GEOGRAPHY_TYPE_FILE = 'geography_type.csv'
     PROGRAM_FILE = 'program.csv'
     CENSUS_TRACT_FILE = 'census_tract_pop.geoparquet'
+    CENSUS_BLOCK_FILE = 'CenPop2020_Mean_BG.txt'
     
     GEOGRAPHY_TYPE_PROGRAM_FILE = 'geography_type_program.csv'
     STATE_GEOGRAPHY_FILE = 'state_clean.geoparquet'
@@ -35,9 +36,10 @@ class BaseConfig(Configuration):
     FOSSIL_FUEL_GEOGRAPHY_FILE = 'ffe.geoparquet'
     COAL_GEOGRAPHY_FILE = "coal_closure.geoparquet"
     J40_GEOGRAPHY_FILE = "justice40.geoparquet"
-    LOW_INCOME_GEOGRAPHY_FILE = "low_income_tracts.geoparquet"
+    LOW_INCOME_GEOGRAPHY_FILE = "low_income_tracts_filtered.geoparquet"
     MUNICIPAL_UTIL_GEOGRAPHY_FILE = "municipal_utils.geoparquet"
     RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
+
 
     MAX_BATCH_LOAD_SIZE = 100
     PQ_CHUNK_SIZE = 1_000

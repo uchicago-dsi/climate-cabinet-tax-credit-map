@@ -3,13 +3,14 @@
 from ...load_job import LoadJob
 from ...validator import Validator
 from common.storage2 import DataReader, DataReaderFactory
-from tax_credit.models import GeographyType, Program, CensusTract
+from tax_credit.models import GeographyType, Program, CensusTract, CensusBlockGroup
 
 from itertools import islice
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import Point
 
 from common.logger import LoggerFactory
 
@@ -40,15 +41,17 @@ class Command(BaseCommand):
         logger.info("Building job for census tract load")
         census_tract_load_job = self._get_census_load_job()
 
+        logger.info("Building job for census tract load")
+        census_block_group_load_job = self._get_census_blocks_load_job()
 
-        jobs = [geography_type_load_job, program_load_job, census_tract_load_job]
+        jobs = [geography_type_load_job, program_load_job, census_tract_load_job, census_block_group_load_job]
         for job in jobs:
             logger.info(f"Loading job : {job.job_name}")
 
             reader: DataReader = DataReaderFactory.get(job.file_format)
 
             Validator.validate(job, reader)
-            objs = (job.row_to_model(row) for row in reader.iterate(job.file_name))
+            objs = (job.row_to_model(row) for row in reader.iterate(job.file_name, delimiter=job.delimiter))
             while True: # See django docs here for pattern, https://docs.djangoproject.com/en/4.2/ref/models/querysets/#bulk-create
                 batch = list(islice(objs, settings.MAX_BATCH_LOAD_SIZE))
                 if not batch:
@@ -127,6 +130,7 @@ class Command(BaseCommand):
     def _get_census_load_job(self):
         return LoadJob(
             job_name="load census tracts",
+            delimiter=',',
 
             file_name=settings.CENSUS_TRACT_FILE,
             model=CensusTract,
@@ -140,4 +144,32 @@ class Command(BaseCommand):
             unique_fields=["id"],
             update_fields=["centroid", "population"],
         )
+    
+    @staticmethod
+    def _load_census_block_row(row):
+        logger.info(f"Row here : {row}")
+        return CensusTract(
+            id=f'{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
+            centroid=GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
+            population=row["POPULATION"],
+        )
+    
+    def _get_census_blocks_load_job(self):
+        return LoadJob(
+            job_name="load block tracts",
+            delimiter=',',
+
+            file_name=settings.CENSUS_BLOCK_FILE,
+            model=CensusBlockGroup,
+            file_format="csv",
+
+            row_to_model=self._load_census_block_row,
+
+            file_field_names=["COUNTYFP", "TRACTCE", "BLKGRPCE", "LATITUDE", "LONGITUDE", "POPULATION"], # TODO field names
+            required_models=[],
+
+            unique_fields=["id"],
+            update_fields=["centroid", "population"], # TODO field names
+        )
+    # TODO load census blocks
     

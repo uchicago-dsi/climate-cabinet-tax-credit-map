@@ -7,6 +7,7 @@ from common.logger import LoggerFactory
 
 from django.db import connections
 from django.db.models import Model
+from django.conf import settings
 
 logger = LoggerFactory.get(__name__)
 
@@ -57,7 +58,7 @@ class Command(BaseCommand):
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
         target_iter = Geography.objects.filter(
             geography_type__name=target_geom
-        ).iterator(chunk_size=1000)
+        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
 
         for target in target_iter:
             assocs = []
