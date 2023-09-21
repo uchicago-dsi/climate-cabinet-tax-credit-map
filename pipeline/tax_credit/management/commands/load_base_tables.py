@@ -147,7 +147,7 @@ class Command(BaseCommand):
     
     @staticmethod
     def _load_census_block_row(row):
-        logger.info(f"Row here : {row}")
+        # logger.info(f"Row here : {row}")
         return CensusTract(
             id=f'{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
             centroid=GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),

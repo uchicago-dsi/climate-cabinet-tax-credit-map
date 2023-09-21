@@ -6,6 +6,7 @@ from tax_credit.models import Geography, TargetBonusAssoc
 from common.logger import LoggerFactory
 
 from django.db import connections
+from django.db.models.functions import Substr
 from django.db.models import Model
 from django.conf import settings
 
@@ -26,7 +27,7 @@ class Command(BaseCommand):
         """
         """
         parser.add_argument(
-            '--skip-assoc',
+            '--only-assoc',
             nargs='+',
             default=[]
         )
@@ -42,15 +43,35 @@ class Command(BaseCommand):
         Returns:
             None
         """
+        targets = ["state", "county", "municipal_util", "rural_coop"]
+        bonuses = ["distressed", "energy", "justice40", "low_income"]
 
         logger.info("Building association table")
-        skip_assoc = options['skip_assoc']
+        only_assoc = options['only_assoc']
+        logger.info(f'Here is only_assoc : {only_assoc}')
+        if not only_assoc:
+            only_assoc.extend(targets)
+            only_assoc.extend(bonuses)
+            logger.info(f'Added a bunch to only_assoc : {only_assoc}')
 
-        for target in [t for t in ["state", "county", "municipal_util", "rural_coop"] if t not in skip_assoc]:
-            for bonus in [b for b in ["distressed", "energy", "justice40", "low_income"] if b not in skip_assoc]:
-                self._find_and_load_overlaps(target, bonus)
-                self.recycle_connection(Geography)
-                self.recycle_connection(TargetBonusAssoc)
+        for target in [t for t in targets if t in only_assoc]:
+            logger.info(f"The next target : {target}")
+            for bonus in [b for b in bonuses if b in only_assoc]:
+                logger.info(f"The next bonus : {bonus}")
+                
+                if target in ["state", "county"] and bonus in ["energy", "justice40", "low_income"]:
+                    if target == "state":
+                        self._find_and_load_matching_state_fips(target, bonus)
+                    elif target == "county":
+                        self._find_and_load_matching_county_fips(target, bonus)
+                    else:
+                        raise ValueError("This shouldn't happen. Value was supposed to be in [ state, county ] .")
+                else:
+                    logger.info("Need to use overlaps")
+                    self._find_and_load_overlaps(target, bonus)
+                
+                # self.recycle_connection(Geography)
+                # self.recycle_connection(TargetBonusAssoc)
         
         logger.info("Association table is finished")
 
@@ -83,9 +104,77 @@ class Command(BaseCommand):
                 logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
                 TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
+    def _find_and_load_matching_state_fips(self, target_geom, bonus_geom):
+        logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
+        target_iter = Geography.objects.filter(
+            geography_type__name=target_geom
+        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
+
+        for target in target_iter:
+            assocs = []
+            bonus_iter = (
+                Geography.objects.annotate(
+                    state_fips = Substr("fips_info", 1, 2)
+                ).filter(
+                    geography_type__name=bonus_geom,
+                    state_fips=target.fips_info,
+                )
+                .iterator()
+            )
+            for bonus in bonus_iter:
+                logger.info(f"Bonus : {bonus.state_fips}, Target : {target.fips_info}")
+                assocs.append(
+                    TargetBonusAssoc(
+                        target_geography=target,
+                        target_geography_type=target.geography_type.name,
+                        bonus_geography=bonus,
+                        bonus_geography_type=bonus.geography_type.name,
+                    )
+                )
+            if assocs:
+                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+
+    def _find_and_load_matching_county_fips(self, target_geom, bonus_geom):
+        logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
+        target_iter = Geography.objects.filter(
+            geography_type__name=target_geom
+        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
+
+        for target in target_iter:
+            logger.info(f'\nTarget : {target.fips_info}')
+            assocs = []
+            bonus_iter = (
+                Geography.objects
+                # .annotate(
+                #     county_fips = Substr("fips_info", 3, 5)
+                # )
+                .filter(
+                    geography_type__name=bonus_geom,
+                    fips_info=target.fips_info,
+                )
+                .iterator()
+            )
+            for bonus in bonus_iter:
+                # logger.info(f"\nBonus : {bonus.fips_info} {bonus.name}, \nTarget : {target.fips_info}")
+                assocs.append(
+                    TargetBonusAssoc(
+                        target_geography=target,
+                        target_geography_type=target.geography_type.name,
+                        bonus_geography=bonus,
+                        bonus_geography_type=bonus.geography_type.name,
+                    )
+                )
+            # logger.info(f"Finished iterating bonuses, assocs : {assocs}")
+            if assocs:
+                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+
     @staticmethod
     def recycle_connection(model: Model):
         """Recycles the connection from the model from the previous job. Without this the connection will expire and cause SSL errors when working with Neon Postgres."""
         db_string = model.objects.db
         logger.info(f"Recycling connection : {model}, {db_string}")
-        connections[db_string].close()
+        conn = connections[db_string]
+        if conn:
+            conn.close()

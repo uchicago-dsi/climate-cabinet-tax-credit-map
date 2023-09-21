@@ -213,7 +213,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
-            fips_info = row['COUNTYFP']
+            fips_info = f'{row["STATEFP"]}{row["COUNTYFP"]}'
         )
     
     def _get_county_load_job(self):
@@ -230,7 +230,7 @@ class Command(BaseCommand):
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "simple_boundary", "as_of", "source", "fips_info"],
         )
 
     @staticmethod
@@ -362,7 +362,7 @@ class Command(BaseCommand):
             simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
-            fips_info = row["tractId"][:5]
+            fips_info = str(row["tractId"])[:5]
         )
     
     def _get_low_income_geography_load_job(self):
