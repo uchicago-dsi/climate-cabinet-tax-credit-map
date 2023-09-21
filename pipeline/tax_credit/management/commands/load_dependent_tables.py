@@ -4,7 +4,7 @@
 from common.logger import LoggerFactory
 from tax_credit.models import GeographyTypeProgram, GeographyType, Program, Geography
 from tax_credit.load_job import LoadJob
-from common.storage2 import DataReader, DataReaderFactory
+from common.storage import DataReader, DataReaderFactory
 from ...validator import Validator
 
 from datetime import datetime
@@ -99,7 +99,7 @@ class Command(BaseCommand):
 
             objs = (job.row_to_model(row) for row in reader.iterate(job.file_name))
             while True: # See django docs here for pattern, https://docs.djangoproject.com/en/4.2/ref/models/querysets/#bulk-create
-                batch = list(islice(objs, settings.MAX_BATCH_LOAD_SIZE))
+                batch = list(islice(objs, settings.SMALL_CHUNK_SIZE))
                 if not batch:
                     logger.info(f"Job - {job.job_name} - load finished")
                     break
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 try:
                     job.model.objects.bulk_create(
                         batch, 
-                        settings.MAX_BATCH_LOAD_SIZE, 
+                        settings.SMALL_CHUNK_SIZE, 
                         update_conflicts=True, 
                         unique_fields=job.unique_fields, 
                         update_fields=job.update_fields
@@ -119,7 +119,7 @@ class Command(BaseCommand):
                     self.recycle_connection(job)
                     job.model.objects.bulk_create(
                         batch, 
-                        settings.MAX_BATCH_LOAD_SIZE, 
+                        settings.SMALL_CHUNK_SIZE, 
                         update_conflicts=True, 
                         unique_fields=job.unique_fields, 
                         update_fields=job.update_fields

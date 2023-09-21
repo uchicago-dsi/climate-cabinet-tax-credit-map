@@ -1,5 +1,6 @@
 """Loads tax credit programs for geographies into the database.
 """
+from itertools import islice
 
 from django.core.management.base import BaseCommand, CommandParser
 from tax_credit.models import Geography, TargetBonusAssoc
@@ -43,9 +44,10 @@ class Command(BaseCommand):
         Returns:
             None
         """
+
+        # Ugly code... essentially if the option --only assoc, it will load only the geography types passed. Otherwise it loads all geographies in succession
         targets = ["state", "county", "municipal_util", "rural_coop"]
         bonuses = ["distressed", "energy", "justice40", "low_income"]
-
         logger.info("Building association table")
         only_assoc = options['only_assoc']
         logger.info(f'Here is only_assoc : {only_assoc}')
@@ -55,9 +57,7 @@ class Command(BaseCommand):
             logger.info(f'Added a bunch to only_assoc : {only_assoc}')
 
         for target in [t for t in targets if t in only_assoc]:
-            logger.info(f"The next target : {target}")
             for bonus in [b for b in bonuses if b in only_assoc]:
-                logger.info(f"The next bonus : {bonus}")
                 
                 if target in ["state", "county"] and bonus in ["energy", "justice40", "low_income"]:
                     if target == "state":
@@ -76,13 +76,15 @@ class Command(BaseCommand):
         logger.info("Association table is finished")
 
     def _find_and_load_overlaps(self, target_geom, bonus_geom):
+        # TODO dry this out and use this batching for all load patterns
+
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
         target_iter = Geography.objects.filter(
             geography_type__name=target_geom
-        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
+        ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)
 
         for target in target_iter:
-            assocs = []
+            
             bonus_iter = (
                 Geography.objects.filter(
                     geography_type__name=bonus_geom,
@@ -91,24 +93,31 @@ class Command(BaseCommand):
                 .exclude(boundary__touches=target.boundary)
                 .iterator()
             )
-            for bonus in bonus_iter:
-                assocs.append(
+
+            while True:
+                batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                if not batch:
+                    logger.info(f"Loading finished for : {target_geom} {target}")
+                    break
+                assocs = []
+                for bonus in batch:
+                    assocs.append(
                     TargetBonusAssoc(
                         target_geography=target,
                         target_geography_type=target.geography_type.name,
                         bonus_geography=bonus,
                         bonus_geography_type=bonus.geography_type.name,
+                        )
                     )
-                )
-            if assocs:
                 logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+                TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+
 
     def _find_and_load_matching_state_fips(self, target_geom, bonus_geom):
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
         target_iter = Geography.objects.filter(
             geography_type__name=target_geom
-        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
+        ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)
 
         for target in target_iter:
             assocs = []
@@ -120,9 +129,8 @@ class Command(BaseCommand):
                     state_fips=target.fips_info,
                 )
                 .iterator()
-            )
+                )
             for bonus in bonus_iter:
-                logger.info(f"Bonus : {bonus.state_fips}, Target : {target.fips_info}")
                 assocs.append(
                     TargetBonusAssoc(
                         target_geography=target,
@@ -131,32 +139,30 @@ class Command(BaseCommand):
                         bonus_geography_type=bonus.geography_type.name,
                     )
                 )
+
             if assocs:
                 logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
                 TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+
+
 
     def _find_and_load_matching_county_fips(self, target_geom, bonus_geom):
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
         target_iter = Geography.objects.filter(
             geography_type__name=target_geom
-        ).iterator(chunk_size=settings.MAX_BATCH_LOAD_SIZE)
+        ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)
 
         for target in target_iter:
             logger.info(f'\nTarget : {target.fips_info}')
             assocs = []
             bonus_iter = (
-                Geography.objects
-                # .annotate(
-                #     county_fips = Substr("fips_info", 3, 5)
-                # )
-                .filter(
+                Geography.objects.filter(
                     geography_type__name=bonus_geom,
                     fips_info=target.fips_info,
                 )
                 .iterator()
             )
             for bonus in bonus_iter:
-                # logger.info(f"\nBonus : {bonus.fips_info} {bonus.name}, \nTarget : {target.fips_info}")
                 assocs.append(
                     TargetBonusAssoc(
                         target_geography=target,

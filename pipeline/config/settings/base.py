@@ -41,7 +41,7 @@ class BaseConfig(Configuration):
     RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
 
 
-    MAX_BATCH_LOAD_SIZE = 100
+    SMALL_CHUNK_SIZE = 100
     PQ_CHUNK_SIZE = 1_000
     
 

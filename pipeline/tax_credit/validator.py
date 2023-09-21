@@ -1,5 +1,5 @@
 from .load_job import LoadJob
-from common.storage2 import DataReader, DataReaderFactory
+from common.storage import DataReader, DataReaderFactory
 from common.logger import LoggerFactory
 
 from django.conf import settings
