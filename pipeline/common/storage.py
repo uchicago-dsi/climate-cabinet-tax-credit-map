@@ -1,18 +1,17 @@
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Any, Iterator, Optional, Sequence
-import os
 import csv
 import io
-import tempfile
 import json
+import os
+import tempfile
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
+from typing import Any, Iterator, Optional, Type
+
 from django.conf import settings
+from django.db.models import Model
+from pyarrow import parquet as pq
 
 from .logger import LoggerFactory
-
-from django.conf import settings
-
-from pyarrow import parquet as pq
 
 logger = LoggerFactory.get(__name__)
 
@@ -159,3 +158,8 @@ class DataReaderFactory:
         if type.lower() == "csv":
             return DataReaderFactory.csv_data_reader
         raise TypeError(f"A valid value must be given to DataReaderFactory. Value given : {type} .")
+
+class DatabaseHelper:
+
+    @staticmethod
+    def load_batch(model: c, batch)
