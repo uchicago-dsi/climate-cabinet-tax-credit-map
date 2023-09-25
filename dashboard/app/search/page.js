@@ -51,6 +51,43 @@ export default function SearchPage() {
       <div>
         <ReportWidget />
       </div>
+      {/* METHODOLOGY EXPLANATION */}
+      <div className="flex flex-col items-center">
+        <div className="max-w-5xl pt-12">
+          <h3 className="text-center">Program Descriptions</h3>
+          <ul>
+            <li>Justice 40</li>
+            <li>Solar For All</li>
+            <li>etc.</li>
+          </ul>
+
+          <h3 className="text-center">Methodology</h3>
+          <p>
+            To estimate populations in specific geographic regions, we utilized
+            the population-weighted centroid of Census Block Groups from the
+            2020 United States Census. Block groups are subdivisions of census
+            tracts, typically holding 600 to 3,000 people. Block groups allow
+            for a more fine-grained approach to population estimates since
+            population densities can vary within a single census tract.
+          </p>
+          <p>
+            If a block group's population-weighted centroid fell within a
+            particular geography, we attributed its entire population to that
+            area. Both census tracts and block groups respect state and county
+            boundaries. However, census tracts and block groups may cross zip
+            codes, municipal utility, and/or rural cooperative boundaries.
+          </p>
+          <p>
+            When estimating populations for intersecting areas — for example,
+            the number of inhabitants in a Justice40 community served by
+            Coles-Moultrie Electric Cooperative — we allocated the full
+            population of any block groups whose population-weighted centroid
+            was in the overlapping region. If the population-weighted centroid
+            was not in the intersecting area, we did not allocate any of the
+            population to the overlapping area.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
