@@ -41,16 +41,9 @@ export default function SearchPage() {
             map. You’ll also see descriptions of which programs are available
             and how much bonus eligibility parts of your community can access.
           </p>
-          {/* <p className="px-20 pt-8 text-lg">
-                        Enter the name of a state, county, municipality or rural electric
-                        cooperative to view its Justice 40 communities, energy communities,
-                        and designated low-income census tracts and MSAs on an interactive
-                        map. The sidebar will also show a description of available tax credit
-                        programs.
-                    </p> */}
         </div>
         {/** AUTOCOMPLETE SEARCH BAR */}
-        <div className="px-20 mt-10 mb-5 z-50 self-start w-11/12">
+        <div className="px-20 mt-10 mb-5 z-50 self-start w-11/12 mx-auto">
           <Autocomplete />
         </div>
       </div>
