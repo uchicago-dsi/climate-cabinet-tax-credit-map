@@ -15,17 +15,17 @@ export default function SearchPage() {
       <div className="flex flex-col items-center">
         {/** TITLE BANNER */}
         <div
-          className="w-screen py-10 bg-center bg-cover bg-no-repeat"
+          className="w-screen py-12 bg-center bg-cover bg-no-repeat"
           style={{ backgroundImage: `url('/images/c3titlebanner2.jpg')` }}
         >
-          <div className="container max-w-7xl mx-auto">
+          <div className="container w-full max-w-fit mx-auto px-10">
             <h1 className="humani-title">
               Federal Funding Bonus Eligibility Map (beta)
             </h1>
           </div>
         </div>
         {/** DESCRIPTION */}
-        <div>
+        <div className="max-w-5xl pt-12">
           <p>
             With this new tool from Climate Cabinet Education, discover which
             parts of your community have the potential to maximize the benefits
