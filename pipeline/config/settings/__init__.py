@@ -1,2 +1,2 @@
-from .local import LocalConfig
-from .production import ProductionConfig
+from .local import LocalConfig  # noqa: F401
+from .production import ProductionConfig  # noqa: F401

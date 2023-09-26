@@ -1,18 +1,20 @@
-from typing import Callable, Any, Type
-import os
+from abc import ABC
 from dataclasses import dataclass
+from typing import Any, Callable, Type
 
-from django.conf import settings
 from django.db.models import Model
 
 
 @dataclass
-class LoadJob:
-    """Class holding information about a data base load job. Includes information regarding required files and validation prior to starting the job."""
+class LoadJob(ABC):
+    """
+    Class holding information about a data base load job. Includes information regarding required
+    files and validation prior to starting the job.
+    """
+
     job_name: str
 
     # Connection between file and database
-    file_name: str
     model: Type[Model]
     file_format: str
 
@@ -27,6 +29,8 @@ class LoadJob:
     unique_fields: list[str]
     update_fields: list[str]
 
-    delimiter: str = '|'
 
-    # Note that when loading, a final pitfall is foreign keys -- this can't be readily checked until load time
+@dataclass
+class FileLoadJob(LoadJob):
+    file_name: str
+    delimiter: str = "|"

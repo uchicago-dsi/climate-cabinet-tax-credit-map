@@ -1,52 +1,55 @@
-from .load_job import LoadJob
-from common.storage import DataReader, DataReaderFactory
+"""Module for validating database state and configuration of a log job before starting."""
+
 from common.logger import LoggerFactory
+from common.storage import DataReader
 
-from django.conf import settings
-
-from tax_credit.models import Program
-
+from .load_job import FileLoadJob
 
 logger = LoggerFactory.get(__name__)
 
-class Validator():
 
+class Validator:
     @staticmethod
-    def validate(load_job: LoadJob, data_reader: DataReader):
-
+    def validate(load_job: FileLoadJob, data_reader: DataReader):
         # TODO Custom errors
 
         Validator.file_exists(load_job, data_reader)
         Validator.cols_exist(load_job, data_reader)
         Validator.required_tables_loaded(load_job)
-        
 
     @staticmethod
-    def file_exists(load_job: LoadJob, data_reader: DataReader):
+    def file_exists(load_job: FileLoadJob, data_reader: DataReader):
         filename = load_job.file_name
         bucket_contents = data_reader.get_data_bucket_contents()
-        if not filename in bucket_contents:
-            raise RuntimeError(f"Requeste file is missing from data folder : {filename} . Available files : {bucket_contents} .")
+        if filename not in bucket_contents:
+            raise RuntimeError(
+                f"Requeste file is missing from data folder : {filename} . Available files : "
+                f"{bucket_contents} ."
+            )
 
     @staticmethod
-    def cols_exist(load_job: LoadJob, data_reader: DataReader):
-
+    def cols_exist(load_job: FileLoadJob, data_reader: DataReader):
         missing_cols = []
-        actual_cols = data_reader.col_names(load_job.file_name, delimiter=load_job.delimiter)
+        actual_cols = data_reader.col_names(
+            load_job.file_name, delimiter=load_job.delimiter
+        )
         for required_col in load_job.file_field_names:
-            if not required_col in actual_cols:
+            if required_col not in actual_cols:
                 missing_cols.append(required_col)
         if missing_cols:
-            raise RuntimeError(f"Columns are missing from the file : {missing_cols} . Available fields : {actual_cols} .")
+            raise RuntimeError(
+                f"Columns are missing from the file : {missing_cols} . Available fields : "
+                f"{actual_cols} ."
+            )
 
     @staticmethod
-    def required_tables_loaded(load_job: LoadJob):
+    def required_tables_loaded(load_job: FileLoadJob):
         """Verifies that all dependent tables have at least some contents"""
 
         unloaded_tables = []
         for model in load_job.required_models:
             if not model.objects.all().count() > 0:
                 unloaded_tables.append(model)
-        
+
         if unloaded_tables:
             raise RuntimeError(f"Models need to be loaded : {unloaded_tables}")

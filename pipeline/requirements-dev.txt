@@ -9,3 +9,6 @@ docformatter
 pandas-stubs
 types-google-cloud-ndb
 django-stubs
+pytest
+pytest-django
+pytest-cov
