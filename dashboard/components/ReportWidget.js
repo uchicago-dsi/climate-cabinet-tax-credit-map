@@ -18,7 +18,8 @@ function ReportWidget() {
 
   return (
     <div className="px-20">
-      {targetGeo && (
+      {/* TODD: I MOVED THIS TO THE SUMMARY STATS */}
+      {/* {targetGeo && (
         <>
           <h2 className="font-bold m-0 pt-5">
             {targetGeo.properties.name}{" "}
@@ -27,7 +28,7 @@ function ReportWidget() {
             </span>
           </h2>
         </>
-      )}
+      )} */}
 
       <div className="flex w-full pt-10">
         <div className="grid grid-cols-8 m-0">

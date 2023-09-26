@@ -215,41 +215,48 @@ function SummaryStats() {
   return (
     <div>
       <div>
-        <h3 className="font-bold">Summary</h3>
-        <h4>
+        {/* <h3 className="font-bold">Summary</h3> */}
+        <h5 className="font-bold m-0 pt-5 pb-1">{builder.targetFullName} </h5>
+        <span className="shadow-md no-underline rounded-full bg-cyan-500 text-white text-xs font-semibold p-2 uppercase">
+          {builder.targetGeoType.replace("_", " ")}
+        </span>
+        <h6 className="pb-1">
           <b>Total Population</b>
           <br />
           {builder.targetPop}
           <br />
-        </h4>
+        </h6>
         <div>
-          <h4>
-            <b>Bonus Territories</b>
-          </h4>
+          <h6 className="pb-1">
+            <b>Bonus Territory Counts</b>
+          </h6>
           <span>
-            <ol className="list-disc">
+            <ol className="list-disc text-base">
               <li>
-                Distressed Zip Codes (
-                {builder.bonusDetails?.distressed?.length ?? 0})<br />
+                <b>{builder.bonusDetails?.distressed?.length ?? 0}</b>{" "}
+                Distressed Zip Codes
+                <br />
               </li>
               <li>
-                Energy Communities ({builder.bonusDetails?.energy?.length ?? 0})
+                <b>{builder.bonusDetails?.energy?.length ?? 0}</b> Energy
+                Communities
               </li>
               <li>
-                Justice 40 Census Tracts (
-                {builder.bonusDetails?.justice40?.length ?? 0})
+                {" "}
+                <b>{builder.bonusDetails?.justice40?.length ?? 0}</b> Justice 40
+                Census Tracts
               </li>
               <li>
-                Low Income Census Tracts (
-                {builder.bonusDetails?.low_income?.length ?? 0})
+                <b>{builder.bonusDetails?.low_income?.length ?? 0}</b> Low
+                Income Census Tracts
               </li>
             </ol>
           </span>
         </div>
         <div>
-          <h4>
+          <h6 className="pb-1">
             <b>Eligible Programs</b>
-          </h4>
+          </h6>
           <span>
             <ol className="list-disc">
               {Object.entries(builder.programDetails).map((entry, idx) => {
