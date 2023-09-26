@@ -134,14 +134,7 @@ class SummaryBuilder {
   }
 
   get targetFullName() {
-    if (this.#target.geography_type === "county") {
-      return `${this.#target.name},`;
-    }
-    let geoType = this.targetGeoType;
-    return (
-      `${geoType.charAt(0).toUpperCase()}${geoType.slice(1)}` +
-      ` ${this.#target.name}`
-    );
+    return `${this.#target.name}`;
   }
 
   get targetPop() {
