@@ -1,32 +1,30 @@
 /**
  * API route for geography boundary requests.
- * 
+ *
  * References:
  * - https://nextjs.org/docs/app/api-reference/functions/next-request
  * - https://nextjs.org/docs/app/api-reference/functions/next-response
  */
 
-"server only"
+"server only";
 
 import prisma from "@/lib/db";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-
 
 /**
  * Fetches a report for a given geometry based on id. The
  * report consists of the geometry boundary and boundaries
  * for the tax credit bonus territories it intersects,
  * among other metadata.
- * 
+ *
  *  @param {NextRequest} - The HTTP request. Contains a geography id.
  */
 export async function GET(request, { params }) {
-
-    // Query DB for overlapping geographies with metadata
-    let { slug } = params;
-    let geographyId = parseInt(slug);
-    let rawGeos = await prisma.$queryRaw`
+  // Query DB for overlapping geographies with metadata
+  let { slug } = params;
+  let geographyId = parseInt(slug);
+  let rawGeos = await prisma.$queryRaw`
         SELECT ST_ASGeoJSON(t.*) AS data
         FROM (
             SELECT
@@ -57,11 +55,11 @@ export async function GET(request, { params }) {
             GROUP BY(geo.id, geotype.name)
         ) AS t
     `;
-    let geographies = rawGeos.map(r => JSON.parse(r.data));
+  let geographies = rawGeos.map((r) => JSON.parse(r.data));
 
-    // Query DB for tax credit programs related to geographies
-    let geoIds = geographies.map(g => g.properties.id);
-    let programs = await prisma.$queryRaw`
+  // Query DB for tax credit programs related to geographies
+  let geoIds = geographies.map((g) => g.properties.id);
+  let programs = await prisma.$queryRaw`
         SELECT DISTINCT
             geo_type.name AS geography_type,
             program.name AS program_name,
@@ -78,11 +76,11 @@ export async function GET(request, { params }) {
             ON program.id = geo_type_program.program_id
         WHERE geo.id IN (${Prisma.join(geoIds)});`;
 
-    // Compose final response payload
-    let payload = {
-        geographies: geographies,
-        programs: programs
-    }
+  // Compose final response payload
+  let payload = {
+    geographies: geographies,
+    programs: programs,
+  };
 
-    return NextResponse.json(payload);
+  return NextResponse.json(payload);
 }

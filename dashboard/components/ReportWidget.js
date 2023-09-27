@@ -18,18 +18,6 @@ function ReportWidget() {
 
   return (
     <div className="px-20">
-      {/* TODD: I MOVED THIS TO THE SUMMARY STATS */}
-      {/* {targetGeo && (
-        <>
-          <h2 className="font-bold m-0 pt-5">
-            {targetGeo.properties.name}{" "}
-            <span className="shadow-md no-underline rounded-full bg-cyan-500 text-white text-xs font-semibold p-2">
-              {targetGeo.properties.geography_type.replace("_", " ")}
-            </span>
-          </h2>
-        </>
-      )} */}
-
       <div className="flex w-full pt-10">
         <div className="grid grid-cols-8 m-0">
           {/** MAP */}

@@ -7,8 +7,28 @@
 
 import Autocomplete from "@/components/Autocomplete";
 import ReportWidget from "@/components/ReportWidget";
+import { headers } from "@/next.config";
+import { get } from "lib/http";
+import React, { useEffect, useState } from "react";
 
 export default function SearchPage() {
+  const [programs, setPrograms] = useState([]);
+
+  useEffect(() => {
+    const getPrograms = async () => {
+      try {
+        const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/programs/`;
+        const errMsg = `Failed to retrieve programs`;
+        const response = await get(url, errMsg);
+        console.log(response.data);
+        setPrograms(response.data);
+      } catch (error) {
+        console.error("Failed to retrieve programs data", error);
+      }
+    };
+    getPrograms();
+  }, []);
+
   return (
     <div className="max-w-7xl mx-auto py-2">
       {/** HEADER  */}
@@ -51,16 +71,30 @@ export default function SearchPage() {
       <div>
         <ReportWidget />
       </div>
-      {/* METHODOLOGY EXPLANATION */}
       <div className="flex flex-col items-center">
         <div className="max-w-5xl pt-12">
-          <h3 className="text-center">Program Descriptions</h3>
-          <ul>
-            <li>Justice 40</li>
-            <li>Solar For All</li>
-            <li>etc.</li>
-          </ul>
-
+          <h3 className="text-center">Tax Credit Programs</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Agency</th>
+                <th>Description</th>
+                <th>Base Benefit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {programs.map((program, index) => (
+                <tr key={index}>
+                  <td>{program.name}</td>
+                  <td>{program.agency}</td>
+                  <td>{program.description}</td>
+                  <td>{program.base_benefit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* METHODOLOGY EXPLANATION */}
           <h3 className="text-center">Methodology</h3>
           <p>
             To estimate populations in specific geographic regions, we utilized
