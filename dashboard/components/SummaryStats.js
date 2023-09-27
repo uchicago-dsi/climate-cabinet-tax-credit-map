@@ -6,6 +6,7 @@
 
 import { reportStore } from "@/states/search";
 import { useSnapshot } from "valtio";
+import { layerConfig } from "@/config/layers";
 
 class SummaryBuilder {
   #target;
@@ -205,6 +206,12 @@ function SummaryStats() {
 
   const builder = new SummaryBuilder(reportSnap.report);
 
+  const layerConfigObject = {};
+
+  layerConfig.forEach((layer) => {
+    layerConfigObject[layer.externalId] = layer;
+  });
+
   return (
     <div>
       <div>
@@ -224,24 +231,64 @@ function SummaryStats() {
             <b>Bonus Territory Counts</b>
           </h6>
           <span>
-            <ol className="list-disc text-base">
-              <li>
-                <b>{builder.bonusDetails?.distressed?.length ?? 0}</b>{" "}
+            {/* // style={{ background: `rgb(128,200,60, 1)` }} */}
+            <ol className="text-sm">
+              <li className="flex items-center">
+                <div
+                  className="swatch"
+                  style={{
+                    background: `rgb(${layerConfigObject["distressed"].fillColor
+                      .slice(0, 3)
+                      .join(",")},${layerConfigObject["distressed"].opacity})`,
+                  }}
+                ></div>
+                <b className="mr-1">
+                  {builder.bonusDetails?.distressed?.length ?? 0}
+                </b>{" "}
                 Distressed Zip Codes
                 <br />
               </li>
-              <li>
-                <b>{builder.bonusDetails?.energy?.length ?? 0}</b> Energy
-                Communities
+              <li className="flex items-center">
+                <div
+                  className="swatch"
+                  style={{
+                    background: `rgb(${layerConfigObject["energy"].fillColor
+                      .slice(0, 3)
+                      .join(",")},${layerConfigObject["energy"].opacity})`,
+                  }}
+                ></div>
+                <b className="mr-1">
+                  {builder.bonusDetails?.energy?.length ?? 0}
+                </b>{" "}
+                Energy Communities
               </li>
-              <li>
-                {" "}
-                <b>{builder.bonusDetails?.justice40?.length ?? 0}</b> Justice 40
-                Census Tracts
+              <li className="flex items-center">
+                <div
+                  className="swatch"
+                  style={{
+                    background: `rgb(${layerConfigObject["justice40"].fillColor
+                      .slice(0, 3)
+                      .join(",")},${layerConfigObject["justice40"].opacity})`,
+                  }}
+                ></div>
+                <b className="mr-1">
+                  {builder.bonusDetails?.justice40?.length ?? 0}
+                </b>{" "}
+                Justice 40 Census Tracts
               </li>
-              <li>
-                <b>{builder.bonusDetails?.low_income?.length ?? 0}</b> Low
-                Income Census Tracts
+              <li className="flex items-center">
+                <div
+                  className="swatch"
+                  style={{
+                    background: `rgb(${layerConfigObject["low_income"].fillColor
+                      .slice(0, 3)
+                      .join(",")},${layerConfigObject["low_income"].opacity})`,
+                  }}
+                ></div>
+                <b className="mr-1">
+                  {builder.bonusDetails?.low_income?.length ?? 0}
+                </b>{" "}
+                Low Income Census Tracts
               </li>
             </ol>
           </span>
@@ -260,62 +307,6 @@ function SummaryStats() {
           </span>
         </div>
       </div>
-      {/* MOVE ALL OF THIS STUFF OUT OF SUMMARY STATS */}
-      {/* <div>
-        <h3 className="font-bold">Demographics</h3>
-        <p>
-          <b>{builder.targetFullName}</b> has an estimated total 
-          population of{" "}{builder.targetPop} according 
-          to the 2015-2019 American Community Survey.*{" "}
-          {builder.bonusDescription}
-        </p>
-      </div>
-      <div className="py-3">
-        <h3 className="font-bold">Eligible Programs</h3>
-        <p>
-          Based on the tax credit bonus areas present in the{" "}
-          {builder.targetGeoType}, the following programs are available:
-        </p>
-        {
-          Object.entries(builder.programDetails)
-            .map((entry, idx) => {
-              let [_, prog] = entry;
-              return (
-                <div key={idx}>
-                  <b>{prog.name} ({prog.agency})</b><br />
-                  <span className="text-slate-400 italic">
-                    Eligible based on presence of{" "}
-                    {prog.geoBenefits.map(g => g.geoType).join(", ")}
-                  </span>
-                  <p>
-                    <ol className="list-disc">
-                      <li>
-                        Base Benefit - {prog.baseBenefit}
-                      </li>
-                      {prog.geoBenefits.map(b => {
-                        return (
-                          <li key={b}>
-                            {
-                              b.geoType
-                                .split(" ")
-                                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-                                .join(" ")
-                            }
-                            {" "}Bonus Amount/Comment -{" "}
-                            {
-                              b.additionalAmount.charAt(0).toUpperCase() +
-                              b.additionalAmount.slice(1)
-                            }
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </p>
-                  <p>{prog.description}</p>
-                </div>
-              );
-          })}
-      </div> */}
     </div>
   );
 }

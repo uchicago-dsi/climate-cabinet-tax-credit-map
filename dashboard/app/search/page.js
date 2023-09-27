@@ -77,7 +77,6 @@ export default function SearchPage() {
           <table className="table-auto border-collapse w-full">
             <thead>
               <tr>
-                <th className="px-4 py-2 border">Color</th>
                 <th className="px-4 py-2 border">Name</th>
                 <th className="px-4 py-2 border">Agency</th>
                 <th className="px-4 py-2 border">Description</th>
@@ -87,7 +86,6 @@ export default function SearchPage() {
             <tbody>
               {programs.map((program, index) => (
                 <tr key={index}>
-                  <td className="px-4 py-2 border">COLOR</td>
                   <td className="px-4 py-2 border">{program.name}</td>
                   <td className="px-4 py-2 border text-center">
                     {program.agency}
