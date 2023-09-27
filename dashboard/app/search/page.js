@@ -74,22 +74,26 @@ export default function SearchPage() {
       <div className="flex flex-col items-center">
         <div className="max-w-5xl pt-12">
           <h3 className="text-center">Tax Credit Programs</h3>
-          <table>
+          <table className="table-auto border-collapse w-full">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Agency</th>
-                <th>Description</th>
-                <th>Base Benefit</th>
+                <th className="px-4 py-2 border">Color</th>
+                <th className="px-4 py-2 border">Name</th>
+                <th className="px-4 py-2 border">Agency</th>
+                <th className="px-4 py-2 border">Description</th>
+                <th className="px-4 py-2 border">Base Benefit</th>
               </tr>
             </thead>
             <tbody>
               {programs.map((program, index) => (
                 <tr key={index}>
-                  <td>{program.name}</td>
-                  <td>{program.agency}</td>
-                  <td>{program.description}</td>
-                  <td>{program.base_benefit}</td>
+                  <td className="px-4 py-2 border">COLOR</td>
+                  <td className="px-4 py-2 border">{program.name}</td>
+                  <td className="px-4 py-2 border text-center">
+                    {program.agency}
+                  </td>
+                  <td className="px-4 py-2 border">{program.description}</td>
+                  <td className="px-4 py-2 border">{program.base_benefit}</td>
                 </tr>
               ))}
             </tbody>
