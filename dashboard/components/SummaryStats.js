@@ -212,12 +212,23 @@ function SummaryStats() {
     layerConfigObject[layer.externalId] = layer;
   });
 
+  const layerType = builder.targetGeoType.replace("-", "").replace(" ", "_");
+
   return (
     <div>
       <div>
-        {/* <h3 className="font-bold">Summary</h3> */}
         <h5 className="font-bold m-0 pt-5 pb-1">{builder.targetFullName} </h5>
-        <span className="shadow-md no-underline rounded-full bg-cyan-500 text-white text-xs font-semibold p-2 uppercase">
+        <span
+          className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase"
+          style={{
+            background: `rgb(${layerConfigObject[layerType].fillColor
+              .slice(0, 3)
+              .join(",")},${layerConfigObject[layerType].opacity})`,
+            color: ["rural_coop", "state"].includes(layerType)
+              ? "black"
+              : "white",
+          }}
+        >
           {builder.targetGeoType.replace("_", " ")}
         </span>
         <h6 className="pb-1">
