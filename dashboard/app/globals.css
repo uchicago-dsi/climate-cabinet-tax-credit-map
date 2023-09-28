@@ -79,6 +79,10 @@ h5 {
   @apply text-lg text-ccblack-dark uppercase
 }
 
+h6 {
+  @apply text-base text-ccblack-dark
+}
+
 h1, h2, h3, h4, h5, h6 {
   @apply py-2.5
 }
@@ -111,5 +115,9 @@ span {
 
 .tooltip p {
   @apply text-xs p-2
+}
+
+.swatch{
+  @apply w-4 h-4 mr-2
 }
 
