@@ -110,8 +110,9 @@ class Command(BaseCommand):
                         bonus_geography_type=bonus.geography_type.name,
                         )
                     )
-                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+                if assocs:
+                    logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                    TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
 
     def _find_and_load_matching_state_fips(self, target_geom, bonus_geom):
