@@ -93,7 +93,12 @@ export default function SearchPage() {
                   </td>
                   <td className="px-4 py-2 border">{program.description}</td>
                   <td className="px-4 py-2 border">{program.base_benefit}</td>
-                  <td className="px-4 py-2 border">{program.bonus_amounts}</td>
+                  <td
+                    className="px-4 py-2 border"
+                    style={{ whiteSpace: "pre-line" }}
+                  >
+                    {program.bonus_amounts}
+                  </td>
                 </tr>
               ))}
             </tbody>
