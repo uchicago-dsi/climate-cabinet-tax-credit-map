@@ -79,44 +79,45 @@ class Command(BaseCommand):
         # TODO dry this out and use this batching for all load patterns
 
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
-        target_iter = Geography.objects.filter(
-            geography_type__name=target_geom
-        ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)
+        for start in range(0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE):
+            target_iter = Geography.objects.filter(
+                geography_type__name=target_geom
+            ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)[start: start + settings.SMALL_CHUNK_SIZE]
 
-        for target in target_iter:
-            
-            bonus_iter = (
-                Geography.objects.filter(
-                    geography_type__name=bonus_geom,
-                    boundary__intersects=target.boundary,
-                )
-                .exclude(boundary__touches=target.boundary)
-                .iterator()
-            )
-
-            while True:
-                try:
-                    batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
-                except Exception as e:
-                    logger.error(f"Error with the batch : {e}")
-                    batch = []
-                logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
-                if not batch:
-                    logger.info(f"Loading finished for : {target_geom} {target}")
-                    break
-                assocs = []
-                for bonus in batch:
-                    assocs.append(
-                    TargetBonusAssoc(
-                        target_geography=target,
-                        target_geography_type=target.geography_type.name,
-                        bonus_geography=bonus,
-                        bonus_geography_type=bonus.geography_type.name,
-                        )
+            for target in target_iter:
+                
+                bonus_iter = (
+                    Geography.objects.filter(
+                        geography_type__name=bonus_geom,
+                        boundary__intersects=target.boundary,
                     )
-                if assocs:
-                    logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                    TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+                    .exclude(boundary__touches=target.boundary)
+                    .iterator()
+                )
+
+                while True:
+                    try:
+                        batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                    except Exception as e:
+                        logger.error(f"Error with the batch : {e}")
+                        batch = []
+                    logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
+                    if not batch:
+                        logger.info(f"Loading finished for : {target_geom} {target}")
+                        break
+                    assocs = []
+                    for bonus in batch:
+                        assocs.append(
+                        TargetBonusAssoc(
+                            target_geography=target,
+                            target_geography_type=target.geography_type.name,
+                            bonus_geography=bonus,
+                            bonus_geography_type=bonus.geography_type.name,
+                            )
+                        )
+                    if assocs:
+                        logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                        TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
 
     def _find_and_load_matching_state_fips(self, target_geom, bonus_geom):

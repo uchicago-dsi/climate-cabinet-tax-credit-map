@@ -6,6 +6,8 @@
 # from django.core.management import call_command
 # from django.test import SimpleTestCase
 
+def test_test():
+    assert True
 
 # class Test_Load_Geos(
 #     SimpleTestCase
