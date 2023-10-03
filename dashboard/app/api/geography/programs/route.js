@@ -16,6 +16,6 @@ import { Prisma } from "@prisma/client";
  */
 export async function GET(request) {
   let data = await prisma.$queryRaw`
-    SELECT * FROM tax_credit_program;`;
+    SELECT * FROM tax_credit_programs_updated;`;
   return NextResponse.json({ data });
 }
