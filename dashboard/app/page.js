@@ -97,7 +97,7 @@ export default function SearchPage() {
                     className="px-4 py-2 border"
                     style={{ whiteSpace: "pre-line" }}
                   >
-                    {program.bonus_amounts}
+                    {program.bonus_amounts.replace(/\\n/g, "\n")}
                   </td>
                 </tr>
               ))}
