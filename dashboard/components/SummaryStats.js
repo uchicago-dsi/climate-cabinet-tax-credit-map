@@ -212,7 +212,14 @@ function SummaryStats() {
     layerConfigObject[layer.externalId] = layer;
   });
 
-  const layerType = builder.targetGeoType.replace("-", "").replace(" ", "_");
+  // TODO: Hack to get around naming inconsistency in layer configuration
+  const processedType = builder.targetGeoType
+    .replace("-", "")
+    .replace(" ", "_");
+  const layerType =
+    processedType === "municipal_utility" ? "municipal_util" : processedType;
+
+  console.log("layerType: ", layerType);
 
   return (
     <div>
@@ -224,7 +231,7 @@ function SummaryStats() {
             background: `rgb(${layerConfigObject[layerType].fillColor
               .slice(0, 3)
               .join(",")},${layerConfigObject[layerType].opacity})`,
-            color: ["rural_coop", "state"].includes(layerType)
+            color: ["rural_coop", "state", "municipal_util"].includes(layerType)
               ? "black"
               : "white",
           }}
