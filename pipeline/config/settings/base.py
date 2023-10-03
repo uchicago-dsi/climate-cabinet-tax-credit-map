@@ -12,7 +12,7 @@ class BaseConfig(Configuration):
     """Defines configuration settings common across environments."""
 
     # File paths
-    BASE_DIR = Path(__file__).parents[3].as_posix()
+    BASE_DIR = Path(__file__).parents[3]
     PROJECT_DIR = f"{BASE_DIR}/pipeline"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATIC_URL = "/static/"
