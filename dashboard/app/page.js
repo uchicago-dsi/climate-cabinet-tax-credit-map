@@ -87,7 +87,7 @@ export default function SearchPage() {
             <tbody>
               {programs.map((program, index) => (
                 <tr key={index}>
-                  <td className="px-4 py-2 border">{program.program}</td>
+                  <td className="px-4 py-2 border">{program.name}</td>
                   <td className="px-4 py-2 border text-center">
                     {program.agency}
                   </td>
