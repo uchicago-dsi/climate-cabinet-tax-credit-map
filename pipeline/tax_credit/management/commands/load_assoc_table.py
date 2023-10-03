@@ -95,7 +95,11 @@ class Command(BaseCommand):
             )
 
             while True:
-                batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                try:
+                    batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                except Exception as e:
+                    logger.error(f"Error with the batch : {e}")
+                    batch = []
                 logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
                 if not batch:
                     logger.info(f"Loading finished for : {target_geom} {target}")
