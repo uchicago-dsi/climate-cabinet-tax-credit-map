@@ -79,10 +79,11 @@ class Command(BaseCommand):
         # TODO dry this out and use this batching for all load patterns
 
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
+        self.recycle_connection(Geography)
         for start in range(0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE):
-            target_iter = list(Geography.objects.filter(
+            target_iter = Geography.objects.filter(
                 geography_type__name=target_geom
-            ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE))[start: start + settings.SMALL_CHUNK_SIZE]
+            )[start: start + settings.SMALL_CHUNK_SIZE]
 
             for target in target_iter:
                 
