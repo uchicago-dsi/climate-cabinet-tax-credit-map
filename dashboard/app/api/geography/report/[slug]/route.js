@@ -62,7 +62,7 @@ export async function GET(request, { params }) {
   let programs = await prisma.$queryRaw`
         SELECT DISTINCT
             geo_type.name AS geography_type,
-            program.program AS program_name,
+            program.name AS program_name,
             program.agency AS program_agency,
             program.description AS program_description,
             program.base_benefit AS program_base_benefit,
