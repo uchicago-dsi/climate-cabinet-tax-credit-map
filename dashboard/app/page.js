@@ -81,17 +81,19 @@ export default function SearchPage() {
                 <th className="px-4 py-2 border">Agency</th>
                 <th className="px-4 py-2 border">Description</th>
                 <th className="px-4 py-2 border">Base Benefit</th>
+                <th className="px-4 py-2 border">Base Amounts</th>
               </tr>
             </thead>
             <tbody>
               {programs.map((program, index) => (
                 <tr key={index}>
-                  <td className="px-4 py-2 border">{program.name}</td>
+                  <td className="px-4 py-2 border">{program.program}</td>
                   <td className="px-4 py-2 border text-center">
                     {program.agency}
                   </td>
                   <td className="px-4 py-2 border">{program.description}</td>
                   <td className="px-4 py-2 border">{program.base_benefit}</td>
+                  <td className="px-4 py-2 border">{program.bonus_amounts}</td>
                 </tr>
               ))}
             </tbody>
