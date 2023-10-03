@@ -80,10 +80,11 @@ class Command(BaseCommand):
 
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
         for start in range(0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE):
-            target_iter = list(Geography.objects.filter(
+            target_iter = Geography.objects.filter(
                 geography_type__name=target_geom
-            ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE))[start: start + settings.SMALL_CHUNK_SIZE]
-
+            )[start: start + settings.SMALL_CHUNK_SIZE]
+            
+            self.recycle_connection(Geography)
             for target in target_iter:
                 
                 bonus_iter = (
