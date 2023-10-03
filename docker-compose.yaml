@@ -23,9 +23,9 @@ services:
       - POSTGRES_CHECK_TIMEOUT=120
     build:
       context: pipeline
-    # command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
+    command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
     # command: bash setup.sh --migrate --load-dependent-tables
-    command: python3 -m manage load_assoc_table --only-assoc county distressed
+    # command: python3 -m manage load_assoc_table --only-assoc county distressed
 
     # command: python3 -m manage load_dependent_tables --skip-file dci_clean.geoparquet justice40.geoparquet
     volumes:
