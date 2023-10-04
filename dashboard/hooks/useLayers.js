@@ -3,7 +3,7 @@
  */
 import { useMemo } from "react";
 import { layerConfig } from "@/config/layers";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { MVTLayer } from '@deck.gl/geo-layers';
 import { useSetTooltipStore } from "./useTooltipStore";
 
 function useLayers(features, layerState) {
@@ -13,11 +13,14 @@ function useLayers(features, layerState) {
      */
     const setHoverInfo = useSetTooltipStore();
 
+    /**
+     * Groups GeoJSON features by geography type to form datasets.
+     */
     const geoDatasets = useMemo(() => features?.reduce((grp, geo) => {
             let key = geo.properties.geography_type;
             if (key === "state") return grp;
             grp[key] = grp[key] ?? [];
-            grp[key].push(geo);
+            grp[key].push(geo.properties.name);
             return grp;
         }, {}),[features]);
 
@@ -27,29 +30,38 @@ function useLayers(features, layerState) {
     const _allLayers =  Object.entries(geoDatasets || {}).map(([key, dataset], _) => {
         let config = layerConfig.find(c => c.externalId === key);
         let active = layerState?.[config.id]?.visible || true;
-        const layer = new GeoJsonLayer({
+        const getLayerColorOrEmpty = ( feature ) => {
+            if (active && dataset.includes(feature.properties.name)) {
+                return config.fillColor;
+            }
+            return [0,0,0,0]
+        }
+        const layer = new MVTLayer({
             id: config.id,
-            data: dataset,
+            data: `https://a.tiles.mapbox.com/v4/${config.mapboxTilesetId}/{z}/{x}/{y}.vector.pbf?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
             opacity: config.opacity,
             stroked: true,
             filled: true,
             extruded: false,
-            wireframe: true,
-            getFillColor: config.fillColor,
+            wireframe: false,
+            getFillColor: getLayerColorOrEmpty,
+            updateTriggers: {
+              getFillColor: [layerState]
+            },
             getLineColor: [255, 255, 255],
-            getLineWidth: 300,
+            getLineWidth: 50,
             pickable: active,
             visible: active,
             onHover: (layer) => {
                 // Parse properties from layer object
                 let props = layer?.object?.properties;
-                let geoType = props?.geography_type;
-                let geoName = `${config.id}: ${props?.name}`;
-                // // If still hovering over same geography, don't update state
-                // If hovering over new geography, update state
-                if (geoType) {
+                let geoType = props?.geoType;
+                let name = props?.name;
+
+                // If hovering over geography, update state
+                if (geoType && dataset.includes(name)) {
                     setHoverInfo({
-                        name: geoName,
+                        name: name,
                         x: layer?.x,
                         y: layer?.y
                     });
@@ -59,7 +71,7 @@ function useLayers(features, layerState) {
                 // Otherwise, if not hovering over a geography, reset state
                 setHoverInfo(null); 
             }
-        })
+          })
         layerState[config.id].hasData = true;
         return layer
     });
@@ -160,7 +172,6 @@ function useLayers(features, layerState) {
     };
 
     return {
-        // hoverInfo,
         getLayer,
         getAllLayers,
         getVisibleLayers,

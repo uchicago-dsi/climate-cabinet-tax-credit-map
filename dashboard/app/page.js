@@ -20,7 +20,6 @@ export default function SearchPage() {
         const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/programs/`;
         const errMsg = `Failed to retrieve programs`;
         const response = await get(url, errMsg);
-        console.log(response.data);
         setPrograms(response.data);
       } catch (error) {
         console.error("Failed to retrieve programs data", error);
@@ -51,7 +50,7 @@ export default function SearchPage() {
             parts of your community have the potential to maximize the benefits
             of the historic federal climate investments from the Inflation
             Reduction Act. Areas meeting key eligibility criteria will qualify
-            for greater even greater levels of funding.
+            for even greater levels of funding.
           </p>
           <h5>Search for your community</h5>
           <p>
