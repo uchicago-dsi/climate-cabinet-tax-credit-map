@@ -5,6 +5,7 @@ flake8
 mypy
 coverage
 docformatter
+pytest
 
 pandas-stubs
 types-google-cloud-ndb

@@ -1,6 +1,7 @@
 """Loads tax credit programs for geographies into the database.
 """
 from itertools import islice
+import sys
 
 from django.core.management.base import BaseCommand, CommandParser
 from tax_credit.models import Geography, TargetBonusAssoc
@@ -54,7 +55,6 @@ class Command(BaseCommand):
         if not only_assoc:
             only_assoc.extend(targets)
             only_assoc.extend(bonuses)
-            logger.info(f'Added a bunch to only_assoc : {only_assoc}')
 
         for target in [t for t in targets if t in only_assoc]:
             for bonus in [b for b in bonuses if b in only_assoc]:
@@ -79,38 +79,46 @@ class Command(BaseCommand):
         # TODO dry this out and use this batching for all load patterns
 
         logger.info(f'Finding overlaps between {target_geom} and {bonus_geom}')
-        target_iter = Geography.objects.filter(
-            geography_type__name=target_geom
-        ).iterator(chunk_size=settings.SMALL_CHUNK_SIZE)
-
-        for target in target_iter:
+        for start in range(0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE):
+            target_iter = Geography.objects.filter(
+                geography_type__name=target_geom
+            )[start: start + settings.SMALL_CHUNK_SIZE]
             
-            bonus_iter = (
-                Geography.objects.filter(
-                    geography_type__name=bonus_geom,
-                    boundary__intersects=target.boundary,
-                )
-                .exclude(boundary__touches=target.boundary)
-                .iterator()
-            )
-
-            while True:
-                batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
-                if not batch:
-                    logger.info(f"Loading finished for : {target_geom} {target}")
-                    break
-                assocs = []
-                for bonus in batch:
-                    assocs.append(
-                    TargetBonusAssoc(
-                        target_geography=target,
-                        target_geography_type=target.geography_type.name,
-                        bonus_geography=bonus,
-                        bonus_geography_type=bonus.geography_type.name,
-                        )
+            self.recycle_connection(Geography)
+            for target in target_iter:
+                
+                bonus_iter = (
+                    Geography.objects.filter(
+                        geography_type__name=bonus_geom,
+                        boundary__intersects=target.boundary,
                     )
-                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+                    .exclude(boundary__touches=target.boundary)
+                    .iterator()
+                )
+
+                while True:
+                    try:
+                        batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                    except Exception as e:
+                        logger.error(f"Error with the batch : {e}")
+                        batch = []
+                    logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
+                    if not batch:
+                        logger.info(f"Loading finished for : {target_geom} {target}")
+                        break
+                    assocs = []
+                    for bonus in batch:
+                        assocs.append(
+                        TargetBonusAssoc(
+                            target_geography=target,
+                            target_geography_type=target.geography_type.name,
+                            bonus_geography=bonus,
+                            bonus_geography_type=bonus.geography_type.name,
+                            )
+                        )
+                    if assocs:
+                        logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                        TargetBonusAssoc.objects.bulk_create(assocs, settings.SMALL_CHUNK_SIZE, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
 
     def _find_and_load_matching_state_fips(self, target_geom, bonus_geom):
@@ -139,10 +147,26 @@ class Command(BaseCommand):
                         bonus_geography_type=bonus.geography_type.name,
                     )
                 )
-
-            if assocs:
-                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+            
+            while True:
+                batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
+                if not batch:
+                    logger.info(f"Loading finished for : {target_geom} {target}")
+                    break
+                assocs = []
+                for bonus in batch:
+                    assocs.append(
+                    TargetBonusAssoc(
+                        target_geography=target,
+                        target_geography_type=target.geography_type.name,
+                        bonus_geography=bonus,
+                        bonus_geography_type=bonus.geography_type.name,
+                        )
+                    )
+                if assocs:
+                    logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                    TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
 
 
@@ -172,9 +196,25 @@ class Command(BaseCommand):
                     )
                 )
             # logger.info(f"Finished iterating bonuses, assocs : {assocs}")
-            if assocs:
-                logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
-                TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
+            while True:
+                batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
+                logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
+                if not batch:
+                    logger.info(f"Loading finished for : {target_geom} {target}")
+                    break
+                assocs = []
+                for bonus in batch:
+                    assocs.append(
+                    TargetBonusAssoc(
+                        target_geography=target,
+                        target_geography_type=target.geography_type.name,
+                        bonus_geography=bonus,
+                        bonus_geography_type=bonus.geography_type.name,
+                        )
+                    )
+                if assocs:
+                    logger.info(f"Loading batch of associations, {target_geom} to {bonus_geom} : {assocs}")
+                    TargetBonusAssoc.objects.bulk_create(assocs, update_conflicts=True, unique_fields=["target_geography", "bonus_geography"], update_fields=["target_geography_type", "bonus_geography_type"])
 
     @staticmethod
     def recycle_connection(model: Model):

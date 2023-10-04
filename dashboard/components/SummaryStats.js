@@ -217,7 +217,6 @@ function SummaryStats() {
   });
 
   const layerType = builder.targetGeoTypeRaw;
-  console.log(layerType)
 
   return (
     <div>
@@ -229,7 +228,7 @@ function SummaryStats() {
             background: `rgb(${layerConfigObject[layerType].fillColor
               .slice(0, 3)
               .join(",")},${layerConfigObject[layerType].opacity})`,
-            color: ["rural_coop", "state"].includes(layerType)
+            color: ["rural_coop", "state", "municipal_util"].includes(layerType)
               ? "black"
               : "white",
           }}
