@@ -24,17 +24,13 @@ class ViewportStore {
         // Abort if no geographies are provided
         if (!geographies) return;
 
-        // Convert geometries to feature collection
-        let combinedGeos = turfHelpers.featureCollection(geographies);
+        // Select target geometry
+        let target = geographies.find(g => g.properties.is_target);
+        if (!target) return;
 
-        // Create bounding box for feature collection
-        const boundingBox = bbox(combinedGeos);
-
-        // Extract coordinates from bounding box
-        const boundingBoxCoords = [
-            [boundingBox[0], boundingBox[1]],
-            [boundingBox[2], boundingBox[3]],
-        ];
+        // Extract coordinates from target's geographic bounding box
+        let bbox = target.geometry.coordinates[0];
+        const boundingBoxCoords = [bbox[2], bbox[4]];
 
         // Create viewport and fit to new bounding box
         const fittedViewport = new WebMercatorViewport(

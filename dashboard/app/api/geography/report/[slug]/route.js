@@ -38,13 +38,13 @@ export async function GET(request, { params }) {
                     WHEN geo.id = ${geographyId} THEN TRUE
                     ELSE FALSE
                 END AS is_target,
-                geo.boundary
+                ST_ENVELOPE(geo.boundary) AS bbox
             FROM tax_credit_geography AS geo
             JOIN tax_credit_geography_type AS geotype
                 ON geotype.id = geo.geography_type_id
-            LEFT JOIN tax_credit_census_tract AS census_tract
+            LEFT JOIN tax_credit_census_block_group AS block_group
                 ON ST_Within(
-                    census_tract.centroid,
+                    block_group.centroid,
                     geo.boundary
                 )
             WHERE geo.id IN (${geographyId}) OR geo.id IN (

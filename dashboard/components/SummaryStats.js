@@ -134,6 +134,10 @@ class SummaryBuilder {
     return this.#getFormalGeoType(this.#target.geography_type).single;
   }
 
+  get targetGeoTypeRaw() {
+    return this.#target.geography_type;
+  }
+
   get targetFullName() {
     return `${this.#target.name}`;
   }
@@ -212,7 +216,8 @@ function SummaryStats() {
     layerConfigObject[layer.externalId] = layer;
   });
 
-  const layerType = builder.targetGeoType.replace("-", "").replace(" ", "_");
+  const layerType = builder.targetGeoTypeRaw;
+  console.log(layerType)
 
   return (
     <div>
