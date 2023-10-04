@@ -6,7 +6,9 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - ./pgdata2:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   # PIPELINE
   climate-cabinet-pipeline:
@@ -23,9 +25,9 @@ services:
       - POSTGRES_CHECK_TIMEOUT=120
     build:
       context: pipeline
-    command: bash setup.sh --migrate --load-base-tables --load-dependent-tables --load-assoc-table
+    # command: bash setup.sh --migrate
     # command: bash setup.sh --migrate --load-dependent-tables
-    # command: python3 -m manage load_assoc_table --only-assoc justice40 county
+    command: python3 -m manage load_assoc_table
 
     # command: python3 -m manage load_dependent_tables --skip-file dci_clean.geoparquet justice40.geoparquet
     volumes:
@@ -70,3 +72,8 @@ services:
       - /app/.next
     profiles:
       - dashboard
+
+
+      
+
+

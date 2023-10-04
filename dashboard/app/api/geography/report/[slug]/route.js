@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
                     WHEN geo.id = ${geographyId} THEN TRUE
                     ELSE FALSE
                 END AS is_target,
-                geo.simple_boundary AS boundary
+                geo.boundary
             FROM tax_credit_geography AS geo
             JOIN tax_credit_geography_type AS geotype
                 ON geotype.id = geo.geography_type_id

@@ -179,7 +179,6 @@ class Command(BaseCommand):
             name = f'{row["State"]}'.title(),
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row['geometry']),
-            simple_boundary = Command._ensure_geos_multipolygon(row['simple_boundary']),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
             fips_info = row['STATEFP']
@@ -195,11 +194,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_state_geography_row,
 
-            file_field_names=["State", "geometry", "simple_boundary"],
+            file_field_names=["State", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -210,7 +209,6 @@ class Command(BaseCommand):
             name = unique_name.title(),
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
             fips_info = f'{row["STATEFP"]}{row["COUNTYFP"]}'
@@ -226,11 +224,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_county_geography_row,
 
-            file_field_names=["County", "State", "geometry", "simple_boundary"],
+            file_field_names=["County", "State", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source", "fips_info"],
+            update_fields=["boundary", "as_of", "source", "fips_info"],
         )
 
     @staticmethod
@@ -240,7 +238,6 @@ class Command(BaseCommand):
             name = row["zip_code"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'Economic Innovation Group',
         )
@@ -255,11 +252,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_dci_geography_row,
 
-            file_field_names=["zip_code", "geometry", "simple_boundary"],
+            file_field_names=["zip_code", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -269,7 +266,6 @@ class Command(BaseCommand):
             name = row["TractIDcty"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
             fips_info = row['TractIDcty'][-5:]
@@ -285,11 +281,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_fossil_fuel_geography_row,
 
-            file_field_names=["TractIDcty", "geometry", "simple_boundary"],
+            file_field_names=["TractIDcty", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
 
     @staticmethod
@@ -299,7 +295,6 @@ class Command(BaseCommand):
             name = row["TractID"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2023-01-01',
             source = 'National Energy Technology Laboratory',
             fips_info = row['TractID'][:5]
@@ -315,11 +310,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_coal_geography_row,
 
-            file_field_names=["TractID", "geometry", "simple_boundary"],
+            file_field_names=["TractID", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -329,7 +324,6 @@ class Command(BaseCommand):
             name = row["TractID"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2022-01-01',
             source = 'Climate and Economic Justice Screening Tool',
             fips_info = row["TractID"][:5]
@@ -345,11 +339,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_j40_geography_row,
 
-            file_field_names=["TractID", "geometry", "simple_boundary"],
+            file_field_names=["TractID", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -359,7 +353,6 @@ class Command(BaseCommand):
             name = row["tractId"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2020-01-01',
             source = 'United States Census Bureau',
             fips_info = str(row["tractId"])[:5]
@@ -375,11 +368,11 @@ class Command(BaseCommand):
 
             row_to_model=self._load_low_income_geography_row,
 
-            file_field_names=["tractId", "geometry", "simple_boundary"],
+            file_field_names=["tractId", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -389,7 +382,6 @@ class Command(BaseCommand):
             name = row["ID"],
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2022-01-01',
             source = 'Homeland Infrastructure Foundation-Level Data',
         )
@@ -404,11 +396,11 @@ class Command(BaseCommand):
 
             row_to_model = self._load_utilities_geography_row,
             
-            file_field_names = ["ID", "geometry", "simple_boundary"],
+            file_field_names = ["ID", "geometry"],
             required_models = [GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )
     
     @staticmethod
@@ -419,7 +411,6 @@ class Command(BaseCommand):
             name = unique_name.title(),
             geography_type = geography_type,
             boundary = Command._ensure_geos_multipolygon(row["geometry"]),
-            simple_boundary = Command._ensure_geos_multipolygon(row["simple_boundary"]),
             as_of = '2022-01-01',
             source = 'Homeland Infrastructure Foundation-Level Data',
         )
@@ -434,9 +425,9 @@ class Command(BaseCommand):
 
             row_to_model = self._load_coop_geography_row,
 
-            file_field_names = ["NAME", "geometry", "simple_boundary"],
+            file_field_names = ["NAME", "geometry"],
             required_models=[GeographyType],
 
             unique_fields=["name", "geography_type"],
-            update_fields=["boundary", "simple_boundary", "as_of", "source"],
+            update_fields=["boundary", "as_of", "source"],
         )

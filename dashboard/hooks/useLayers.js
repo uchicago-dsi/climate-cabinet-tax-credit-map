@@ -13,20 +13,6 @@ function useLayers(features, layerState) {
      */
     const setHoverInfo = useSetTooltipStore();
 
-    
-    const mapName = (dataset) => {
-        const geoType = dataset.properties.geography_type;
-        const name = dataset.properties.name;
-        if (geoType === "county") {
-            return name.split(",")[0].toUpperCase();
-        }
-        else if (geoType === "distressed") {
-            return `DISTRESSED ZIP CODE ${name}`
-        }
-        return name;
-    }
-
-
     /**
      * Groups GeoJSON features by geography type to form datasets.
      */
@@ -34,10 +20,9 @@ function useLayers(features, layerState) {
             let key = geo.properties.geography_type;
             if (key === "state") return grp;
             grp[key] = grp[key] ?? [];
-            grp[key].push(mapName(geo));
+            grp[key].push(geo.properties.name);
             return grp;
         }, {}),[features]);
-
 
     /**
      * A constant reference to all the GeoJSON layers currently holding data.

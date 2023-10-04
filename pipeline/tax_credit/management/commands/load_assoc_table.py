@@ -59,7 +59,7 @@ class Command(BaseCommand):
         for target in [t for t in targets if t in only_assoc]:
             for bonus in [b for b in bonuses if b in only_assoc]:
                 
-                if target in ["state", "county"] and bonus in ["energy", "justice40", "low_income"]:
+                if target in ["state", "county"] and bonus in ["justice40", "low_income"]:
                     if target == "state":
                         self._find_and_load_matching_state_fips(target, bonus)
                     elif target == "county":

@@ -219,4 +219,5 @@ old_pipeline/main_untracked.py
 old_pipeline/scripts/footprint_converter.py
 
 .DS_Store
+pgdata2
 
