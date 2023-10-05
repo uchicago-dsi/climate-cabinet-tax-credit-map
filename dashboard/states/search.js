@@ -20,7 +20,7 @@ const viewportStore = useViewportStore();
 
 // Initialize deck.gl layer visiblity store
 let isVisible = layerConfig.reduce((acc, config) => {
-    acc[config.id] = { visible: true, hasData: false };
+    acc[config.id] = { visible: config.initialVisibility, hasData: false };
     return acc;
 }, {});
 const layerStore = proxy(isVisible);

@@ -225,9 +225,7 @@ function SummaryStats() {
         <span
           className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase"
           style={{
-            background: `rgb(${layerConfigObject[layerType].fillColor
-              .slice(0, 3)
-              .join(",")},${layerConfigObject[layerType].opacity})`,
+            background: `rgb(${layerConfigObject[layerType].fillColor.slice(0, 3).join(",")},0.3)`,
             color: ["rural_coop", "state", "municipal_util"].includes(layerType)
               ? "black"
               : "white",
