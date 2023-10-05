@@ -88,7 +88,7 @@ export default function SearchPage() {
                 <th className="px-4 py-2 border">Agency</th>
                 <th className="px-4 py-2 border">Description</th>
                 <th className="px-4 py-2 border">Base Benefit</th>
-                <th className="px-4 py-2 border">Amounts</th>
+                <th className="px-4 py-2 border">Bonus Amounts</th>
               </tr>
             </thead>
             <tbody>
