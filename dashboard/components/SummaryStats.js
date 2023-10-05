@@ -217,6 +217,7 @@ function SummaryStats() {
   });
 
   const layerType = builder.targetGeoTypeRaw;
+  const sideBarOpacity = 0.3;
 
   return (
     <div>
@@ -225,7 +226,9 @@ function SummaryStats() {
         <span
           className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase"
           style={{
-            background: `rgb(${layerConfigObject[layerType].fillColor.slice(0, 3).join(",")},0.3)`,
+            background: `rgb(${layerConfigObject[layerType].fillColor
+              .slice(0, 3)
+              .join(",")},${sideBarOpacity})`,
             color: ["rural_coop", "state", "municipal_util"].includes(layerType)
               ? "black"
               : "white",
@@ -252,7 +255,7 @@ function SummaryStats() {
                   style={{
                     background: `rgb(${layerConfigObject["distressed"].fillColor
                       .slice(0, 3)
-                      .join(",")},${layerConfigObject["distressed"].opacity})`,
+                      .join(",")},${sideBarOpacity})`,
                   }}
                 ></div>
                 <b className="mr-1">
@@ -267,7 +270,7 @@ function SummaryStats() {
                   style={{
                     background: `rgb(${layerConfigObject["energy"].fillColor
                       .slice(0, 3)
-                      .join(",")},${layerConfigObject["energy"].opacity})`,
+                      .join(",")},${sideBarOpacity})`,
                   }}
                 ></div>
                 <b className="mr-1">
@@ -281,7 +284,7 @@ function SummaryStats() {
                   style={{
                     background: `rgb(${layerConfigObject["justice40"].fillColor
                       .slice(0, 3)
-                      .join(",")},${layerConfigObject["justice40"].opacity})`,
+                      .join(",")},${sideBarOpacity})`,
                   }}
                 ></div>
                 <b className="mr-1">
@@ -295,7 +298,7 @@ function SummaryStats() {
                   style={{
                     background: `rgb(${layerConfigObject["low_income"].fillColor
                       .slice(0, 3)
-                      .join(",")},${layerConfigObject["low_income"].opacity})`,
+                      .join(",")},${sideBarOpacity})`,
                   }}
                 ></div>
                 <b className="mr-1">
