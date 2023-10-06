@@ -30,6 +30,22 @@ class SummaryBuilder {
     this.#target = geos.find((g) => g.properties.is_target).properties;
     this.#bonusGrps = this.#groupBonusTerritories(geos);
     this.#programGrps = this.#groupPrograms(programs);
+
+    // TODO: this is kind of a hack
+    this.programDict = {
+      distressed: "Distressed Communities",
+      energy: "Energy Communities",
+      justice40: "Justice 40 Communities",
+      low_income: "Low Income Census Tracts",
+    };
+    Object.keys(this.programDict).forEach((prog) => {
+      if (!this.summaryStats.hasOwnProperty(prog)) {
+        this.summaryStats[prog] = {
+          count: 0,
+          population: 0,
+        };
+      }
+    });
   }
 
   #formatNum(num) {
@@ -265,10 +281,41 @@ function SummaryStats() {
         </h6>
         <div>
           <h6 className="pb-1">
-            <b>Bonus Territory Counts</b>
+            <b>Bonus Territories</b>
+            <p className="text-sm p-0">
+              Populations are estimated in the overlap of your search area
+              (state, county, utility, or coop) and the bonus territories
+            </p>
           </h6>
           <span>
             <ol className="text-sm">
+              {Object.entries(builder.programDict).map(([key, value]) => (
+                <li key={key} className="flex items-center">
+                  <div
+                    className="swatch"
+                    style={{
+                      background: `rgb(${layerConfigObject[key].fillColor
+                        .slice(0, 3)
+                        .join(",")},${sideBarOpacity})`,
+                    }}
+                  ></div>
+                  <div>
+                    <b className="mr-.5">
+                      {builder.bonusDetails?.[key]?.length ?? 0}
+                    </b>{" "}
+                    {builder.programDict[key]} with{" "}
+                    {(
+                      Math.round(
+                        (builder.summaryStats[key]?.population || 0) / 1000
+                      ) * 1000
+                    ).toLocaleString()}{" "}
+                    people
+                  </div>
+                  <br />
+                </li>
+              ))}
+            </ol>
+            {/* <ol className="text-sm">
               <li className="flex items-center">
                 <div
                   className="swatch"
@@ -331,7 +378,7 @@ function SummaryStats() {
                 </b>{" "}
                 Low Income Census Tracts
               </li>
-            </ol>
+            </ol> */}
           </span>
         </div>
         <div>
@@ -339,7 +386,7 @@ function SummaryStats() {
             <b>Eligible Programs</b>
           </h6>
           <span>
-            <ol className="list-disc">
+            <ol className="list-disc text-sm">
               {Object.entries(builder.programDetails).map((entry, idx) => {
                 let [_, prog] = entry;
                 return <li>{prog.name}</li>;
