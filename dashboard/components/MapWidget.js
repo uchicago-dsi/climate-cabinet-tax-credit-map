@@ -47,6 +47,7 @@ function MapWidget() {
                 <Map
                     mapStyle={baseMapSnap.selected.url}
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+                    projection="mercator"
                 />
             </DeckGL>
             {/* TODO: add a picking radius here to layers?*/}
