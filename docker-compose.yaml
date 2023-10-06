@@ -56,6 +56,7 @@ services:
       - "443:443"
     volumes:
       - ./server.local.json:/pgadmin4/servers.json
+      - ./data:/data
 
   # DASHBOARD
   climate-cabinet-dashboard:
@@ -72,8 +73,3 @@ services:
       - /app/.next
     profiles:
       - dashboard
-
-
-      
-
-
