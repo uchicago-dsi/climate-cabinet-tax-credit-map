@@ -17,6 +17,16 @@ class SummaryBuilder {
     let geos = report.geographies;
     let programs = report.programs;
 
+    this.summaryStats = {};
+
+    JSON.parse(report.summaryStats).forEach((item) => {
+      let key = item.type;
+      this.summaryStats[key] = {
+        ...this.summaryStats[key],
+        population: parseInt(item.population, 10),
+      };
+    });
+
     this.#target = geos.find((g) => g.properties.is_target).properties;
     this.#bonusGrps = this.#groupBonusTerritories(geos);
     this.#programGrps = this.#groupPrograms(programs);
@@ -143,8 +153,16 @@ class SummaryBuilder {
   }
 
   get targetPop() {
-    if (!this.#target.total_population) return "Unknown";
-    return this.#target.total_population.toLocaleString("en-US");
+    for (const item of ["state", "county", "municipal_util", "rural_coop"]) {
+      if (item in this.summaryStats) {
+        console.log(
+          "In the target pop builder",
+          this.summaryStats[item].population
+        );
+        return this.summaryStats[item].population.toLocaleString();
+      }
+    }
+    return "Unknown";
   }
 
   get bonusDescription() {
@@ -219,6 +237,9 @@ function SummaryStats() {
   const layerType = builder.targetGeoTypeRaw;
   const sideBarOpacity = 0.3;
 
+  console.log("summaryStats", builder.summaryStats);
+  console.log("targetPop", builder.targetPop);
+
   return (
     <div>
       <div>
@@ -247,7 +268,6 @@ function SummaryStats() {
             <b>Bonus Territory Counts</b>
           </h6>
           <span>
-            {/* // style={{ background: `rgb(128,200,60, 1)` }} */}
             <ol className="text-sm">
               <li className="flex items-center">
                 <div
@@ -261,7 +281,12 @@ function SummaryStats() {
                 <b className="mr-1">
                   {builder.bonusDetails?.distressed?.length ?? 0}
                 </b>{" "}
-                Distressed Zip Codes
+                Distressed Zip Codes with{" "}
+                {(
+                  Math.round(
+                    (builder.summaryStats["distressed"]?.population || 0) / 1000
+                  ) * 1000
+                ).toLocaleString()}{" "}
                 <br />
               </li>
               <li className="flex items-center">
