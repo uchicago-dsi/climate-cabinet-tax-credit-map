@@ -33,16 +33,34 @@ class SummaryBuilder {
 
     // TODO: this is kind of a hack
     this.programDict = {
-      distressed: "Distressed Communities",
-      energy: "Energy Communities",
-      justice40: "Justice 40 Communities",
-      low_income: "Low Income Census Tracts",
+      distressed: {
+        singular: "Distressed Community",
+        plural: "Distressed Communities",
+      },
+      energy: {
+        singular: "Energy Community",
+        plural: "Energy Communities",
+      },
+      justice40: {
+        singular: "Justice 40 Community",
+        plural: "Justice 40 Communities",
+      },
+      low_income: {
+        singular: "Low Income Census Tract",
+        plural: "Low Income Census Tracts",
+      },
     };
+    // Fill in any missing geography types
     Object.keys(this.programDict).forEach((prog) => {
       if (!this.summaryStats.hasOwnProperty(prog)) {
         this.summaryStats[prog] = {
           count: 0,
           population: 0,
+        };
+      } else {
+        this.summaryStats[prog] = {
+          ...this.summaryStats[prog],
+          count: this.bonusDetails?.[prog]?.length ?? 0,
         };
       }
     });
@@ -259,20 +277,28 @@ function SummaryStats() {
   return (
     <div>
       <div>
-        <h5 className="font-bold m-0 pt-5 pb-1">{builder.targetFullName} </h5>
-        <span
-          className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase"
-          style={{
-            background: `rgb(${layerConfigObject[layerType].fillColor
-              .slice(0, 3)
-              .join(",")},${sideBarOpacity})`,
-            color: ["rural_coop", "state", "municipal_util"].includes(layerType)
-              ? "black"
-              : "white",
-          }}
-        >
-          {builder.targetGeoType.replace("_", " ")}
-        </span>
+        <div className="pt-5 pb-1">
+          <h5 className="font-bold m-0 p-0 line-height[1]">
+            {builder.targetFullName}{" "}
+          </h5>
+          <div>
+            <span
+              className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase m-0"
+              style={{
+                background: `rgb(${layerConfigObject[layerType].fillColor
+                  .slice(0, 3)
+                  .join(",")},${sideBarOpacity})`,
+                color: ["rural_coop", "state", "municipal_util"].includes(
+                  layerType
+                )
+                  ? "black"
+                  : "white",
+              }}
+            >
+              {builder.targetGeoType.replace("_", " ")}
+            </span>
+          </div>
+        </div>
         <h6 className="pb-1">
           <b>Total Population</b>
           <br />
@@ -284,7 +310,8 @@ function SummaryStats() {
             <b>Bonus Territories</b>
             <p className="text-sm p-0">
               Populations are estimated in the overlap of your search area
-              (state, county, utility, or coop) and the bonus territories
+              (state, county, municipal utility, or coop) and the bonus
+              territories
             </p>
           </h6>
           <span>
@@ -300,10 +327,11 @@ function SummaryStats() {
                     }}
                   ></div>
                   <div>
-                    <b className="mr-.5">
-                      {builder.bonusDetails?.[key]?.length ?? 0}
-                    </b>{" "}
-                    {builder.programDict[key]} with{" "}
+                    <b className="mr-.5">{builder.summaryStats[key].count}</b>{" "}
+                    {builder.summaryStats[key].count === 1
+                      ? builder.programDict[key].singular
+                      : builder.programDict[key].plural}{" "}
+                    with{" "}
                     {(
                       Math.round(
                         (builder.summaryStats[key]?.population || 0) / 1000
@@ -315,70 +343,6 @@ function SummaryStats() {
                 </li>
               ))}
             </ol>
-            {/* <ol className="text-sm">
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["distressed"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.distressed?.length ?? 0}
-                </b>{" "}
-                Distressed Zip Codes with{" "}
-                {(
-                  Math.round(
-                    (builder.summaryStats["distressed"]?.population || 0) / 1000
-                  ) * 1000
-                ).toLocaleString()}{" "}
-                <br />
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["energy"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.energy?.length ?? 0}
-                </b>{" "}
-                Energy Communities
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["justice40"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.justice40?.length ?? 0}
-                </b>{" "}
-                Justice 40 Census Tracts
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["low_income"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.low_income?.length ?? 0}
-                </b>{" "}
-                Low Income Census Tracts
-              </li>
-            </ol> */}
           </span>
         </div>
         <div>
