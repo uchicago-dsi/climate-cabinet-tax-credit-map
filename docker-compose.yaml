@@ -25,7 +25,7 @@ services:
       - POSTGRES_CHECK_TIMEOUT=120
     build:
       context: pipeline
-    # command: bash setup.sh --migrate
+    command: bash setup.sh --migrate
     # command: bash setup.sh --migrate --load-dependent-tables
     # command: python3 -m manage load_assoc_table --only-assoc county distressed
 

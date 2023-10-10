@@ -17,9 +17,53 @@ class SummaryBuilder {
     let geos = report.geographies;
     let programs = report.programs;
 
+    this.summaryStats = {};
+
+    JSON.parse(report.summaryStats).forEach((item) => {
+      let key = item.type;
+      this.summaryStats[key] = {
+        ...this.summaryStats[key],
+        population: parseInt(item.population, 10),
+      };
+    });
+
     this.#target = geos.find((g) => g.properties.is_target).properties;
     this.#bonusGrps = this.#groupBonusTerritories(geos);
     this.#programGrps = this.#groupPrograms(programs);
+
+    // TODO: this is kind of a hack
+    this.programDict = {
+      distressed: {
+        singular: "Distressed Community",
+        plural: "Distressed Communities",
+      },
+      energy: {
+        singular: "Energy Community",
+        plural: "Energy Communities",
+      },
+      justice40: {
+        singular: "Justice 40 Community",
+        plural: "Justice 40 Communities",
+      },
+      low_income: {
+        singular: "Low Income Census Tract",
+        plural: "Low Income Census Tracts",
+      },
+    };
+    // Fill in any missing geography types
+    Object.keys(this.programDict).forEach((prog) => {
+      if (!this.summaryStats.hasOwnProperty(prog)) {
+        this.summaryStats[prog] = {
+          count: 0,
+          population: 0,
+        };
+      } else {
+        this.summaryStats[prog] = {
+          ...this.summaryStats[prog],
+          count: this.bonusDetails?.[prog]?.length ?? 0,
+        };
+      }
+    });
   }
 
   #formatNum(num) {
@@ -143,8 +187,16 @@ class SummaryBuilder {
   }
 
   get targetPop() {
-    if (!this.#target.total_population) return "Unknown";
-    return this.#target.total_population.toLocaleString("en-US");
+    for (const item of ["state", "county", "municipal_util", "rural_coop"]) {
+      if (item in this.summaryStats) {
+        console.log(
+          "In the target pop builder",
+          this.summaryStats[item].population
+        );
+        return this.summaryStats[item].population.toLocaleString();
+      }
+    }
+    return "Unknown";
   }
 
   get bonusDescription() {
@@ -219,23 +271,34 @@ function SummaryStats() {
   const layerType = builder.targetGeoTypeRaw;
   const sideBarOpacity = 0.3;
 
+  console.log("summaryStats", builder.summaryStats);
+  console.log("targetPop", builder.targetPop);
+
   return (
     <div>
       <div>
-        <h5 className="font-bold m-0 pt-5 pb-1">{builder.targetFullName} </h5>
-        <span
-          className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase"
-          style={{
-            background: `rgb(${layerConfigObject[layerType].fillColor
-              .slice(0, 3)
-              .join(",")},${sideBarOpacity})`,
-            color: ["rural_coop", "state", "municipal_util"].includes(layerType)
-              ? "black"
-              : "white",
-          }}
-        >
-          {builder.targetGeoType.replace("_", " ")}
-        </span>
+        <div className="pt-5 pb-1">
+          <h5 className="font-bold m-0 p-0 line-height[1]">
+            {builder.targetFullName}{" "}
+          </h5>
+          <div>
+            <span
+              className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase m-0"
+              style={{
+                background: `rgb(${layerConfigObject[layerType].fillColor
+                  .slice(0, 3)
+                  .join(",")},${sideBarOpacity})`,
+                color: ["rural_coop", "state", "municipal_util"].includes(
+                  layerType
+                )
+                  ? "black"
+                  : "white",
+              }}
+            >
+              {builder.targetGeoType.replace("_", " ")}
+            </span>
+          </div>
+        </div>
         <h6 className="pb-1">
           <b>Total Population</b>
           <br />
@@ -244,68 +307,41 @@ function SummaryStats() {
         </h6>
         <div>
           <h6 className="pb-1">
-            <b>Bonus Territory Counts</b>
+            <b>Bonus Territories</b>
+            <p className="text-sm p-0">
+              Populations are estimated in the overlap of your search area
+              (state, county, municipal utility, or coop) and the bonus
+              territories
+            </p>
           </h6>
           <span>
-            {/* // style={{ background: `rgb(128,200,60, 1)` }} */}
             <ol className="text-sm">
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["distressed"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.distressed?.length ?? 0}
-                </b>{" "}
-                Distressed Zip Codes
-                <br />
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["energy"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.energy?.length ?? 0}
-                </b>{" "}
-                Energy Communities
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["justice40"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.justice40?.length ?? 0}
-                </b>{" "}
-                Justice 40 Census Tracts
-              </li>
-              <li className="flex items-center">
-                <div
-                  className="swatch"
-                  style={{
-                    background: `rgb(${layerConfigObject["low_income"].fillColor
-                      .slice(0, 3)
-                      .join(",")},${sideBarOpacity})`,
-                  }}
-                ></div>
-                <b className="mr-1">
-                  {builder.bonusDetails?.low_income?.length ?? 0}
-                </b>{" "}
-                Low Income Census Tracts
-              </li>
+              {Object.entries(builder.programDict).map(([key, value]) => (
+                <li key={key} className="flex items-center">
+                  <div
+                    className="swatch"
+                    style={{
+                      background: `rgb(${layerConfigObject[key].fillColor
+                        .slice(0, 3)
+                        .join(",")},${sideBarOpacity})`,
+                    }}
+                  ></div>
+                  <div>
+                    <b className="mr-.5">{builder.summaryStats[key].count}</b>{" "}
+                    {builder.summaryStats[key].count === 1
+                      ? builder.programDict[key].singular
+                      : builder.programDict[key].plural}{" "}
+                    with{" "}
+                    {(
+                      Math.round(
+                        (builder.summaryStats[key]?.population || 0) / 1000
+                      ) * 1000
+                    ).toLocaleString()}{" "}
+                    people
+                  </div>
+                  <br />
+                </li>
+              ))}
             </ol>
           </span>
         </div>
@@ -314,7 +350,7 @@ function SummaryStats() {
             <b>Eligible Programs</b>
           </h6>
           <span>
-            <ol className="list-disc">
+            <ol className="list-disc text-sm">
               {Object.entries(builder.programDetails).map((entry, idx) => {
                 let [_, prog] = entry;
                 return <li>{prog.name}</li>;
