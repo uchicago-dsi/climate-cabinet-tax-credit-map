@@ -73,7 +73,7 @@ export async function GET(request, { params }) {
 
   let summaryStats = await prisma.$queryRaw`
         WITH block_groups AS (
-            SELECT
+            SELECT DISTINCT ON (bg.id, geotype.name)
                 bg.id AS block_group_id,
                 population,
                 geo.id AS geo_id,
@@ -92,6 +92,7 @@ export async function GET(request, { params }) {
                     WHERE target_geography_id = ${geographyId}
                 )
             )
+            ORDER BY bg.id, geotype.name
         ),
         target_block_groups AS (
             SELECT *
