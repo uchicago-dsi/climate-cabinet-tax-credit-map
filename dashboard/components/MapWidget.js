@@ -26,10 +26,6 @@ function MapWidget() {
   const layerSnap = useSnapshot(layerStore);
   const layerClient = useLayers(reportSnap.report?.geographies, layerStore);
 
-  //   if (reportSnap.status && !reportSnap.status.includes("success")) {
-  //     return <Banner notificationText={"Loading geographies..."} />;
-  //   }
-
   return (
     <div
       className="relative overflow-hidden"

@@ -7,6 +7,7 @@
 import { reportStore } from "@/states/search";
 import { useSnapshot } from "valtio";
 import { layerConfig } from "@/config/layers";
+import { layerStore } from "@/states/search";
 
 class SummaryBuilder {
   #target;
@@ -66,6 +67,7 @@ class SummaryBuilder {
     });
   }
 
+  // TODO: should probably remove these extra functions
   #formatNum(num) {
     let under10 = [
       "zero",
@@ -273,6 +275,15 @@ function SummaryStats() {
 
   console.log("summaryStats", builder.summaryStats);
   console.log("targetPop", builder.targetPop);
+
+  // TODO: Not sure that this is the right spot to do this but setting default county visibility here
+  const countySelected = builder.targetGeoType === "county";
+
+  if (countySelected) {
+    layerStore["Counties"].visible = true;
+  } else {
+    layerStore["Counties"].visible = false;
+  }
 
   return (
     <div>
