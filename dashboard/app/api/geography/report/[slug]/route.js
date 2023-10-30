@@ -31,22 +31,17 @@ export async function GET(request, { params }) {
                 geo.id,
                 geo.name,
                 geotype.name AS geography_type,
-                geo.as_of,
-                geo.source,
-                SUM(population) AS total_population,
                 CASE
                     WHEN geo.id = ${geographyId} THEN TRUE
                     ELSE FALSE
                 END AS is_target,
-                ST_ENVELOPE(geo.boundary) AS bbox
+                CASE
+                    WHEN geo.id = ${geographyId} THEN ST_ENVELOPE(geo.boundary)
+                    ELSE null
+                END AS bbox
             FROM tax_credit_geography AS geo
             JOIN tax_credit_geography_type AS geotype
                 ON geotype.id = geo.geography_type_id
-            LEFT JOIN tax_credit_census_block_group AS block_group
-                ON ST_Within(
-                    block_group.centroid,
-                    geo.boundary
-                )
             WHERE geo.id IN (${geographyId}) OR geo.id IN (
                 SELECT bonus_geography_id
                 FROM tax_credit_target_bonus_assoc
@@ -76,11 +71,57 @@ export async function GET(request, { params }) {
             ON program.id = geo_type_program.program_id
         WHERE geo.id IN (${Prisma.join(geoIds)});`;
 
+  let summaryStats = await prisma.$queryRaw`
+        WITH block_groups AS (
+            SELECT DISTINCT ON (bg.id, geotype.name)
+                bg.id AS block_group_id,
+                population,
+                geo.id AS geo_id,
+                geo.name,
+                geotype.name AS type
+            FROM tax_credit_census_block_group AS bg
+            JOIN tax_credit_geography AS geo
+                ON ST_Within(bg.centroid, geo.boundary)
+            JOIN tax_credit_geography_type AS geotype
+                ON geotype.id = geo.geography_type_id
+            WHERE (
+                geo.id IN (${geographyId})
+                OR geo.id IN (
+                    SELECT bonus_geography_id
+                    FROM tax_credit_target_bonus_assoc
+                    WHERE target_geography_id = ${geographyId}
+                )
+            )
+            ORDER BY bg.id, geotype.name
+        ),
+        target_block_groups AS (
+            SELECT *
+            FROM block_groups
+            WHERE geo_id = ${geographyId}
+        )
+        SELECT
+            bg.type,
+            SUM(bg.population) AS population
+        FROM block_groups AS bg
+        JOIN target_block_groups AS tbg
+            ON bg.block_group_id = tbg.block_group_id
+        GROUP BY bg.type;
+      `;
+
+  // Handle BigInt values
+  const bigIntHandler = (key, value) =>
+    typeof value === "bigint"
+      ? value.toString() // convert BigInt to string
+      : value; // return everything else unchanged
+
   // Compose final response payload
   let payload = {
     geographies: geographies,
     programs: programs,
+    summaryStats: JSON.stringify(summaryStats, bigIntHandler),
   };
 
-  return NextResponse.json(payload);
+  console.log("payload", payload);
+
+  return NextResponse.json(payload, bigIntHandler);
 }
