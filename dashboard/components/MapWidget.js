@@ -8,8 +8,9 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import Banner from "@/components/Banner";
 import DeckGL from "@deck.gl/react";
 import MapControlPanel from "@/components/MapControlPanel";
+import { MapboxOverlay } from "@deck.gl/mapbox";
 import Tooltip from "@/components/Tooltip";
-import { Map } from "react-map-gl";
+import { Map, useControl, FullscreenControl } from "react-map-gl";
 import { useSnapshot } from "valtio";
 import { Suspense } from "react";
 import {
@@ -25,29 +26,28 @@ function MapWidget() {
   const baseMapSnap = useSnapshot(baseMapStore);
   const layerSnap = useSnapshot(layerStore);
   const layerClient = useLayers(reportSnap.report?.geographies, layerStore);
-
+  const layers = Object.entries(layerSnap).reduce((layers, [id, state]) => {
+    if (state.visible) {
+      let lyr = layerClient.getLayer(id);
+      layers.push(lyr);
+    }
+    return layers;
+  }, []);
   return (
     <div
       className="relative overflow-hidden"
       style={{ width: "100%", height: "100%" }}
     >
-      <DeckGL
-        layers={Object.entries(layerSnap).reduce((layers, [id, state]) => {
-          if (state.visible) {
-            let lyr = layerClient.getLayer(id);
-            layers.push(lyr);
-          }
-          return layers;
-        }, [])}
+      <Map
+        mapStyle={baseMapSnap.selected.url}
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+        projection="mercator"
         initialViewState={viewportStore.current}
         controller={true}
       >
-        <Map
-          mapStyle={baseMapSnap.selected.url}
-          mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-          projection="mercator"
-        />
-      </DeckGL>
+        <FullscreenControl position="top-left" />
+        <DeckGLOverlay layers={layers} interleaved={true} />
+      </Map>
       {/* TODO: add a picking radius here to layers?*/}
       <Tooltip />
       <div className="absolute right-4 top-4 bg-white p-2">
@@ -65,6 +65,12 @@ function MapWidget() {
       ) : null}
     </div>
   );
+}
+
+function DeckGLOverlay(props) {
+  const overlay = useControl(() => new MapboxOverlay(props));
+  overlay.setProps(props);
+  return null;
 }
 
 export default MapWidget;
