@@ -6,7 +6,7 @@
 
 import Checkbox from "@/components/Checkbox";
 import RadioButton from "@/components/RadioButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { useLayers } from "@/hooks/useLayers";
 import { baseMapStore, reportStore, layerStore } from "@/states/search";
@@ -22,6 +22,21 @@ function MapControlPanel() {
 
   console.log("reportSnap", reportSnap);
   console.log("layerSnap", layerSnap);
+
+  useEffect(() => {
+    // Function to check the window's width and update the expanded state
+    const updateMenuState = () => {
+      const isMobile = window.innerWidth <= 768; // 768px is typically considered the breakpoint for mobile
+      setExpanded(!isMobile);
+    };
+
+    // Check once on component mount
+    updateMenuState();
+
+    // update the state when the window resizes
+    window.addEventListener("resize", updateMenuState);
+    return () => window.removeEventListener("resize", updateMenuState);
+  }, []);
 
   return (
     <div className="w-full max-w-xs mx-auto">
