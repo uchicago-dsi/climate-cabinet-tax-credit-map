@@ -9,6 +9,9 @@ class GeographyType(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return f"[ id : {self.id} , name : {self.name} ]"
+
     class Meta:
         db_table = "tax_credit_geography_type"
 
@@ -44,7 +47,7 @@ class GeographyTypeProgram(models.Model):
     amount_description = models.TextField()
 
     class Meta:
-        db_table = 'tax_credit_geography_type_program'
+        db_table = "tax_credit_geography_type_program"
         unique_together = [["geography_type", "program"]]
 
 
@@ -62,9 +65,9 @@ class TargetBonusAssoc(models.Model):
     class Meta:
         db_table = "tax_credit_target_bonus_assoc"
         unique_together = [["target_geography", "bonus_geography"]]
-    
+
     def __str__(self):
-        return f'{self.target_geography.name} <-> {self.bonus_geography.name}'
+        return f"{self.target_geography.name} <-> {self.bonus_geography.name}"
 
 
 class CensusTract(models.Model):
@@ -74,6 +77,7 @@ class CensusTract(models.Model):
 
     class Meta:
         db_table = "tax_credit_census_tract"
+
 
 class CensusBlockGroup(models.Model):
     id = models.CharField(max_length=255, primary_key=True)

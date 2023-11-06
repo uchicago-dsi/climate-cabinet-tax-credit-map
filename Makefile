@@ -17,6 +17,15 @@ run-dashboard:
 	docker-compose --profile dashboard up --build
 	docker-compose up
 
+test-pipeline:
+	docker compose -f tests/docker-compose.unittest.yml up -d
+	docker exec -it test-app ls
+	docker exec -it test-app python -m manage makemigrations
+	docker exec -it test-app python -m manage migrate
+	# docker exec -it test-app pytest tests/test_load_tables.py::test_load_assoc_with_state_fips_match -s
+	docker exec -it test-app pytest -s
+
+
 clean:
 	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
 	rm -rf pgdata

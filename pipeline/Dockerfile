@@ -1,5 +1,5 @@
 # Pull official Python base image
-FROM python:3.9
+FROM python:3.11
 
 # Configure Python logs to stream to stdout without buffering
 ENV PYTHONUNBUFFERED 1

@@ -1,0 +1,302 @@
+global:
+
+base:
+  geography_type:
+    active: True
+    filename: geography_type.csv
+    filetype: csv
+    row_transform: tax_credit.record_transforms:load_geography_type_row
+    model: tax_credit.models:GeographyType
+    file_format: csv
+    file_field_required:
+    - Id
+    - Name
+    db_field_unique:
+    - id
+    db_field_update:
+    - name
+  program:
+    active: True
+    filename: program.csv
+    file_format: csv
+    row_transform: tax_credit.record_transforms:load_program_type_row
+    model: tax_credit.models:Program
+    file_field_required:
+    - Id
+    - Program
+    - Agency
+    - Description
+    - Base_benefit
+    db_field_unique:
+    - id
+    db_field_update:
+    - name
+    - agency
+    - description
+    - base_benefit
+    
+  # census_tract:
+  #   active: True
+  #   filename: census_tract_pop.geoparquet
+  #   file_format: parquet
+  #   row_transform: tax_credit.record_transforms:load_census_tract_row
+  #   model: tax_credit.models:CensusTract
+  #   file_field_required:
+  #   - tractId
+  #   - geometry
+  #   - total_pop
+  #   db_field_unique:
+  #   - id
+  #   db_field_update:
+  #   - centroid
+  #   - population
+  #   index:
+  #   - tractId
+  # block_group:
+  #   active: True
+  #   filename: CenPop2020_Mean_BG.txt
+  #   file_format: csv
+  #   delimiter: ","
+  #   row_transform: tax_credit.record_transforms:load_census_block_row
+  #   model: tax_credit.models:CensusBlockGroup
+  #   file_field_required:
+  #   - COUNTYFP
+  #   - TRACTCE
+  #   - BLKGRPCE
+  #   - LATITUDE
+  #   - LONGITUDE
+  #   - POPULATION
+  #   db_field_unique:
+  #   - id
+  #   db_field_update:
+  #   - centroid
+  #   - population
+  #   index:
+  #   - BLKGRPCE
+
+dependent:
+  geography_to_program:
+    active: True
+    filename: geography_type_program.csv
+    filetype: csv
+    row_transform: tax_credit.record_transforms:load_geography_program_match_row
+    model: tax_credit.models:GeographyTypeProgram
+    file_format: csv
+    file_field_required:
+    - Id
+    - Geography_Type
+    - Program
+    - Abount_Description
+    db_field_unique:
+    - id
+    db_field_update:
+    - geography_type
+    - program
+    - amount_description
+  state:
+    active: True
+    filename: states.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_state_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - State
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  county:
+    active: True
+    filename: counties.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_county_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - County
+    - State
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+    - fips_info
+  # distressed_communities:
+  #   active: True
+  #   filename: dci_clean.geoparquet
+  #   filetype: parquet
+  #   row_transform: tax_credit.record_transforms:load_dci_geography_row
+  #   model: tax_credit.models:Geography
+  #   file_format: parquet
+  #   required_model:
+  #   - tax_credit.models:GeographyType
+  #   file_field_required:
+  #   - zip_code
+  #   - geometry
+  #   - simple_boundary
+  #   db_field_unique:
+  #   - name
+  #   - geography_type
+  #   db_field_update:
+  #   - boundary
+  #   - simple_boundary
+  #   - as_of
+  #   - source
+  fossil_fuel:
+    active: True
+    filename: energy_communities__fossil_fuels.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_fossil_fuel_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - TractIDcty
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  coal:
+    active: True
+    filename: energy_communities___coal.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_coal_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - TractID
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  justice40:
+    active: True
+    filename: justice40_communities.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_j40_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - TractID
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  low_income:
+    active: True
+    filename: low_income_communities.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_low_income_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - tractId
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  municipal_utilities:
+    active: True
+    filename: municipal_utilities.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_utilities_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - ID
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  rural_coop:
+    active: True
+    filename: rural_cooperatives.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_coop_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - NAME
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  
+
+assoc:
+  county_to_low_income:
+    active: True
+    model: tax_credit.models:TargetBonusAssoc
+    target: county
+    bonus: low_income
+    assoc_strategy: fips_state
+    # build_row_fn: 
+    db_field_unique:
+    - target_geography
+    - bonus_geography
+    db_field_update:
+    - target_geography_type
+    - bonus_geography_type

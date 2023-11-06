@@ -13,37 +13,39 @@ class BaseConfig(Configuration):
 
     # File paths
     BASE_DIR = Path(__file__).parents[3]
-    PROJECT_DIR = f"{BASE_DIR}/pipeline"
-    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    STATIC_URL = "/static/"
+    PROJECT_DIR = BASE_DIR / "pipeline"
+    CONFIG_FILE = PROJECT_DIR / "pipeline.yml"
     DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
     # TODO: I (Todd) moved this here from production.py — is this ok?
     # Google Cloud Storage
     CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
-    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS", ""
+    )
+
+    LOAD_BATCH_SIZE = 1_000
 
     # DATA FILES
-    GEOGRAPHY_TYPE_FILE = 'geography_type.csv'
-    PROGRAM_FILE = 'program.csv'
-    CENSUS_TRACT_FILE = 'census_tract_pop.geoparquet'
-    CENSUS_BLOCK_FILE = 'CenPop2020_Mean_BG.txt'
-    
-    GEOGRAPHY_TYPE_PROGRAM_FILE = 'geography_type_program.csv'
-    STATE_GEOGRAPHY_FILE = 'state_clean.geoparquet'
-    COUNTY_GEOGRAPHY_FILE = 'county_clean.geoparquet'
-    DCI_GEOGRAPHY_FILE = 'dci_clean.geoparquet'
-    FOSSIL_FUEL_GEOGRAPHY_FILE = 'ffe.geoparquet'
+    GEOGRAPHY_TYPE_FILE = "geography_type.csv"
+    PROGRAM_FILE = "program.csv"
+    CENSUS_TRACT_FILE = "census_tract_pop.geoparquet"
+    CENSUS_BLOCK_FILE = "CenPop2020_Mean_BG.txt"
+
+    GEOGRAPHY_TYPE_PROGRAM_FILE = "geography_type_program.csv"
+    STATE_GEOGRAPHY_FILE = "state_clean.geoparquet"
+    COUNTY_GEOGRAPHY_FILE = "county_clean.geoparquet"
+    DCI_GEOGRAPHY_FILE = "dci_clean.geoparquet"
+    FOSSIL_FUEL_GEOGRAPHY_FILE = "ffe.geoparquet"
     COAL_GEOGRAPHY_FILE = "coal_closure.geoparquet"
     J40_GEOGRAPHY_FILE = "justice40.geoparquet"
     LOW_INCOME_GEOGRAPHY_FILE = "low_income_tracts_filtered.geoparquet"
     MUNICIPAL_UTIL_GEOGRAPHY_FILE = "municipal_utils.geoparquet"
     RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
 
-
+    READ_CHUNK_SIZE = 1_000
     SMALL_CHUNK_SIZE = 100
     PQ_CHUNK_SIZE = 1_000
-    
 
     # Installed apps
     INSTALLED_APPS = (
