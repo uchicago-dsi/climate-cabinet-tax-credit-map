@@ -3,50 +3,265 @@
 
 import os
 from distutils.util import strtobool
-from pathlib import Path
-
 from configurations import Configuration
+from pathlib import Path
 
 
 class BaseConfig(Configuration):
     """Defines configuration settings common across environments."""
 
+    # Geometry buffer in degrees
+    BUFFER_DEG = -10e-20
+
     # File paths
     BASE_DIR = Path(__file__).parents[3]
-    PROJECT_DIR = f"{BASE_DIR}/pipeline"
-    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    PIPELINE_DIR = f"{BASE_DIR}/pipeline"
+    TEST_DIR = f"{PIPELINE_DIR}/tests"
+    STATIC_ROOT = os.path.join(PIPELINE_DIR, "staticfiles")
     STATIC_URL = "/static/"
     DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
     # TODO: I (Todd) moved this here from production.py — is this ok?
     # Google Cloud Storage
     CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GEOJSONL_DIRECTORY = "clean/geojsonl"
+    GEOPARQUET_DIRECTORY = "clean/geoparquet"
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
-    # DATA FILES
-    GEOGRAPHY_TYPE_FILE = 'geography_type.csv'
-    PROGRAM_FILE = 'program.csv'
-    CENSUS_TRACT_FILE = 'census_tract_pop.geoparquet'
-    CENSUS_BLOCK_FILE = 'CenPop2020_Mean_BG.txt'
+    # Raw datasets
+    RAW_DATASETS = [
+        {
+            "name": "counties",
+            "as_of": "2020-01-01",
+            "geography_type": "county",
+            "epsg": 4269,
+            "published_on": "2021-02-02",
+            "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
+            "files": {
+                "counties": "raw/census/counties/tl_2020_us_county.zip",
+                "state_fips": "raw/census/states/fips.csv"
+            }
+        },
+        {
+            "name": "distressed communities",
+            "as_of": "2022-01-01",
+            "geography_type": "distressed",
+            "epsg": 4269,
+            "published_on": None,
+            "source": "Distressed Communities Index (DCI), Economic Innovation Group",
+            "files": {
+                "distress_scores": "raw/bonus/distressed/DCI-2016-2020-Academic-Non-profit-Government-Scores-Only.xlsx",
+                "zctas": "raw/census/zip_codes/tl_2020_us_zcta520.zip"
+            }
+        },
+        {
+            "name": "energy communities - coal",
+            "as_of": "2023-01-01",
+            "geography_type": "energy",
+            "epsg": 4269,
+            "published_on": "2023-06-15",
+            "source": "Interagency Working Group on Coal & Power Plant Communities & Economic Revitalization, National Energy Technology Lab, Department of Energy",
+            "files": {
+                "coal_communities": "raw/bonus/energy/ira_coal_closure_energy_comm_2023v2.zip"
+            }
+        },
+        {
+            "name": "energy communities - fossil fuels",
+            "as_of": "2023-01-01",
+            "geography_type": "energy",
+            "epsg": 4269,
+            "published_on": "2023-06-15",
+            "source": "Interagency Working Group on Coal & Power Plant Communities & Economic Revitalization, National Energy Technology Lab, Department of Energy",
+            "files": {
+                "fossil_fuel_communities": "raw/bonus/energy/msa_nmsa_fee_ec_status_2023v2.zip"
+            }
+        },
+        {
+            "name": "justice40 communities",
+            "as_of": "2019-01-01",
+            "geography_type": "justice40",
+            "epsg": 4326,
+            "published_on": "2022-11-22",
+            "source": "Climate and Economic Justice Screening Tool v.1.0, Council on Environmental Quality, Executive Office of the President",
+            "files": {
+                "justice40_communities": "raw/bonus/justice40/usa.zip"
+            }
+        },
+        {
+            "name": "low-income communities",
+            "as_of": "2020-01-01",
+            "geography_type": "low-income",
+            "epsg": 4269,
+            "published_on": "2023-09-01",
+            "source": "NMTC Program, Department of the Treasury",
+            "files": {
+                "county_fips": "raw/census/counties/fips.csv",
+                "low_income_2011_2015": "raw/bonus/low_income/nmtc-2011-2015-lic-nov2-2017-4pm.xlsx",
+                "low_income_2016_2020": "raw/bonus/low_income/NMTC_2016-2020_ACS_LIC_Sept1_2023.xlsb",
+                "state_fips": "raw/census/states/fips.csv",
+                "tracts_2010": "raw/census/tracts/tl_2010_[6-7]*_tract10.zip",
+                "tracts_2020": "raw/census/tracts/tl_2020_**_tract.zip"
+            }
+        },
+        {
+            "name": "municipalities",
+            "as_of": "2020-01-01",
+            "geography_type": "municipality",
+            "epsg": 4269,
+            "published_on": "2021-02-02",
+            "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
+            "files": {
+                "county_fips": "raw/census/counties/fips.csv",
+                "county_subdivisions": "raw/census/county_subdivisions/**.zip",
+                "state_fips": "raw/census/states/fips.csv"
+            }
+        },
+        {
+            "name": "municipal utilities",
+            "as_of": "2022-12-09",
+            "geography_type": "municipal utility",
+            "epsg": 4326,
+            "published_on": None,
+            "source": "Geospatial Management Office, U.S. Department of Homeland Security",
+            "files": {
+                "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
+                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
+            }
+        },
+        {
+            "name": "rural cooperatives",
+            "as_of": "2022-12-09",
+            "geography_type": "rural cooperative",
+            "epsg": 4326,
+            "published_on": None,
+            "source": "Geospatial Management Office, U.S. Department of Homeland Security",
+            "files": {
+                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
+            }
+        },
+        {
+            "name": "states",
+            "as_of": "2020-01-01",
+            "geography_type": "state",
+            "epsg": 4269,
+            "published_on": "2021-02-02",
+            "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
+            "files": {
+                "states": "raw/census/states/tl_2020_us_state.zip"
+            }
+        }
+    ]
+
+    # Clean datasets
+    CENSUS_BLOCK_FILE = "raw/block_groups/CenPop2020_Mean_BG.txt"
+    CENSUS_TRACT_FILE = "raw/tracts/census_tract_pop.geoparquet"
+    COAL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities__coal.geoparquet"
+    COUNTY_GEOGRAPHY_FILE = "clean/geoparquet/counties.geoparquet"
+    DCI_GEOGRAPHY_FILE = "clean/geoparquet/distressed_communities.geoparquet"
+    FOSSIL_FUEL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities__fossil_fuels.geoparquet"
+    GEOGRAPHY_TYPE_FILE = "clean/csv/geography_type.csv"
+    GEOGRAPHY_TYPE_PROGRAM_FILE = "clean/csv/geography_type_program.csv"
+    J40_GEOGRAPHY_FILE = "clean/geoparquet/justice40_communities.geoparquet"
+    LOW_INCOME_GEOGRAPHY_FILE = "clean/geoparquet/low_income_communities.geoparquet"
+    MUNICIPAL_UTIL_GEOGRAPHY_FILE = "clean/geoparquet/municipal_utilities.geoparquet"
+    MUNICIPALITY_GEOGRAPHY_FILE = "clean/geoparquet/municipalities.geoparquet"
+    PROGRAM_FILE = "clean/csv/program.csv"
+    RURAL_COOP_GEOGRAPHY_FILE = "clean/geoparquet/rural_cooperatives.geoparquet"
+    STATE_GEOGRAPHY_FILE = "clean/geoparquet/states.geoparquet"
+
+    # MAPBOX TILESETS
+    MAPBOX_TILESETS = [
+        {
+            "name": "cc-counties",
+            "dataset_name": "counties",
+            "min_zoom": 3,
+            "max_zoom": 5,
+            "files": [
+                "clean/geojsonl/counties.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-distressed",
+            "dataset_name": "distressed communities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/distressed_communities.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-energy",
+            "dataset_name": "energy communities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/energy_communities__coal.geojsonl",
+                "clean/geojsonl/energy_communities__fossil_fuels.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-justice40",
+            "dataset_name": "justice40 communities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/justice40_communities.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-low-income",
+            "dataset_name": "low-income communities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/low_income_communities.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-municipalities",
+            "dataset_name": "municipalities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/municipalities.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-municipal-utils",
+            "dataset_name": "municipal utilities",
+            "min_zoom": 1,
+            "max_zoom": 10,
+            "files": [
+                "clean/geojsonl/municipal_utilities.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-rural-cooperatives",
+            "dataset_name": "rural cooperatives",
+            "min_zoom": 1,
+            "max_zoom": 5,
+            "files": [
+                "clean/geojsonl/rural_cooperatives.geojsonl"
+            ]
+        },
+        {
+            "name": "cc-states",
+            "dataset_name": "states",
+            "min_zoom": 1,
+            "max_zoom": 5,
+            "files": [
+                "clean/geojsonl/states.geojsonl"
+            ]
+        },
+    ]
     
-    GEOGRAPHY_TYPE_PROGRAM_FILE = 'geography_type_program.csv'
-    STATE_GEOGRAPHY_FILE = 'state_clean.geoparquet'
-    COUNTY_GEOGRAPHY_FILE = 'county_clean.geoparquet'
-    DCI_GEOGRAPHY_FILE = 'dci_clean.geoparquet'
-    FOSSIL_FUEL_GEOGRAPHY_FILE = 'ffe.geoparquet'
-    COAL_GEOGRAPHY_FILE = "coal_closure.geoparquet"
-    J40_GEOGRAPHY_FILE = "justice40.geoparquet"
-    LOW_INCOME_GEOGRAPHY_FILE = "low_income_tracts_filtered.geoparquet"
-    MUNICIPAL_UTIL_GEOGRAPHY_FILE = "municipal_utils.geoparquet"
-    RURAL_COOP_GEOGRAPHY_FILE = "rural_coops.geoparquet"
-
-
+    # Batching
     SMALL_CHUNK_SIZE = 100
     PQ_CHUNK_SIZE = 1_000
     
-
     # Installed apps
     INSTALLED_APPS = (
+        
         # Default
         "django.contrib.admin",
         "django.contrib.auth",
@@ -54,9 +269,12 @@ class BaseConfig(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+
         # Third party apps
         "corsheaders",
+
         # Your apps
+        "mapbox",
         "tax_credit",
         "tests",
     )
