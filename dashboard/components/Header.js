@@ -45,9 +45,9 @@ export default function Header() {
           </li>
         </ul>
       </nav>
-      <div className="flex flex-1 justify-end items-center">
+      <div className="flex flex-1 justify-end items-center max-w-1/2">
         <a
-          className="btn cc-button rounded-full"
+          className="btn cc-button rounded-full w-full"
           href="https://secure.actblue.com/donate/ccaf"
         >
           DONATE NOW
