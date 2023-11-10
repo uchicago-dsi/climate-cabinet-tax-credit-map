@@ -70,7 +70,7 @@ export default function SearchPage() {
           </p>
         </div>
         {/** AUTOCOMPLETE SEARCH BAR */}
-        <div className="px-20 mt-10 mb-5 z-50 self-start w-11/12 mx-auto">
+        <div className="px-2 sm:px-20 mt-10 mb-5 z-50 self-start w-11/12 mx-auto">
           <Autocomplete />
         </div>
       </div>
