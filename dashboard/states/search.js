@@ -19,10 +19,11 @@ const baseMapStore = useBaseMapStore();
 const viewportStore = useViewportStore();
 
 // Initialize deck.gl layer visiblity store
-let isVisibleKvps = layerConfig.map(config => [
-    config.id, { visible: true, hasData: false }
-]);
-const layerStore = proxy(Object.fromEntries(isVisibleKvps));
+let isVisible = layerConfig.reduce((acc, config) => {
+    acc[config.id] = { visible: config.initialVisibility, hasData: false };
+    return acc;
+}, {});
+const layerStore = proxy(isVisible);
 
 // Initialize search query store
 const [searchStore] = useGeoSearch("");

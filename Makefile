@@ -4,6 +4,10 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 current_abs_path := $(subst Makefile,,$(mkfile_path))
 
+run-database:
+	cd $(current_abs_path)
+	docker-compose up --build
+
 build-pipeline:
 	cd $(current_abs_path)
 	docker-compose --profile pipeline build

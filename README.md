@@ -2,21 +2,38 @@
 
 This project loads a PostGIS database with geographic features regarding tax credit programs.
 
-# Structure
+## Dependencies
 
-The pipeline is a Django project with specified management commands that load the data. 
-It can be run in Docker compose using the docker-compose.yaml file in the `pipeline` folder.
-Running `docker compose up` will start a `PostGIS database` container, a `pgadmin` container at localhost:443, and a `Django` app container.
-The Django project runs an entrypoint script which runs the management commands which use `PyArrow` to load Geoparquets and store them in PostGIS.
-The files are large enough that they must be batched using Arrow to avoid substantial memory overhead.
+- Make
+- Docker
 
-# Quick start - local
+## Structure
 
-Download the data from `https://drive.google.com/drive/folders/1mZkpZ8t6a3VdtKyhO7xZSC6A233zPesN` and save it in a directory titled `data` in the root of the project. 
-From the project root, run docker with `docker compose up`.
-Navigating to `localhost:443`, selecting `servers`, and logging in with the password `postgres` will allow you to access and query the loaded data.
+The pipeline is a Django project with specified management commands to clean, load, and sync data both locally and on Google Cloud Platform. It can be run in Docker Compose using the `docker-compose.yaml` file in the `pipeline` folder.
+Running `docker compose up` will start a `PostGIS database` container, a `pgadmin` container at localhost:443, and a `Django` app container. The Django project runs an entrypoint script which runs the management commands which use `PyArrow` to load Geoparquets and store them in PostGIS. The files are large enough that they must be batched using Arrow to avoid substantial memory overhead.
 
-# Database
+## Quickstart - Local
+
+_Basic Usage_
+
+1. **Setup.** Download the `data` folder from [Google Drive](https://drive.google.com/drive/folders/1AO6Q-CpjOZwYqb3T1gsZg38jwMeYglsw) as a zipped file and then move it to the root of the project. Unzip the file and delete any remaining zip artifacts.
+
+2. **Run the Pipeline.** From the project root, run the `make` command `run pipeline`. This builds Docker images for the PostgreSQL database server, pgAdmin database GUI, and Django pipeline and then runs those images as a network of containers using Docker Compose. After the last dataset has been loaded into a database, the pipeline container will automatically shut down while the database server and GUI keep running. The database's data is persisted as a Docker volume called "pgdata", which is saved as a folder under the project root.
+
+3. **Query the Database with pgAdmin.** While PostgreSQL and pgAdmin are still running, navigate to `localhost:443`, select `servers`, and log in with the password `postgres`. [Browse tables and query the loaded data](https://www.pgadmin.org/docs/pgadmin4/latest/user_interface.html#user-interface) using raw SQL statements. (Note: If you would like to use pgAdmin in the future without re-running the pipeline, make sure that all Docker Compose services are shut down with `CTRL-C`. Then navigate to the root of the project and run the command `make run-database`, a wrapper for `docker compose up`, and follow the same instructions to log in.)
+
+4. **Run the Dashboard.**  Shut down the current Docker compose application service by entering `CTRL-C`. Then run the new command `make run-dashboard`. This will spin up PostgreSQL and pgAdmin again but also build and run a Next.js dashboard that can be used to search for and view the loaded geographies on a map, along with their eligibility for various tax credit bonuses.
+
+_Advanced Usage_
+
+**Running Cleaning Pipeline.** The cleaning pipeline can be run locally by navigating to the `pipeline` directory and then entering the command `./manage.py clean_data`. TODO: Add instructions for Docker.
+
+**Syncing Mapbox Tilesets.** TODO.
+
+**Running Tests.** TODO.
+
+
+## Database
 
 Here are short descriptions of the tables that the app references:
 

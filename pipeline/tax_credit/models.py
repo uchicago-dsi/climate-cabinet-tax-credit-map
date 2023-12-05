@@ -22,7 +22,6 @@ class Geography(models.Model):
     name = models.CharField(max_length=255)
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     boundary = MultiPolygonField()
-    simple_boundary = MultiPolygonField()
     as_of = models.DateField()
     source = models.CharField(max_length=255)
     fips_info = models.CharField(max_length=255, null=True)

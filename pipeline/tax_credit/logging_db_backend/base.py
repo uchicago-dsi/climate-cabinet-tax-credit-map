@@ -11,5 +11,5 @@ class DatabaseWrapper(PostgisDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def get_new_connection(self, conn_params):
-        logger.info("< ===== CR : GETTING NEW CONNECTION ===== >")
+        logger.info("< ===== GETTING NEW CONNECTION ===== >")
         return super().get_new_connection(conn_params)

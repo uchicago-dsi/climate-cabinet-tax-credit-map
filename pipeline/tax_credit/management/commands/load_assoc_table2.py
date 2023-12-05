@@ -134,8 +134,3 @@ class Command(BaseCommand):
             geography_type__name=bonus_type,
             boundary__intersects=Subquery(target_boundary)
         )
-
-
-
-# TODO Parse pipeline.yml for load config
-# TODO Iterate through assoc jobs and load associations into table on the database side

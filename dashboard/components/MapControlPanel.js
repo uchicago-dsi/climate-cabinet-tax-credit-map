@@ -14,10 +14,14 @@ import { baseMapStore, reportStore, layerStore } from "@/states/search";
 function MapControlPanel() {
   const baseMapSnap = useSnapshot(baseMapStore);
   const layerSnap = useSnapshot(layerStore);
+  const reportSnap = useSnapshot(reportStore);
   const layerActions = useLayers(reportStore.report?.geographies, layerStore);
 
   // Intialize panel visiblity
   const [expanded, setExpanded] = useState(true);
+
+  console.log("reportSnap", reportSnap);
+  console.log("layerSnap", layerSnap);
 
   return (
     <div className="w-full max-w-xs mx-auto">
