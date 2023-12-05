@@ -3,7 +3,6 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 
 from .models import (
     CensusBlockGroup,
-    CensusTract,
     Geography,
     GeographyType,
     GeographyTypeProgram,
@@ -37,19 +36,37 @@ def load_program_type_row(row):
     )
 
 
-def load_census_tract_row(row):
-    return CensusTract(
-        id=row["tractId"],
-        centroid=GEOSGeometry(memoryview(row["geometry"])).centroid,
-        population=row["total_pop"],
+def load_census_block_row_2010(row):
+    return CensusBlockGroup(
+        id          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
+        centroid    = GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
+        population  = row["POPULATION"],
+        year        = 2010
     )
 
 
-def load_census_block_row(row):
+def load_census_block_row_2020(row):
     return CensusBlockGroup(
-        id=f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
-        centroid=GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
-        population=row["POPULATION"],
+        id          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
+        centroid    = GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
+        population  = row["POPULATION"],
+        year        = 2020
+    )
+
+
+def load_geography_dataset_row(row):
+    if not row.get('geometry'):
+        print("MISSING GEOMETRY")
+        print(row)
+    geography_type = GeographyType.objects.get(name=row["geography_type"])
+    return Geography(
+        name = row["name"],
+        fips = row["fips"],
+        geography_type = geography_type,
+        as_of = row["as_of"],
+        published_on = row["published_on"],
+        source = row["source"],
+        geometry = ensure_geos_multipolygon(row["geometry"]),
     )
 
 

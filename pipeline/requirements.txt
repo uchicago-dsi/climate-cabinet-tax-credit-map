@@ -11,4 +11,6 @@ google-cloud-storage
 pyarrow
 shapely
 pyyaml
-psutil
+mapbox
+pyogrio
+pyxlsb

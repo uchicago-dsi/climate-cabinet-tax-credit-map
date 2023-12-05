@@ -49,6 +49,6 @@ class Command(BaseCommand):
                 )
             except RuntimeError as re:
                 logger.error(
-                    "ERROR!!!!! Could not validate load job, job will not run."
+                    f"ERROR!!!!! Could not validate load job, job will not run: [ {job.job_name} ]"
                 )
                 logger.error(f"ERROR : {re}")

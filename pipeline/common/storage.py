@@ -79,10 +79,17 @@ class LocalFileSystemHelper(FileSystemHelper):
                 the pathname in the bucket.
         """
         if not pathname:
-            fpath = f"{settings.DATA_DIR}/*"
+            out = []
+            for root, _, files in os.walk(settings.DATA_DIR):
+                for file in files:
+                    out.append(
+                        os.path.relpath(
+                            os.path.join(root, file), settings.DATA_DIR
+                        )
+                    )
+            return out
         else:
             fpath = f"{settings.DATA_DIR}/{pathname}"
-
         return glob.glob(fpath)
 
     @contextmanager
@@ -100,7 +107,15 @@ class LocalFileSystemHelper(FileSystemHelper):
         Yields:
             (`io.IOBase`): A file object.
         """
-        f = open(settings.DATA_DIR / filename, mode)
+        with open(settings.DATA_DIR / filename, 'rb') as f:
+            first_bytes = f.read(3)
+        
+        # Detect UTF-8 BOM
+        if first_bytes == b'\xef\xbb\xbf':
+            f = open(settings.DATA_DIR / filename, mode, encoding = "utf-8-sig")
+        else:
+            f = open(settings.DATA_DIR / filename, mode)
+
         try:
             yield f
         finally:
@@ -337,7 +352,7 @@ class ParquetDataReader(DataReader):
             (list of str): The column names.
         """
         with self._file_helper.open_file(filename, mode="rb") as f:
-            pf: pq.ParquetFile = pq.ParquetFile(f, **kwargs)
+            pf: pq.ParquetFile = pq.ParquetFile(f)
             try:
                 return [c.name for c in pf.schema]
             finally:
@@ -357,7 +372,7 @@ class ParquetDataReader(DataReader):
             (list of dict): The GeoJSON features.
         """
         with self._file_helper.open_file(filename, mode="rb") as f:
-            pf = pq.ParquetFile(f, **kwargs)
+            pf = pq.ParquetFile(f)
             pf_iter = pf.iter_batches(settings.PQ_CHUNK_SIZE)
             for batch in pf_iter:
                 row_list = batch.to_pylist()

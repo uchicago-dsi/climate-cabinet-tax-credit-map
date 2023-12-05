@@ -33,4 +33,5 @@ test-pipeline:
 clean:
 	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
 	rm -rf pgdata
+	cd pipeline && python3 manage.py makemigrations
 	

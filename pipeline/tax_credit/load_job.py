@@ -3,8 +3,6 @@ from typing import Any, Callable, Type
 
 from django.db.models import Model
 
-# TODO can probably have a base class for this
-
 
 @dataclass
 class LoadJob:

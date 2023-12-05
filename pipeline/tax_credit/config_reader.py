@@ -5,6 +5,8 @@ from functools import lru_cache
 import yaml
 from tax_credit.load_job import AssocJob, LoadJob
 
+config_reader = None
+
 
 class LoadConfigReader(ABC):
     """Class that reads the config for the dataload. The config cannot be modified at runtime. It is read once and executed."""
@@ -40,14 +42,14 @@ class _LoadConfigReaderImpl(LoadConfigReader):
         base_jobs = []
         for job_name, job_details in self._base.items():
             base_jobs.append(parse_config_to_load_job(job_name, job_details))
-        return base_jobs
+        return [job for job in base_jobs if job.active]
 
     @property
     def dependent_jobs(self) -> list[LoadJob]:
         dependent_jobs = []
         for job_name, job_details in self._dependent.items():
             dependent_jobs.append(parse_config_to_load_job(job_name, job_details))
-        return dependent_jobs
+        return [job for job in dependent_jobs if job.active]
 
     @property
     def assoc_jobs(self) -> list[AssocJob]:
@@ -66,14 +68,14 @@ class _LoadConfigReaderImpl(LoadConfigReader):
                     update_fields=job_details["db_field_update"],
                 )
             )
-        return assoc_jobs
+        return [job for job in assoc_jobs if job.active]
 
 
-# TODO fix this
-@lru_cache
 def get_load_config_reader(filename):
-    return _LoadConfigReaderImpl(filename)
-
+    global config_reader
+    if not config_reader:
+        config_reader = _LoadConfigReaderImpl(filename)
+    return config_reader
 
 def retrieve_class_from_string(class_str):
     module = importlib.import_module(class_str.split(":")[0])
@@ -100,7 +102,7 @@ def parse_config_to_load_job(job_name, job_details):
             lambda m: retrieve_class_from_string(m),
             job_details.get("required_model", []),
         ),
-        unique_fields=job_details["db_field_unique"],
+        unique_fields=job_details.get("db_field_unique", ['id']),
         update_fields=job_details["db_field_update"],
         delimiter=job_details.get("delimiter", "|"),
     )
