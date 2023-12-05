@@ -430,7 +430,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: energy
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
@@ -442,7 +442,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: justice40
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
@@ -454,7 +454,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: low_income
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
@@ -528,7 +528,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: energy
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
@@ -540,7 +540,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: justice40
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
@@ -552,7 +552,7 @@ assoc:
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: low_income
-    assoc_strategy: county_fips
+    assoc_strategy: fips_county
     db_field_unique:
     - target_geography
     - bonus_geography
