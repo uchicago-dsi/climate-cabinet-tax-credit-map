@@ -71,9 +71,7 @@ class Command(BaseCommand):
                         target_record.values("fips_info"), job.bonus
                     )
                 elif strategy == "overlap":
-                    matches = self.match_overlap(
-                        target_record.values("id"), job.bonus
-                    )
+                    matches = self.match_overlap(target_record.values("id"), job.bonus)
                 else:
                     raise ValueError(
                         f"Invalid association strategy : {job.assoc_strategy}"
@@ -94,16 +92,16 @@ class Command(BaseCommand):
                 insert_query = (
                     f"INSERT INTO {TargetBonusAssoc._meta.db_table} "
                     "("
-                        "target_geography_type, "
-                        "bonus_geography_type, "
-                        "bonus_geography_id, "
-                        "target_geography_id"
+                    "target_geography_type, "
+                    "bonus_geography_type, "
+                    "bonus_geography_id, "
+                    "target_geography_id"
                     ") "
                     "SELECT "
-                        "target_geography_type, "
-                        "bonus_geography_type, "
-                        "bonus_geography_id, "
-                        "target_geography_id "
+                    "target_geography_type, "
+                    "bonus_geography_type, "
+                    "bonus_geography_id, "
+                    "target_geography_id "
                     f"FROM ({raw_sql_query}) AS subquery"
                 )
                 with connection.cursor() as cursor:
@@ -121,9 +119,7 @@ class Command(BaseCommand):
         # It may seem a little funny matching a substring to a full fips string
         # but remember that state fips info will only have 2 characters to begin
         # with
-        return Geography.objects.annotate(
-            state_fips=Substr("fips_info", 1, 2)
-        ).filter(
+        return Geography.objects.annotate(state_fips=Substr("fips_info", 1, 2)).filter(
             geography_type__name=bonus,
             state_fips=fips_info,
         )
@@ -132,5 +128,5 @@ class Command(BaseCommand):
         target_boundary = Geography.objects.filter(id=target_id).values("boundary")
         return Geography.objects.filter(
             geography_type__name=bonus_type,
-            boundary__intersects=Subquery(target_boundary)
+            boundary__intersects=Subquery(target_boundary),
         )

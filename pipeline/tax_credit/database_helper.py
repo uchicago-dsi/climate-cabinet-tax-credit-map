@@ -1,16 +1,14 @@
+from itertools import islice
+
+from common.logger import LoggerFactory
 from django.db import models
 
-from itertools import islice
-from common.logger import LoggerFactory
-
 logger = LoggerFactory.get(__name__)
-
 
 
 class DatabaseHelper:
     @staticmethod
     def load_batched(job, reader, load_batch_size, batch_number_of):
-
         try:
             objs = (
                 job.row_to_model(row)
@@ -33,7 +31,9 @@ class DatabaseHelper:
                 if batch_number_of is not None and batch_ct >= batch_number_of:
                     break
         except Exception as e:
-            logger.error(f"ERROR!!!!! Could not process [ {job.model} ] record. Check row to model transformation.")
+            logger.error(
+                f"ERROR!!!!! Could not process [ {job.model} ] record. Check row to model transformation."
+            )
             logger.error(f"ERROR : {e}")
 
     @staticmethod

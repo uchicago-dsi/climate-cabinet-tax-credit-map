@@ -90,8 +90,12 @@ def test_load_assoc_with_state_fips_match():
     assoc_cmd = f"{LOAD_ASSOC_TABLES_COMMAND} --target state"
     call_command(*assoc_cmd.split())
 
-    assoc_ct_li = TargetBonusAssoc.objects.filter(bonus_geography_type="rural_coop").count()
-    assoc_ct_rc = TargetBonusAssoc.objects.filter(bonus_geography_type="rural_coop").count()
+    assoc_ct_li = TargetBonusAssoc.objects.filter(
+        bonus_geography_type="rural_coop"
+    ).count()
+    assoc_ct_rc = TargetBonusAssoc.objects.filter(
+        bonus_geography_type="rural_coop"
+    ).count()
 
     assert assoc_ct_li > 0
     assert assoc_ct_rc > 0

@@ -3,8 +3,9 @@
 
 import os
 from distutils.util import strtobool
-from configurations import Configuration
 from pathlib import Path
+
+from configurations import Configuration
 
 
 class BaseConfig(Configuration):
@@ -46,8 +47,8 @@ class BaseConfig(Configuration):
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {
                 "counties": "raw/census/counties/tl_2020_us_county.zip",
-                "state_fips": "raw/census/states/fips.csv"
-            }
+                "state_fips": "raw/census/states/fips.csv",
+            },
         },
         {
             "name": "distressed communities",
@@ -58,8 +59,8 @@ class BaseConfig(Configuration):
             "source": "Distressed Communities Index (DCI), Economic Innovation Group",
             "files": {
                 "distress_scores": "raw/bonus/distressed/DCI-2016-2020-Academic-Non-profit-Government-Scores-Only.xlsx",
-                "zctas": "raw/census/zip_codes/tl_2020_us_zcta520.zip"
-            }
+                "zctas": "raw/census/zip_codes/tl_2020_us_zcta520.zip",
+            },
         },
         {
             "name": "energy communities - coal",
@@ -70,7 +71,7 @@ class BaseConfig(Configuration):
             "source": "Interagency Working Group on Coal & Power Plant Communities & Economic Revitalization, National Energy Technology Lab, Department of Energy",
             "files": {
                 "coal_communities": "raw/bonus/energy/ira_coal_closure_energy_comm_2023v2.zip"
-            }
+            },
         },
         {
             "name": "energy communities - fossil fuels",
@@ -81,7 +82,7 @@ class BaseConfig(Configuration):
             "source": "Interagency Working Group on Coal & Power Plant Communities & Economic Revitalization, National Energy Technology Lab, Department of Energy",
             "files": {
                 "fossil_fuel_communities": "raw/bonus/energy/msa_nmsa_fee_ec_status_2023v2.zip"
-            }
+            },
         },
         {
             "name": "justice40 communities",
@@ -90,9 +91,7 @@ class BaseConfig(Configuration):
             "epsg": 4326,
             "published_on": "2022-11-22",
             "source": "Climate and Economic Justice Screening Tool v.1.0, Council on Environmental Quality, Executive Office of the President",
-            "files": {
-                "justice40_communities": "raw/bonus/justice40/usa.zip"
-            }
+            "files": {"justice40_communities": "raw/bonus/justice40/usa.zip"},
         },
         {
             "name": "low-income communities",
@@ -107,8 +106,8 @@ class BaseConfig(Configuration):
                 "low_income_2016_2020": "raw/bonus/low_income/NMTC_2016-2020_ACS_LIC_Sept1_2023.xlsb",
                 "state_fips": "raw/census/states/fips.csv",
                 "tracts_2010": "raw/census/tracts/tl_2010_[6-7]*_tract10.zip",
-                "tracts_2020": "raw/census/tracts/tl_2020_**_tract.zip"
-            }
+                "tracts_2020": "raw/census/tracts/tl_2020_**_tract.zip",
+            },
         },
         {
             "name": "municipalities",
@@ -120,8 +119,8 @@ class BaseConfig(Configuration):
             "files": {
                 "county_fips": "raw/census/counties/fips.csv",
                 "county_subdivisions": "raw/census/county_subdivisions/**.zip",
-                "state_fips": "raw/census/states/fips.csv"
-            }
+                "state_fips": "raw/census/states/fips.csv",
+            },
         },
         {
             "name": "municipal utilities",
@@ -132,8 +131,8 @@ class BaseConfig(Configuration):
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
                 "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
-                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
-            }
+                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip",
+            },
         },
         {
             "name": "rural cooperatives",
@@ -144,7 +143,7 @@ class BaseConfig(Configuration):
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
                 "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
-            }
+            },
         },
         {
             "name": "states",
@@ -153,10 +152,8 @@ class BaseConfig(Configuration):
             "epsg": 4269,
             "published_on": "2021-02-02",
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
-            "files": {
-                "states": "raw/census/states/tl_2020_us_state.zip"
-            }
-        }
+            "files": {"states": "raw/census/states/tl_2020_us_state.zip"},
+        },
     ]
 
     # Clean datasets
@@ -165,7 +162,9 @@ class BaseConfig(Configuration):
     COAL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities__coal.geoparquet"
     COUNTY_GEOGRAPHY_FILE = "clean/geoparquet/counties.geoparquet"
     DCI_GEOGRAPHY_FILE = "clean/geoparquet/distressed_communities.geoparquet"
-    FOSSIL_FUEL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities__fossil_fuels.geoparquet"
+    FOSSIL_FUEL_GEOGRAPHY_FILE = (
+        "clean/geoparquet/energy_communities__fossil_fuels.geoparquet"
+    )
     GEOGRAPHY_TYPE_FILE = "clean/csv/geography_type.csv"
     GEOGRAPHY_TYPE_PROGRAM_FILE = "clean/csv/geography_type_program.csv"
     J40_GEOGRAPHY_FILE = "clean/geoparquet/justice40_communities.geoparquet"
@@ -183,18 +182,14 @@ class BaseConfig(Configuration):
             "dataset_name": "counties",
             "min_zoom": 3,
             "max_zoom": 5,
-            "files": [
-                "clean/geojsonl/counties.geojsonl"
-            ]
+            "files": ["clean/geojsonl/counties.geojsonl"],
         },
         {
             "name": "cc-distressed",
             "dataset_name": "distressed communities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": [
-                "clean/geojsonl/distressed_communities.geojsonl"
-            ]
+            "files": ["clean/geojsonl/distressed_communities.geojsonl"],
         },
         {
             "name": "cc-energy",
@@ -203,72 +198,59 @@ class BaseConfig(Configuration):
             "max_zoom": 10,
             "files": [
                 "clean/geojsonl/energy_communities__coal.geojsonl",
-                "clean/geojsonl/energy_communities__fossil_fuels.geojsonl"
-            ]
+                "clean/geojsonl/energy_communities__fossil_fuels.geojsonl",
+            ],
         },
         {
             "name": "cc-justice40",
             "dataset_name": "justice40 communities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": [
-                "clean/geojsonl/justice40_communities.geojsonl"
-            ]
+            "files": ["clean/geojsonl/justice40_communities.geojsonl"],
         },
         {
             "name": "cc-low-income",
             "dataset_name": "low-income communities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": [
-                "clean/geojsonl/low_income_communities.geojsonl"
-            ]
+            "files": ["clean/geojsonl/low_income_communities.geojsonl"],
         },
         {
             "name": "cc-municipalities",
             "dataset_name": "municipalities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": [
-                "clean/geojsonl/municipalities.geojsonl"
-            ]
+            "files": ["clean/geojsonl/municipalities.geojsonl"],
         },
         {
             "name": "cc-municipal-utils",
             "dataset_name": "municipal utilities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": [
-                "clean/geojsonl/municipal_utilities.geojsonl"
-            ]
+            "files": ["clean/geojsonl/municipal_utilities.geojsonl"],
         },
         {
             "name": "cc-rural-cooperatives",
             "dataset_name": "rural cooperatives",
             "min_zoom": 1,
             "max_zoom": 5,
-            "files": [
-                "clean/geojsonl/rural_cooperatives.geojsonl"
-            ]
+            "files": ["clean/geojsonl/rural_cooperatives.geojsonl"],
         },
         {
             "name": "cc-states",
             "dataset_name": "states",
             "min_zoom": 1,
             "max_zoom": 5,
-            "files": [
-                "clean/geojsonl/states.geojsonl"
-            ]
+            "files": ["clean/geojsonl/states.geojsonl"],
         },
     ]
-    
+
     # Batching
     SMALL_CHUNK_SIZE = 100
     PQ_CHUNK_SIZE = 1_000
-    
+
     # Installed apps
     INSTALLED_APPS = (
-        
         # Default
         "django.contrib.admin",
         "django.contrib.auth",
@@ -276,10 +258,8 @@ class BaseConfig(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
-
         # Third party apps
         "corsheaders",
-
         # Your apps
         "mapbox",
         "tax_credit",

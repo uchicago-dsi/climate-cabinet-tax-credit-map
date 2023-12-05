@@ -1,7 +1,7 @@
 from typing import Optional
 
-from common.storage import DataReaderFactory
 from common.logger import LoggerFactory
+from common.storage import DataReaderFactory
 from django.conf import settings
 from django.core.management import BaseCommand, CommandParser
 from tax_credit.config_reader import get_load_config_reader
@@ -29,5 +29,7 @@ class Command(BaseCommand):
                     job, reader, load_batch_size, batch_number_of
                 )
             except RuntimeError as re:
-                logger.error("ERROR!!!!! Could not validate load job. Records will not load.")
+                logger.error(
+                    "ERROR!!!!! Could not validate load job. Records will not load."
+                )
                 logger.error(f"ERROR : {re}")

@@ -1,6 +1,7 @@
 from common.logger import LoggerFactory
-from django.contrib.gis.db.backends.postgis.base import \
-    DatabaseWrapper as PostgisDatabaseWrapper
+from django.contrib.gis.db.backends.postgis.base import (
+    DatabaseWrapper as PostgisDatabaseWrapper,
+)
 
 logger = LoggerFactory.get(__name__)
 

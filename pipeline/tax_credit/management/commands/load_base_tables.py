@@ -19,9 +19,7 @@ config = get_load_config_reader(settings.CONFIG_FILE)
 
 
 class Command(BaseCommand):
-    help = (
-        "Loads the database tables that have no dependencies on other tables"
-    )
+    help = "Loads the database tables that have no dependencies on other tables"
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
@@ -32,16 +30,12 @@ class Command(BaseCommand):
 
         return super().add_arguments(parser)
 
-    def handle(
-        self, *args: list[str], **options: dict[str, Any]
-    ) -> Union[str, None]:
+    def handle(self, *args: list[str], **options: dict[str, Any]) -> Union[str, None]:
         load_batch_size: int = settings.LOAD_BATCH_SIZE
         batch_number_of: Optional[int] = None
 
         if options.get("smoke_test", None):
-            smoke_test_batch_size, smoke_test_batch_num_of = options[
-                "smoke_test"
-            ]
+            smoke_test_batch_size, smoke_test_batch_num_of = options["smoke_test"]
             load_batch_size, batch_number_of = int(smoke_test_batch_size), int(
                 smoke_test_batch_num_of
             )
@@ -54,5 +48,7 @@ class Command(BaseCommand):
                     job, reader, load_batch_size, batch_number_of
                 )
             except RuntimeError as re:
-                logger.error("ERROR!!!!! Could not validate load job, job will not run.")
+                logger.error(
+                    "ERROR!!!!! Could not validate load job, job will not run."
+                )
                 logger.error(f"ERROR : {re}")

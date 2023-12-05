@@ -1,25 +1,25 @@
 """Representations of datasets used to populate the database tables.
 """
 
-import geopandas as gpd
 import logging
-import numpy as np
-import pandas as pd
 import warnings
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
 from common.storage import DataFrameReader, DataFrameWriter
 from django.conf import settings
-from dataclasses import dataclass
 from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.polygon import Polygon
 from tax_credit.constants import STATE_ABBREVIATIONS
-from typing import Optional
 
 
 @dataclass
 class GeoDataset(ABC):
-    """Abstract representation of a dataset with metadata. 
-    """
+    """Abstract representation of a dataset with metadata."""
 
     name: str
     """Informal name for the dataset.
@@ -38,7 +38,7 @@ class GeoDataset(ABC):
     """The coordinate reference system (CRS) of the dataset
     in terms of the standard EPSG code.
     """
-    
+
     published_on: str
     """The date on which the data was published/released.
     """
@@ -65,14 +65,13 @@ class GeoDataset(ABC):
 
     @property
     def is_empty(self) -> bool:
-        """A boolean indicating whether the dataset has any records.
-        """
+        """A boolean indicating whether the dataset has any records."""
         return self.data is None
 
     @abstractmethod
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -82,7 +81,7 @@ class GeoDataset(ABC):
             (`GeoDataFrame`): A snapshot of the current data.
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def _build_name(self) -> gpd.GeoDataFrame:
         """Updates the data with a formatted name column.
@@ -94,7 +93,7 @@ class GeoDataset(ABC):
             (`GeoDataFrame`): A snapshot of the current data.
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def _build_fips(self) -> gpd.GeoDataFrame:
         """Updates the data with one or more columns storing
@@ -107,7 +106,7 @@ class GeoDataset(ABC):
             (`GeoDataFrame`): A snapshot of the current data.
         """
         raise NotImplementedError
-    
+
     def _correct_geometry(self) -> gpd.GeoDataFrame:
         """Updates the geometry column of the dataset by transforming
         Polygons to MultiPolygons (at the time of writing, necessary
@@ -137,8 +136,7 @@ class GeoDataset(ABC):
             # Buffer geometries to remove slight distortions/overlaps
             with warnings.catch_warnings():
                 warnings.simplefilter(action="ignore", category=UserWarning)
-                self.data.geometry = (self.data.geometry
-                                      .buffer(settings.BUFFER_DEG))
+                self.data.geometry = self.data.geometry.buffer(settings.BUFFER_DEG)
             return self.data.copy()
         except Exception as e:
             raise Exception(f"Failed to correct geometry column. {e}") from None
@@ -165,23 +163,25 @@ class GeoDataset(ABC):
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
-        """        
+        """
         self.data["geography_type"] = self.geography_type
         self.data["as_of"] = self.as_of
         self.data["published_on"] = self.published_on
         self.data["source"] = self.source
-        self.data = self.data[[
-            "name", 
-            "fips", 
-            "geography_type", 
-            "as_of", 
-            "published_on", 
-            "source", 
-            "geometry"
-        ]]
+        self.data = self.data[
+            [
+                "name",
+                "fips",
+                "geography_type",
+                "as_of",
+                "published_on",
+                "source",
+                "geometry",
+            ]
+        ]
         self.data = self.data.sort_values(by="name")
         return self.data.copy()
-    
+
     def process(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and cleans a dataset.
 
@@ -201,9 +201,11 @@ class GeoDataset(ABC):
         self._filter_records()
         post_num_records = len(self.data)
         if pre_num_records != post_num_records:
-            self.logger.info("Filtered the dataset to include only "
-                             f"relevant records. {post_num_records:,} "
-                             "record(s) remaining.")
+            self.logger.info(
+                "Filtered the dataset to include only "
+                f"relevant records. {post_num_records:,} "
+                "record(s) remaining."
+            )
 
         # Create name column
         self.logger.info("Building name column.")
@@ -223,7 +225,7 @@ class GeoDataset(ABC):
 
         return self.data.copy()
 
-    def to_geoparquet(self, index: bool=False) -> None:
+    def to_geoparquet(self, index: bool = False) -> None:
         """Writes the dataset to a geoparquet file.
 
         Args:
@@ -239,7 +241,7 @@ class GeoDataset(ABC):
         fname = "_".join(self.name.replace("-", "_").split(" ")) + ".geoparquet"
         self.writer.write_geoparquet(fname, self.data, index=index)
 
-    def to_geojson_lines(self, index: bool=False) -> None:
+    def to_geojson_lines(self, index: bool = False) -> None:
         """Writes the dataset to a newline-delimited GeoJSON file.
 
         References:
@@ -268,7 +270,7 @@ class CoalDataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -281,10 +283,12 @@ class CoalDataset(GeoDataset):
         try:
             coal_fpath = kwargs["coal_communities"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load file
         zip_file_path = "IRA_Coal_Closure_Energy_Comm_2023v2/Coal_Closure_Energy_Communities_SHP_2023v2"
         self.data = self.reader.read_shapefile(coal_fpath, zip_file_path)
@@ -300,9 +304,13 @@ class CoalDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        self.data["name"] = self.data["CensusTrac"].str.upper() + ", " + \
-                            self.data["County_Nam"].str.upper() + ", " + \
-                            self.data["State_Name"].str.upper()
+        self.data["name"] = (
+            self.data["CensusTrac"].str.upper()
+            + ", "
+            + self.data["County_Nam"].str.upper()
+            + ", "
+            + self.data["State_Name"].str.upper()
+        )
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -326,7 +334,7 @@ class CountyDataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -340,26 +348,26 @@ class CountyDataset(GeoDataset):
             counties_fpath = kwargs["counties"]
             state_fips_fpath = kwargs["state_fips"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load shapefile of U.S. counties
         counties = self.reader.read_shapefile(counties_fpath)
 
         # Load CSV file of U.S. county FIPS codes
-        fips = self.reader.read_csv(
-            state_fips_fpath,
-            delimiter="|",
-            dtype=str)
-        
+        fips = self.reader.read_csv(state_fips_fpath, delimiter="|", dtype=str)
+
         # Merge counties and fip codes
         self.data = counties.merge(
             right=fips[["STATE", "STATE_NAME"]],
             how="left",
             left_on="STATEFP",
-            right_on="STATE")
-        
+            right_on="STATE",
+        )
+
         return self.data.copy()
 
     def _build_name(self) -> gpd.GeoDataFrame:
@@ -371,8 +379,11 @@ class CountyDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        self.data["name"] = self.data["NAMELSAD"].str.upper() + \
-                        ", " + self.data["STATE_NAME"].str.upper()
+        self.data["name"] = (
+            self.data["NAMELSAD"].str.upper()
+            + ", "
+            + self.data["STATE_NAME"].str.upper()
+        )
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -398,7 +409,7 @@ class DistressedDataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -412,26 +423,28 @@ class DistressedDataset(GeoDataset):
             distress_scores_fpath = kwargs["distress_scores"]
             zctas_fpath = kwargs["zctas"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load zip code tabulation area shapefile
         zctas = self.reader.read_shapefile(zctas_fpath)
-        
+
         # Load Excel file of distress scores
         scores = self.reader.read_excel(
-            filename=distress_scores_fpath,
-            sheet_name="Zip code",
-            dtype=str)
-        
+            filename=distress_scores_fpath, sheet_name="Zip code", dtype=str
+        )
+
         # Merge datasets
         self.data = zctas.merge(
             right=scores[["Zipcode", "Quintile (5=Distressed)"]],
             how="left",
             left_on="ZCTA5CE20",
-            right_on="Zipcode")
-        
+            right_on="Zipcode",
+        )
+
         return self.data.copy()
 
     def _build_name(self) -> gpd.GeoDataFrame:
@@ -445,8 +458,7 @@ class DistressedDataset(GeoDataset):
         """
         if self.is_empty:
             raise RuntimeError("Dataset is empty. Cannot construct name.")
-        self.data["name"] = "DISTRESSED ZCTA " + \
-                            self.data["Zipcode"].str.upper()
+        self.data["name"] = "DISTRESSED ZCTA " + self.data["Zipcode"].str.upper()
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -463,7 +475,7 @@ class DistressedDataset(GeoDataset):
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = None
         return self.data.copy()
-    
+
     def _filter_records(self) -> gpd.GeoDataFrame:
         """Filters the dataset to contain only relevant entries
         (i.e., zip code tabulation areas marked as distressed).
@@ -482,13 +494,13 @@ class DistressedDataset(GeoDataset):
 
 class FossilFuelDataset(GeoDataset):
     """Represents a dataset of 2010 U.S. MSAs and non-MSAs
-    affected by fossil fuel industry unemployment and 
+    affected by fossil fuel industry unemployment and
     thereafter designated as energy communities.
     """
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -501,18 +513,22 @@ class FossilFuelDataset(GeoDataset):
         try:
             fossil_fuel_fpath = kwargs["fossil_fuel_communities"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load data
-        zip_file_path = "MSA_NMSA_FEE_EC_Status_2023v2/MSA_NMSA_FEE_EC_Status_SHP_2023v2"
+        zip_file_path = (
+            "MSA_NMSA_FEE_EC_Status_2023v2/MSA_NMSA_FEE_EC_Status_SHP_2023v2"
+        )
         gdf = self.reader.read_shapefile(fossil_fuel_fpath, zip_file_path)
-        
+
         # Subset data to include only column relevant to
         # metropolitan statistical areas (MSAs, the unit of analysis)
         gdf = gdf[["EC_qual_st", "msa_qual", "MSA_area_n", "geometry"]]
-        
+
         # Group rows (counties) by MSA name
         self.data = gdf.groupby(by="MSA_area_n").first().reset_index()
 
@@ -527,6 +543,7 @@ class FossilFuelDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+
         # Define local function
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
@@ -545,13 +562,11 @@ class FossilFuelDataset(GeoDataset):
             else:
                 prefix = "Metropolitan Statistical Area"
                 locale_name, state_abbrev = row["MSA_area_n"].split(", ")
-                state_names = '-'.join(
-                    STATE_ABBREVIATIONS[a] 
-                    for a in 
-                    state_abbrev.split("-")
+                state_names = "-".join(
+                    STATE_ABBREVIATIONS[a] for a in state_abbrev.split("-")
                 )
                 return f"{prefix} {locale_name}, {state_names}".upper()
-            
+
         # Apply function to generate name columns
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
@@ -592,7 +607,7 @@ class Justice40Dataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -605,17 +620,19 @@ class Justice40Dataset(GeoDataset):
         try:
             justice40_fpath = kwargs["justice40_communities"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load dataset
         self.data = self.reader.read_shapefile(justice40_fpath)
-        
+
         # Replace NaN values
         self.data = self.data.replace({np.nan: None})
         return self.data.copy()
-    
+
     def _build_name(self) -> gpd.GeoDataFrame:
         """Updates the data with a formatted name column.
 
@@ -625,6 +642,7 @@ class Justice40Dataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+
         # Define local function
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
@@ -650,7 +668,7 @@ class Justice40Dataset(GeoDataset):
 
             # Compose name
             return f"JUSTICE40 {tract}{county}{state}"
-        
+
         # Apply function to generate name column.
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
@@ -703,8 +721,9 @@ class LowIncomeDataset(GeoDataset):
         nmtc_pov_flag_col: str,
         nmtc_migr_sheet_name: str,
         nmtc_migr_id_col: str,
-        tracts_fpath_rgx: str) -> gpd.GeoDataFrame:
-        """Creates a GeoDataFrame of census tracts identified 
+        tracts_fpath_rgx: str,
+    ) -> gpd.GeoDataFrame:
+        """Creates a GeoDataFrame of census tracts identified
         by the NMTC program as "low-income" for a given year.
 
         Args:
@@ -727,7 +746,7 @@ class LowIncomeDataset(GeoDataset):
             nmtc_pov_flag_col (`str`): The name of the column
                 serving as the low-income flag in the NMTC
                 poverty Excel spreadsheet.
-                            
+
             nmtc_migr_sheet_name (`str`): The name of the sheet in
                 the NMTC Excel file containing high-migration
                 area designations.
@@ -738,39 +757,34 @@ class LowIncomeDataset(GeoDataset):
             tracts_fpath_rgx (`str`): The Regex pattern used to
                 find census tract shapefile paths and then download
                 and merge those geographies with the NMTC data.
-                
+
         Returns:
             (`GeoDataFrame`): The `GeoDataFrame`, which contains
                 census tract geometries along with metadata on
-                tract names, 
+                tract names,
         """
         # Read first Excel sheet of dataset for low-income status
         # (Examining qualification based on income or poverty criteria)
         has_pov_df = self.reader.read_excel(
-            filename=nmtc_fpath,
-            sheet_name=nmtc_pov_sheet_name,
-            dtype=str)
-                
+            filename=nmtc_fpath, sheet_name=nmtc_pov_sheet_name, dtype=str
+        )
+
         # Subset to include only qualifying low-income tracts
         has_pov_df = has_pov_df[has_pov_df[nmtc_pov_flag_col] == "YES"]
 
         # Read second Excel sheet of dataset for low-income status
         # (Examining qualification based on high migration rates)
         migr_df = self.reader.read_excel(
-            filename=nmtc_fpath,
-            sheet_name=nmtc_migr_sheet_name,
-            skiprows=1,
-            dtype=str)
-        
+            filename=nmtc_fpath, sheet_name=nmtc_migr_sheet_name, skiprows=1, dtype=str
+        )
+
         # Derive list of qualifying tract ids
-        ids = has_pov_df[nmtc_pov_id_col].tolist() + \
-            migr_df[nmtc_migr_id_col].tolist()
+        ids = has_pov_df[nmtc_pov_id_col].tolist() + migr_df[nmtc_migr_id_col].tolist()
         lic_ids = sorted(list(set(ids)))
 
         # Build GeoDataFrame of low-income census tracts
         gdf = None
         for pth in self.reader.get_data_bucket_contents(tracts_fpath_rgx):
-
             # Load tracts for state/state-equivalent
             tract_gdf = self.reader.read_shapefile(pth)
 
@@ -785,14 +799,16 @@ class LowIncomeDataset(GeoDataset):
             tract_gdf = tract_gdf.merge(
                 how="left",
                 right=county_fips[["STATEFP", "COUNTYFP", "COUNTYNAME"]],
-                on=["STATEFP", "COUNTYFP"])
-            
+                on=["STATEFP", "COUNTYFP"],
+            )
+
             # Add state name metadata
             tract_gdf = tract_gdf.merge(
                 how="left",
                 right=state_fips[["STATE", "STATE_NAME"]],
                 left_on="STATEFP",
-                right_on="STATE")
+                right_on="STATE",
+            )
 
             # Concatenate states to larger GeoDataFrame
             gdf = tract_gdf if gdf is None else pd.concat([gdf, tract_gdf])
@@ -801,8 +817,8 @@ class LowIncomeDataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
-        reference that `GeoDataFrame`. NOTE: It is necessary to 
+        to build a `GeoDataFrame`. Then updates the data to
+        reference that `GeoDataFrame`. NOTE: It is necessary to
         load both 2020 and 2010 census data because data from
         the U.S. territories (apart from Puerto Rico), has not
         yet been released.
@@ -822,21 +838,21 @@ class LowIncomeDataset(GeoDataset):
             tracts_2010_fpath = kwargs["tracts_2010"]
             tracts_2020_fpath = kwargs["tracts_2020"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-    
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load county metadata
         county_fips = self.reader.read_csv(
-            filename=county_fips_fpath,
-            delimiter="|",
-            dtype=str)
-        
+            filename=county_fips_fpath, delimiter="|", dtype=str
+        )
+
         # Load state metadata
         state_fips = self.reader.read_csv(
-            filename=state_fips_fpath,
-            delimiter="|",
-            dtype=str)
+            filename=state_fips_fpath, delimiter="|", dtype=str
+        )
 
         # Load data for 2020 Census
         gdf2020 = self._find_qualifying_tracts(
@@ -848,8 +864,9 @@ class LowIncomeDataset(GeoDataset):
             nmtc_pov_flag_col="Does Census Tract Qualify For NMTC Low-Income Community (LIC) on Poverty or Income Criteria?",
             nmtc_migr_sheet_name="High migration tracts",
             nmtc_migr_id_col="2020 Census Tract Number FIPS code. GEOID",
-            tracts_fpath_rgx=tracts_2020_fpath)
-        
+            tracts_fpath_rgx=tracts_2020_fpath,
+        )
+
         # Load data for 2010 Census
         gdf2010 = self._find_qualifying_tracts(
             county_fips,
@@ -860,8 +877,9 @@ class LowIncomeDataset(GeoDataset):
             nmtc_pov_flag_col="Does Census Tract Qualify For NMTC Low-Income Community (LIC) on Poverty or Income Criteria?",
             nmtc_migr_sheet_name="High migration tracts",
             nmtc_migr_id_col="2010 Census Tract Number FIPS code GEOID",
-            tracts_fpath_rgx=tracts_2010_fpath)
-        
+            tracts_fpath_rgx=tracts_2010_fpath,
+        )
+
         # Concatenate GeoDataFrames
         self.data = pd.concat([gdf2020, gdf2010])
 
@@ -878,11 +896,15 @@ class LowIncomeDataset(GeoDataset):
         """
         if self.is_empty:
             raise RuntimeError("Dataset is empty. Cannot construct name.")
-        self.data["name"] = "LOW-INCOME " + \
-            self.data["NAMELSAD"].str.upper() + ", " + \
-            self.data["COUNTYNAME"].str.upper() + ", " + \
-            self.data["STATE_NAME"].str.upper()
-        
+        self.data["name"] = (
+            "LOW-INCOME "
+            + self.data["NAMELSAD"].str.upper()
+            + ", "
+            + self.data["COUNTYNAME"].str.upper()
+            + ", "
+            + self.data["STATE_NAME"].str.upper()
+        )
+
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -908,7 +930,7 @@ class MunicipalityDataset(GeoDataset):
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -923,9 +945,11 @@ class MunicipalityDataset(GeoDataset):
             county_sub_fpath = kwargs["county_subdivisions"]
             state_fips_fpath = kwargs["state_fips"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
 
         # Load county subdivision files
         gdf = None
@@ -935,28 +959,28 @@ class MunicipalityDataset(GeoDataset):
 
         # Load state metadata
         state_fips = self.reader.read_csv(
-            filename=state_fips_fpath,
-            delimiter="|",
-            dtype=str)
+            filename=state_fips_fpath, delimiter="|", dtype=str
+        )
 
         # Load county metadata
         county_fips = self.reader.read_csv(
-            filename=county_fips_fpath,
-            delimiter="|",
-            dtype=str)
-        
-        # Merge county subdivisions with state names 
+            filename=county_fips_fpath, delimiter="|", dtype=str
+        )
+
+        # Merge county subdivisions with state names
         gdf = gdf.merge(
             how="left",
             right=state_fips[["STATE", "STATE_NAME"]],
             left_on="STATEFP",
-            right_on="STATE")
+            right_on="STATE",
+        )
 
-        # Merge county subdivisions with county names 
+        # Merge county subdivisions with county names
         self.data = gdf.merge(
             how="left",
             right=county_fips[["STATEFP", "COUNTYFP", "COUNTYNAME"]],
-            on=["STATEFP", "COUNTYFP"])
+            on=["STATEFP", "COUNTYFP"],
+        )
 
         return self.data.copy()
 
@@ -969,6 +993,7 @@ class MunicipalityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+
         # Define local function
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
@@ -989,7 +1014,7 @@ class MunicipalityDataset(GeoDataset):
                 gov_lvl_is_num = True
             except ValueError:
                 gov_lvl_is_num = False
-            
+
             if gov_lvl_is_num:
                 subdivision_full = row["NAMELSAD"].upper()
             elif gov_lvl in ("CITY", "VILLAGE"):
@@ -998,7 +1023,7 @@ class MunicipalityDataset(GeoDataset):
                 subdivision_full = f"{subdivision} {gov_lvl}"
 
             return f"{subdivision_full}, {county}, {state}"
-        
+
         # Apply function to generate name column
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
@@ -1035,12 +1060,11 @@ class MunicipalityDataset(GeoDataset):
 
 
 class MunicipalUtilityDataset(GeoDataset):
-    """Represents a dataset of municipal utilities.
-    """
-   
+    """Represents a dataset of municipal utilities."""
+
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -1054,25 +1078,25 @@ class MunicipalUtilityDataset(GeoDataset):
             corrected_names_fpath = kwargs["corrected_names"]
             utilities_fpath = kwargs["utilities"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load utilities shapefile
         self.data = self.reader.read_shapefile(utilities_fpath)
-        
+
         # Load corrected names
         corrected_names = self.reader.read_csv(
-            filename=corrected_names_fpath,
-            dtype={"OBJECTID": int})
+            filename=corrected_names_fpath, dtype={"OBJECTID": int}
+        )
 
         # Merge corrected names
         self.data = self.data.merge(
-            right=corrected_names,
-            how="left",
-            on="OBJECTID",
-            suffixes=["_DHS", "_CC"])
-        
+            right=corrected_names, how="left", on="OBJECTID", suffixes=["_DHS", "_CC"]
+        )
+
         return self.data.copy()
 
     def _build_name(self) -> gpd.GeoDataFrame:
@@ -1084,8 +1108,11 @@ class MunicipalUtilityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        self.data["name"] = self.data["NAME_CC"] + ", " + \
-            self.data["STATE"].apply(lambda s: STATE_ABBREVIATIONS[s])
+        self.data["name"] = (
+            self.data["NAME_CC"]
+            + ", "
+            + self.data["STATE"].apply(lambda s: STATE_ABBREVIATIONS[s])
+        )
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -1100,10 +1127,10 @@ class MunicipalUtilityDataset(GeoDataset):
         """
         self.data["fips"] = None
         return self.data.copy()
-    
+
     def _filter_records(self) -> gpd.GeoDataFrame:
         """Filters the dataset to contain only relevant entries
-        (i.e., municipalities within the 50 U.S. states, the 
+        (i.e., municipalities within the 50 U.S. states, the
         District of Columbia, and U.S. territories).
 
         Args:
@@ -1114,20 +1141,20 @@ class MunicipalUtilityDataset(GeoDataset):
         """
         if self.is_empty:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
-        municipal_types = ['MUNICIPAL', 'MUNICIPAL MKTG AUTHORITY']
+        municipal_types = ["MUNICIPAL", "MUNICIPAL MKTG AUTHORITY"]
         excluded_states = ["AB", "BC"]
-        self.data = self.data.query("TYPE in @municipal_types & "
-                                    "STATE not in @excluded_states")
+        self.data = self.data.query(
+            "TYPE in @municipal_types & " "STATE not in @excluded_states"
+        )
         return self.data.copy()
 
 
 class RuralCoopDataset(GeoDataset):
-    """Represents a dataset of rural electric cooperatives.
-    """
+    """Represents a dataset of rural electric cooperatives."""
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -1140,10 +1167,12 @@ class RuralCoopDataset(GeoDataset):
         try:
             utilities_fpath = kwargs["utilities"]
         except KeyError as e:
-            raise RuntimeError("Missing file path. Expected to find key "
-                               f"\"{e}\" under \"files\" in configuration "
-                               "settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path. Expected to find key "
+                f'"{e}" under "files" in configuration '
+                "settings."
+            ) from None
+
         # Load data
         self.data = self.reader.read_shapefile(utilities_fpath)
         return self.data.copy()
@@ -1158,9 +1187,12 @@ class RuralCoopDataset(GeoDataset):
             (`GeoDataFrame`): A snapshot of the current data.
         """
         map_state = lambda s: STATE_ABBREVIATIONS[s]
-        self.data["name"] = "RURAL COOPERATIVE " + \
-            self.data["NAME"].str.upper() + ", " +\
-            self.data["STATE"].apply(map_state).str.upper()
+        self.data["name"] = (
+            "RURAL COOPERATIVE "
+            + self.data["NAME"].str.upper()
+            + ", "
+            + self.data["STATE"].apply(map_state).str.upper()
+        )
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:
@@ -1175,7 +1207,7 @@ class RuralCoopDataset(GeoDataset):
         """
         self.data["fips"] = None
         return self.data.copy()
-    
+
     def _filter_records(self) -> gpd.GeoDataFrame:
         """Filters the dataset to contain only relevant entries
         (i.e., rural cooperatives only).
@@ -1193,13 +1225,13 @@ class RuralCoopDataset(GeoDataset):
 
 
 class StateDataset(GeoDataset):
-    """Represents a dataset of states parsed from 
+    """Represents a dataset of states parsed from
     U.S. Census Bureau TIGER/Line Shapefiles.
     """
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
-        to build a `GeoDataFrame`. Then updates the data to 
+        to build a `GeoDataFrame`. Then updates the data to
         reference that `GeoDataFrame`.
 
         Args:
@@ -1212,16 +1244,18 @@ class StateDataset(GeoDataset):
         try:
             states_fpath = kwargs["states"]
         except KeyError as e:
-            raise RuntimeError("Missing file path to states shapefile. "
-                               f"Expected to find key \"{e}\" under "
-                               "\"files\" in configuration settings.") from None
-        
+            raise RuntimeError(
+                "Missing file path to states shapefile. "
+                f'Expected to find key "{e}" under '
+                '"files" in configuration settings.'
+            ) from None
+
         # Load shapefile of state boundaries and metadata
         try:
             self.data = self.reader.read_shapefile(states_fpath)
         except Exception as e:
             raise RuntimeError(f"Failed to load file. {e}") from None
-        
+
         # Return a copy of the data for auditing purposes
         return self.data.copy()
 
@@ -1252,8 +1286,7 @@ class StateDataset(GeoDataset):
 
 
 class DatasetFactory:
-    """Factory for selecting datasets by name.
-    """
+    """Factory for selecting datasets by name."""
 
     _REGISTRY = {
         "counties": CountyDataset,
@@ -1265,7 +1298,7 @@ class DatasetFactory:
         "municipal utilities": MunicipalUtilityDataset,
         "low-income communities": LowIncomeDataset,
         "rural cooperatives": RuralCoopDataset,
-        "states": StateDataset
+        "states": StateDataset,
     }
 
     @staticmethod
@@ -1278,7 +1311,8 @@ class DatasetFactory:
         source: str,
         logger: logging.Logger,
         reader: DataFrameReader,
-        writer: DataFrameWriter) -> type:
+        writer: DataFrameWriter,
+    ) -> type:
         """Static method for creating a `GeoDataset` subclass.
 
         Args:
@@ -1286,18 +1320,18 @@ class DatasetFactory:
 
             as_of (str): The date on which the data became current.
 
-            geography_type (str): The geography type (e.g., 
+            geography_type (str): The geography type (e.g.,
                 state, county) represented by the dataset.
 
-            epsg (int): The coordinate reference system (CRS) 
+            epsg (int): The coordinate reference system (CRS)
                 of the dataset in terms of the standard EPSG code.
 
-            published_on (str): The date on which the 
+            published_on (str): The date on which the
                 data was published/released.
 
             source (str): The organization publishing the data.
 
-            logger (`logging.Logger`): A standard logger instance. 
+            logger (`logging.Logger`): A standard logger instance.
 
             reader (`common.storage.DataFrameReader`): Client for
                 reading input files from a local or cloud data store.
@@ -1311,8 +1345,7 @@ class DatasetFactory:
         try:
             dataset_type = DatasetFactory._REGISTRY[name]
         except KeyError:
-            raise RuntimeError("Dataset not found in registry. "
-                                "Terminating process.")
+            raise RuntimeError("Dataset not found in registry. " "Terminating process.")
         return dataset_type(
             name,
             as_of,
@@ -1322,6 +1355,5 @@ class DatasetFactory:
             source,
             logger,
             reader,
-            writer
+            writer,
         )
-

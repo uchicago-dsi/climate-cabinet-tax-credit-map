@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tax_credit', '0001_initial'),
+        ("tax_credit", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='geography',
-            name='simple_boundary',
+            model_name="geography",
+            name="simple_boundary",
         ),
     ]

@@ -32,12 +32,9 @@ while time() - start_time < check_timeout:
         exit(0)
     except psycopg2.OperationalError:
         logger.info(
-            "Postgres isn't ready. Waiting for "
-            f"{check_interval} second(s)..."
+            "Postgres isn't ready. Waiting for " f"{check_interval} " "second(s)..."
         )
         sleep(check_interval)
 
-logger.error(
-    "We could not connect to Postgres " f"within {check_timeout} second(s)."
-)
+logger.error("We could not connect to Postgres " f"within {check_timeout} second(s).")
 exit(1)

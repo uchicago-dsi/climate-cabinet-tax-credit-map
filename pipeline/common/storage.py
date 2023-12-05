@@ -2,33 +2,32 @@
 """
 
 import csv
-import geopandas as gpd
 import glob
 import io
 import json
 import os
-import pandas as pd
 import tempfile
 from abc import ABC, abstractmethod
-from common.logger import LoggerFactory
 from contextlib import contextmanager
-from typing import Any, Iterator, Optional
-
-from django.conf import settings
-from pyarrow import parquet as pq
 from typing import Any, Dict, Iterator, List, Optional
 
+import geopandas as gpd
+import pandas as pd
+from common.logger import LoggerFactory
+from django.conf import settings
+from pyarrow import parquet as pq
 
 logger = LoggerFactory.get(__name__)
 
+
 class FileSystemHelper(ABC):
-    """Abstract class for accessing file systems.
-    """
+    """Abstract class for accessing file systems."""
+
 
 class FileSystemHelper(ABC):
     @abstractmethod
-    def list_contents(self, pathname: Optional[str]=None) -> List[str]:
-        """Lists files and directories within 
+    def list_contents(self, pathname: Optional[str] = None) -> List[str]:
+        """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
@@ -45,7 +44,7 @@ class FileSystemHelper(ABC):
 
     @abstractmethod
     @contextmanager
-    def open_file(self, filename: str, mode: str="r") -> Iterator[io.IOBase]:
+    def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
         """Opens a file with the given name and mode.
 
         Args:
@@ -61,12 +60,12 @@ class FileSystemHelper(ABC):
         """
         raise NotImplementedError
 
-class LocalFileSystemHelper(FileSystemHelper):
-    """Concrete interface for accessing local file systems.
-    """
 
-    def list_contents(self, pathname: Optional[str]=None) -> List[str]:
-        """Lists files and directories within 
+class LocalFileSystemHelper(FileSystemHelper):
+    """Concrete interface for accessing local file systems."""
+
+    def list_contents(self, pathname: Optional[str] = None) -> List[str]:
+        """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
@@ -85,9 +84,9 @@ class LocalFileSystemHelper(FileSystemHelper):
             fpath = f"{settings.DATA_DIR}/{pathname}"
 
         return glob.glob(fpath)
-    
+
     @contextmanager
-    def open_file(self, filename: str, mode: str="r") -> Iterator[io.IOBase]:
+    def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
         """Opens a file with the given name and mode.
 
         Args:
@@ -107,9 +106,9 @@ class LocalFileSystemHelper(FileSystemHelper):
         finally:
             f.close()
 
+
 class GoogleCloudStorageHelper(FileSystemHelper):
-    """Concrete class for accessing Google Cloud Storage.
-    """
+    """Concrete class for accessing Google Cloud Storage."""
 
     def __init__(self) -> None:
         """Initializes a new instance of a `_CloudFileSystemHelper`.
@@ -125,8 +124,8 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         self.storage_client = storage.Client()
         self.bucket = self.storage_client.bucket(settings.CLOUD_STORAGE_BUCKET)
 
-    def list_contents(self, pathname: Optional[str]=None) -> List[str]:
-        """Lists files and directories within 
+    def list_contents(self, pathname: Optional[str] = None) -> List[str]:
+        """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
@@ -141,13 +140,12 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         """
         blobs: List[str] = [
             item.name
-            for item in 
-            self.storage_client.list_blobs(self.bucket, match_glob=pathname)
+            for item in self.storage_client.list_blobs(self.bucket, match_glob=pathname)
         ]
         return blobs
-    
+
     @contextmanager
-    def open_file(self, filename: str, mode: str='r'):
+    def open_file(self, filename: str, mode: str = "r"):
         """Opens a file with the given name and mode.
 
         Args:
@@ -170,9 +168,10 @@ class GoogleCloudStorageHelper(FileSystemHelper):
 
 
 class FileSystemHelperFactory:
-    """Factory for fetching Singleton instance 
+    """Factory for fetching Singleton instance
     of file system helper based on environment.
     """
+
     _helper: Optional[FileSystemHelper] = None
 
     @staticmethod
@@ -201,9 +200,9 @@ class FileSystemHelperFactory:
                 )
         return FileSystemHelperFactory._helper
 
+
 class DataReader(ABC):
-    """Abstract class for reading against a data type.
-    """
+    """Abstract class for reading against a data type."""
 
     def __init__(self) -> None:
         """Initializes a new instance of a `DataReader`
@@ -249,11 +248,9 @@ class DataReader(ABC):
             (list of dict): The rows.
         """
         raise NotImplementedError
-    
-    def get_data_bucket_contents(
-        self, 
-        pathname: Optional[str]=None) -> List[str]:
-        """Lists files and directories within 
+
+    def get_data_bucket_contents(self, pathname: Optional[str] = None) -> List[str]:
+        """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
@@ -268,13 +265,13 @@ class DataReader(ABC):
         """
         return self._file_helper.list_contents(pathname)
 
+
 class CsvDataReader(DataReader):
-    """A data reader for CSV files.
-    """
+    """A data reader for CSV files."""
 
     def col_names(self, filename: str, **kwargs) -> List[str]:
         """Opens the CSV file and then returns its columns.
-        
+
         Args:
             filename (str): The path to the file.
 
@@ -297,7 +294,7 @@ class CsvDataReader(DataReader):
             return reader.fieldnames
 
     def iterate(self, filename: str, **kwargs) -> Iterator[Dict[str, Any]]:
-        """Reads the CSV file and then returns a 
+        """Reads the CSV file and then returns a
         generator yielding one row at a time.
 
          Args:
@@ -321,14 +318,15 @@ class CsvDataReader(DataReader):
             for row in reader:
                 yield row
 
+
 class ParquetDataReader(DataReader):
-    """A reader for Parquet files. For more information, please see the 
+    """A reader for Parquet files. For more information, please see the
     [PyArrow documentation](https://arrow.apache.org/docs/python/generated/pyarrow.parquet.ParquetFile.html).
     """
 
     def col_names(self, filename: str, **kwargs) -> List[str]:
         """Reads the Parquet file and then returns its columns.
-        
+
         Args:
             filename (str): The path to the file.
 
@@ -338,7 +336,7 @@ class ParquetDataReader(DataReader):
         Returns:
             (list of str): The column names.
         """
-        with self._file_helper.open_file(filename, mode='rb') as f:
+        with self._file_helper.open_file(filename, mode="rb") as f:
             pf: pq.ParquetFile = pq.ParquetFile(f, **kwargs)
             try:
                 return [c.name for c in pf.schema]
@@ -346,7 +344,7 @@ class ParquetDataReader(DataReader):
                 pf.close()
 
     def iterate(self, filename: str, **kwargs) -> Iterator[Dict[str, Any]]:
-        """Reads the Parquet file and then returns a 
+        """Reads the Parquet file and then returns a
         generator yielding one row at a time.
 
          Args:
@@ -358,7 +356,7 @@ class ParquetDataReader(DataReader):
         Yields:
             (list of dict): The GeoJSON features.
         """
-        with self._file_helper.open_file(filename, mode='rb') as f:
+        with self._file_helper.open_file(filename, mode="rb") as f:
             pf = pq.ParquetFile(f, **kwargs)
             pf_iter = pf.iter_batches(settings.PQ_CHUNK_SIZE)
             for batch in pf_iter:
@@ -382,11 +380,13 @@ class DataReaderFactory:
             return DataReaderFactory.parquet_data_reader
         if type.lower() == "csv":
             return DataReaderFactory.csv_data_reader
-        raise TypeError(f"A valid value must be given to DataReaderFactory. Value given : {type} .")
+        raise TypeError(
+            f"A valid value must be given to DataReaderFactory. Value given : {type} ."
+        )
+
 
 class DataFrameReader:
-    """Base class for reading GeoDataFrames from data stores.
-    """
+    """Base class for reading GeoDataFrames from data stores."""
 
     def __init__(self) -> None:
         """Initializes a new instance of a `DataWriter`.
@@ -402,10 +402,8 @@ class DataFrameReader:
         """
         self._file_helper = FileSystemHelperFactory.get()
 
-    def get_data_bucket_contents(
-        self, 
-        pathname: Optional[str]=None) -> List[str]:
-        """Lists files and directories within 
+    def get_data_bucket_contents(self, pathname: Optional[str] = None) -> List[str]:
+        """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
@@ -429,15 +427,15 @@ class DataFrameReader:
         Args:
             filename (str): The path to the file.
 
-            **kwargs: Additional keywords to pass to the 
+            **kwargs: Additional keywords to pass to the
                 underlying `pandas.read_csv` method.
 
         Returns:
             (`pd.DataFrame`): The `DataFrame`.
         """
-        with self._file_helper.open_file(filename, mode='rb') as f:
+        with self._file_helper.open_file(filename, mode="rb") as f:
             return pd.read_csv(f, **kwargs)
-        
+
     def read_excel(self, filename: str, **kwargs) -> pd.DataFrame:
         """Reads a Microsoft Excel file into a Pandas DataFrame.
 
@@ -447,13 +445,13 @@ class DataFrameReader:
         Args:
             filename (str): The path to the file.
 
-            **kwargs: Additional keywords to pass to the 
+            **kwargs: Additional keywords to pass to the
                 underlying `pandas.read_excel` method.
 
         Returns:
             (`pd.DataFrame`): The `DataFrame`.
         """
-        with self._file_helper.open_file(filename, mode='rb') as f:
+        with self._file_helper.open_file(filename, mode="rb") as f:
             return pd.read_excel(f, **kwargs)
 
     def read_parquet(self, filename: str, **kwargs) -> gpd.GeoDataFrame:
@@ -465,20 +463,18 @@ class DataFrameReader:
         Args:
             filename (str): The path to the file.
 
-            **kwargs: Additional keywords to pass to the 
+            **kwargs: Additional keywords to pass to the
                 underlying `geopandas.read_parquet` method.
 
         Returns:
             (`gpd.DataFrame`): The `GeoDataFrame`.
         """
-        with self._file_helper.open_file(filename, mode='rb') as f:
+        with self._file_helper.open_file(filename, mode="rb") as f:
             return gpd.read_parquet(f, **kwargs)
-        
+
     def read_shapefile(
-        self, 
-        filename: str, 
-        zip_file_path: str=None, 
-        **kwargs) -> gpd.GeoDataFrame:
+        self, filename: str, zip_file_path: str = None, **kwargs
+    ) -> gpd.GeoDataFrame:
         """Reads a Shapefile into a Geopandas GeoDataFrame.
 
         References:
@@ -491,7 +487,7 @@ class DataFrameReader:
                 within the shapefile if the shapefile
                 is zipped. Defaults to `None`.
 
-            **kwargs: Additional keywords to pass to the 
+            **kwargs: Additional keywords to pass to the
                 underlying `geopandas.read_file` method.
 
         Returns:
@@ -500,25 +496,24 @@ class DataFrameReader:
         # Instantiate GeoDataFrame directly from file-like object
         # if there is no need to reference subdirectories of a zipfile
         if not zip_file_path:
-            with self._file_helper.open_file(filename, mode='rb') as f:
+            with self._file_helper.open_file(filename, mode="rb") as f:
                 return gpd.read_file(f, engine="pyogrio")
-        
+
         # Otherwise, create temp directory
         with tempfile.TemporaryDirectory() as temp_dir:
-
             # Open new file in directory and transfer contents of remote zipfile
             tmp_fpath = f"{temp_dir}/tmp.zip"
             with open(tmp_fpath, "wb") as tmp:
-                with self._file_helper.open_file(filename, mode='rb') as f:
+                with self._file_helper.open_file(filename, mode="rb") as f:
                     tmp.write(f.read())
 
             # Read the zipped datset as GeoDataFrame
             data_fpath = f"{tmp_fpath}!{zip_file_path}"
             return gpd.read_file(data_fpath, engine="pyogrio")
 
+
 class DataFrameWriter:
-    """Base class for writing GeoDataFrames to data stores.
-    """
+    """Base class for writing GeoDataFrames to data stores."""
 
     def __init__(self) -> None:
         """Initializes a new instance of a `DataWriter`.
@@ -533,18 +528,16 @@ class DataFrameWriter:
             None
         """
         self._file_helper = FileSystemHelperFactory.get()
-            
+
     def write_geojsonl(
-        self,
-        filename: str,
-        data: gpd.GeoDataFrame,
-        index: bool=False) -> None:
+        self, filename: str, data: gpd.GeoDataFrame, index: bool = False
+    ) -> None:
         """Writes a line-delimited GeoJSON file to the data bucket
         configured in settings.
 
         Args:
             filename (str): The file name/key in the bucket.
-            
+
             data (`gpd.GeoDataFrame`): The data.
 
             index (bool): Boolean indicating whether the index
@@ -564,10 +557,8 @@ class DataFrameWriter:
                     f.write("\n")
 
     def write_geoparquet(
-        self,
-        filename: str,
-        data: gpd.GeoDataFrame,
-        index: bool=False) -> None:
+        self, filename: str, data: gpd.GeoDataFrame, index: bool = False
+    ) -> None:
         """Writes a geoparquet file to the data bucket
         configured in settings.
 

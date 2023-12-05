@@ -79,12 +79,10 @@ class Command(BaseCommand):
         # TODO dry this out and use this batching for all load patterns
 
         logger.info(f"Finding overlaps between {target_geom} and {bonus_geom}")
-        for start in range(
-            0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE
-        ):
-            target_iter = Geography.objects.filter(
-                geography_type__name=target_geom
-            )[start: start + settings.SMALL_CHUNK_SIZE]
+        for start in range(0, Geography.objects.count(), settings.SMALL_CHUNK_SIZE):
+            target_iter = Geography.objects.filter(geography_type__name=target_geom)[
+                start : start + settings.SMALL_CHUNK_SIZE
+            ]
 
             self.recycle_connection(Geography)
             for target in target_iter:
@@ -99,19 +97,13 @@ class Command(BaseCommand):
 
                 while True:
                     try:
-                        batch = list(
-                            islice(bonus_iter, settings.SMALL_CHUNK_SIZE)
-                        )
+                        batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
                     except Exception as e:
                         logger.error(f"Error with the batch : {e}")
                         batch = []
-                    logger.info(
-                        f"Size of batch to load: {sys.getsizeof(batch)}"
-                    )
+                    logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
                     if not batch:
-                        logger.info(
-                            f"Loading finished for : {target_geom} {target}"
-                        )
+                        logger.info(f"Loading finished for : {target_geom} {target}")
                         break
                     assocs = []
                     for bonus in batch:
@@ -150,9 +142,7 @@ class Command(BaseCommand):
         for target in target_iter:
             assocs = []
             bonus_iter = (
-                Geography.objects.annotate(
-                    state_fips=Substr("fips_info", 1, 2)
-                )
+                Geography.objects.annotate(state_fips=Substr("fips_info", 1, 2))
                 .filter(
                     geography_type__name=bonus_geom,
                     state_fips=target.fips_info,
@@ -173,9 +163,7 @@ class Command(BaseCommand):
                 batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
                 logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
                 if not batch:
-                    logger.info(
-                        f"Loading finished for : {target_geom} {target}"
-                    )
+                    logger.info(f"Loading finished for : {target_geom} {target}")
                     break
                 assocs = []
                 for bonus in batch:
@@ -228,9 +216,7 @@ class Command(BaseCommand):
                 batch = list(islice(bonus_iter, settings.SMALL_CHUNK_SIZE))
                 logger.info(f"Size of batch to load: {sys.getsizeof(batch)}")
                 if not batch:
-                    logger.info(
-                        f"Loading finished for : {target_geom} {target}"
-                    )
+                    logger.info(f"Loading finished for : {target_geom} {target}")
                     break
                 assocs = []
                 for bonus in batch:
@@ -259,7 +245,8 @@ class Command(BaseCommand):
     @staticmethod
     def recycle_connection(model: Model):
         """Recycles the connection from the model from the previous job.
-        Without this the connection will expire and cause SSL errors when working with Neon Postgres."""
+        Without this the connection will expire and cause SSL errors when working with Neon Postgres.
+        """
         db_string = model.objects.db
         logger.info(f"Recycling connection : {model}, {db_string}")
         conn = connections[db_string]

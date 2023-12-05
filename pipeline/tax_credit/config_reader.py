@@ -46,9 +46,7 @@ class _LoadConfigReaderImpl(LoadConfigReader):
     def dependent_jobs(self) -> list[LoadJob]:
         dependent_jobs = []
         for job_name, job_details in self._dependent.items():
-            dependent_jobs.append(
-                parse_config_to_load_job(job_name, job_details)
-            )
+            dependent_jobs.append(parse_config_to_load_job(job_name, job_details))
         return dependent_jobs
 
     @property

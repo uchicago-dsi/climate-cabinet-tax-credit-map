@@ -13,16 +13,12 @@ def test_config_reader_cannot_be_created_directly():
 
 
 def test_config_can_be_created_with_factory_function():
-    filepath = (
-        settings.PROJECT_DIR / "tests" / "test_configs" / "simple_config.yml"
-    )
+    filepath = settings.PROJECT_DIR / "tests" / "test_configs" / "simple_config.yml"
     assert isinstance(get_load_config_reader(filepath), LoadConfigReader)
 
 
 def test_load_config_readers_are_the_same():
-    filepath = (
-        settings.PROJECT_DIR / "tests" / "test_configs" / "simple_config.yml"
-    )
+    filepath = settings.PROJECT_DIR / "tests" / "test_configs" / "simple_config.yml"
     assert get_load_config_reader(filepath) is get_load_config_reader(filepath)
 
 
