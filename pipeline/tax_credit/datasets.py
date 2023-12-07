@@ -689,8 +689,9 @@ class Justice40Dataset(GeoDataset):
 
     def _filter_records(self) -> gpd.GeoDataFrame:
         """Filters the dataset to contain only relevant entries.
-        By default, does not perform any filtering and must
-        be overridden by subclasses.
+        Here, only disadvantaged census tracts with geometries 
+        are retained. (Some census tracts are water bodies and
+        therefore have a population size of zero.)
 
         Args:
             None
@@ -700,7 +701,9 @@ class Justice40Dataset(GeoDataset):
         """
         if self.is_empty:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
-        self.data = self.data.query("SN_C == 1")
+        has_geom = ~self.data.geometry.isna()
+        is_disadv = self.data.SN_C == 1
+        self.data = self.data[has_geom & is_disadv]
         return self.data.copy()
 
 
