@@ -1,4 +1,4 @@
-import time
+import datetime
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             )
 
             for target in target_records:
-                st_time = time.time()
+                st_time = datetime.datetime.now()
                 logger.debug(f"Matching and loading [ {job.job_name} ] record : {target}")
                 target_record = Geography.objects.filter(id=target.id).values(
                     "id", "fips", "geography_type__name"
@@ -102,9 +102,9 @@ class Command(BaseCommand):
                         insert_query,
                         params,
                     )
-                match_batch_load_time = time.time() - st_time
+                match_batch_load_time = datetime.datetime.now() - st_time
                 logger.debug(f"Finishled batching and loading [ {job.job_name} ] record {target} in time : {match_batch_load_time}")
-                if match_batch_load_time > time.timedelta(minutes=1):
+                if match_batch_load_time > datetime.timedelta(minutes=1):
                     logger.warn(f"Matching and load time is getting bigger than it should be : [ {match_batch_load_time} ] for [ {job.job_name} ] [ {target} ]")
     
     def match_fips(self, strategy: str, target_record, bonus: str):
