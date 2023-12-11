@@ -18,10 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy remaining application code to container
 COPY . .
 
-# Run the development server
+# Run the pipeline
 CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables", "--load-assoc-table"]
-# CMD ["bash", "setup.sh", "--migrate", "--load-assoc-table"]
-
-    # "--load-base-tables", 
-    # "--load-dependent-tables"]
-# , "--load-assoc-table"]

@@ -2,9 +2,6 @@
 
 This project loads a PostGIS database with geographic features regarding tax credit programs.
 
-# BROKEN DATA
-- update geography_type_program.csv to have initiative names that match program.csv (lines 4,5,6 broken)
-
 ## Dependencies
 
 - Make
