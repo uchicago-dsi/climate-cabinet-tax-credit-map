@@ -159,41 +159,41 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         ]
         return blobs
 
-@contextmanager
-def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
-    """Opens a file with the given name and mode.
-    Kind of annoying detecting the right mode in this cloud
-    version. First opens the file and reads in the first 3 bytes
-    to check for a utf-8-sig BOM. If it finds it, closes it and
-    reopens with the proper encoding. Otherwise resets the
-    stream and yields that. Finally closes it.
+    @contextmanager
+    def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
+        """Opens a file with the given name and mode.
+        Kind of annoying detecting the right mode in this cloud
+        version. First opens the file and reads in the first 3 bytes
+        to check for a utf-8-sig BOM. If it finds it, closes it and
+        reopens with the proper encoding. Otherwise resets the
+        stream and yields that. Finally closes it.
 
-    Args:
-        filename (str): The file name (i.e., key), representing
-            the path to the file within the data bucket
-            (e.g., "states.geoparquet").
+        Args:
+            filename (str): The file name (i.e., key), representing
+                the path to the file within the data bucket
+                (e.g., "states.geoparquet").
 
-        mode (str): The file opening method. Defaults to
-            reading text (i.e., "r").
+            mode (str): The file opening method. Defaults to
+                reading text (i.e., "r").
 
-    Yields:
-        (`io.IOBase`): A file object.
-    """
-    blob = self.bucket.blob(filename)
-    stream = blob.open(mode)
-    first_bytes = stream.read(3)
+        Yields:
+            (`io.IOBase`): A file object.
+        """
+        blob = self.bucket.blob(filename)
+        stream = blob.open(mode)
+        first_bytes = stream.read(3)
 
-    # Detect UTF-8 BOM
-    if first_bytes == b'\xef\xbb\xbf':
-        stream.close()
-        stream = blob.open(mode, encoding="utf-8-sig")
-    else:
-        stream.seek(0)  # Reset stream position
+        # Detect UTF-8 BOM
+        if first_bytes == b'\xef\xbb\xbf':
+            stream.close()
+            stream = blob.open(mode, encoding="utf-8-sig")
+        else:
+            stream.seek(0)  # Reset stream position
 
-    try:
-        yield stream
-    finally:
-        stream.close()
+        try:
+            yield stream
+        finally:
+            stream.close()
 
 
 class FileSystemHelperFactory:
