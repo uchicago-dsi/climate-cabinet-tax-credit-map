@@ -182,7 +182,7 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         if first_bytes == b'\xef\xbb\xbf':
             text = data.decode("utf-8-sig")
         else:
-            text = data.decode("utf-8")
+            text = data.decode()
 
         f = io.StringIO(text)
 
