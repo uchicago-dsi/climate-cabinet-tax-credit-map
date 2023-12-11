@@ -102,8 +102,10 @@ class Command(BaseCommand):
                         insert_query,
                         params,
                     )
-                e_time = time.time()
-                logger.debug(f"Finishled batching and loading [ {job.job_name} ] record {target} in time : {e_time - st_time}")
+                match_batch_load_time = time.time() - st_time
+                logger.debug(f"Finishled batching and loading [ {job.job_name} ] record {target} in time : {match_batch_load_time}")
+                if match_batch_load_time > time.timedelta(minutes=1):
+                    logger.warn(f"Matching and load time is getting bigger than it should be : [ {match_batch_load_time} ] for [ {job.job_name} ] [ {target} ]")
     
     def match_fips(self, strategy: str, target_record, bonus: str):
         """Matches geographies to the entities that contain them using one of several defined strategies
