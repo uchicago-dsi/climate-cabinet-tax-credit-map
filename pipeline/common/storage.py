@@ -159,27 +159,37 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         ]
         return blobs
 
-    @contextmanager
-    def open_file(self, filename: str, mode: str = "r"):
-        """Opens a file with the given name and mode.
+@contextmanager
+def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
+    """Opens a file with the given name and mode.
 
-        Args:
-            filename (str): The file name (i.e., key), representing
-                the path to the file within the data bucket
-                (e.g., "states.geoparquet").
+    Args:
+        filename (str): The file name (i.e., key), representing
+            the path to the file within the data bucket
+            (e.g., "states.geoparquet").
 
-            mode (str): The file opening method. Defaults to reading
-                text (i.e., "r").
+        mode (str): The file opening method. Defaults to
+            reading text (i.e., "r").
 
-        Yields:
-            (`io.IOBase`): A file object.
-        """
-        blob = self.bucket.blob(filename)
-        f = blob.open(mode)
-        try:
-            yield f
-        finally:
-            f.close()
+    Yields:
+        (`io.IOBase`): A file object.
+    """
+    blob = self.bucket.blob(filename)
+    data = blob.download_as_bytes()
+    first_bytes = data[:3]
+
+    # Detect UTF-8 BOM
+    if first_bytes == b'\xef\xbb\xbf':
+        text = data.decode("utf-8-sig")
+    else:
+        text = data.decode("utf-8")
+
+    f = io.StringIO(text)
+
+    try:
+        yield f
+    finally:
+        f.close()
 
 
 class FileSystemHelperFactory:
