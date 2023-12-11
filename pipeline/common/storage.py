@@ -162,6 +162,11 @@ class GoogleCloudStorageHelper(FileSystemHelper):
     @contextmanager
     def open_file(self, filename: str, mode: str = "r") -> Iterator[io.IOBase]:
         """Opens a file with the given name and mode.
+        Kind of annoying detecting the right mode in this cloud
+        version. First opens the file and reads in the first 3 bytes
+        to check for a utf-8-sig BOM. If it finds it, closes it and
+        reopens with the proper encoding. Otherwise resets the
+        stream and yields that. Finally closes it.
 
         Args:
             filename (str): The file name (i.e., key), representing
@@ -175,21 +180,20 @@ class GoogleCloudStorageHelper(FileSystemHelper):
             (`io.IOBase`): A file object.
         """
         blob = self.bucket.blob(filename)
-        data = blob.download_as_bytes()
-        first_bytes = data[:3]
+        stream = blob.open(mode)
+        first_bytes = stream.read(3)
 
         # Detect UTF-8 BOM
         if first_bytes == b'\xef\xbb\xbf':
-            text = data.decode("utf-8-sig")
+            stream.close()
+            stream = blob.open(mode, encoding="utf-8-sig")
         else:
-            text = data.decode()
-
-        f = io.StringIO(text)
+            stream.seek(0)  # Reset stream position
 
         try:
-            yield f
+            yield stream
         finally:
-            f.close()
+            stream.close()
 
 
 class FileSystemHelperFactory:
