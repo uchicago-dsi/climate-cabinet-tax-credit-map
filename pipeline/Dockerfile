@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the development server
-# CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables"]
-CMD ["bash", "setup.sh", "--migrate", "--load-assoc-table"]
+CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables", "--load-assoc-table"]
+# CMD ["bash", "setup.sh", "--migrate", "--load-assoc-table"]
 
     # "--load-base-tables", 
     # "--load-dependent-tables"]

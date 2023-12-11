@@ -1,9 +1,12 @@
-from common.logger import LoggerFactory
+import time
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
 from django.db import connection
 from django.db.models import F, Q, Subquery
 from django.db.models.functions import Substr
+
+from common.logger import LoggerFactory
 from tax_credit.config_reader import get_load_config_reader
 from tax_credit.database_helper import DatabaseHelper
 from tax_credit.models import Geography, TargetBonusAssoc
@@ -57,6 +60,8 @@ class Command(BaseCommand):
             )
 
             for target in target_records:
+                st_time = time.time()
+                logger.debug(f"Matching and loading [ {job.job_name} ] record : {target}")
                 target_record = Geography.objects.filter(id=target.id).values(
                     "id", "fips", "geography_type__name"
                 )[:1]
@@ -97,6 +102,8 @@ class Command(BaseCommand):
                         insert_query,
                         params,
                     )
+                e_time = time.time()
+                logger.debug(f"Finishled batching and loading [ {job.job_name} ] record {target} in time : {e_time - st_time}")
     
     def match_fips(self, strategy: str, target_record, bonus: str):
         """Matches geographies to the entities that contain them using one of several defined strategies

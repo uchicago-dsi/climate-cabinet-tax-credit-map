@@ -201,7 +201,7 @@ dependent:
     - source
     - geometry
   justice40:
-    active: False
+    active: True
     filename: clean/geoparquet/justice40_communities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
