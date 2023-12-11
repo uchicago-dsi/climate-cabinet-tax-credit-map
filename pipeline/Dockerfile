@@ -1,5 +1,5 @@
 # Pull official Python base image
-FROM python:3.9
+FROM python:3.11
 
 # Configure Python logs to stream to stdout without buffering
 ENV PYTHONUNBUFFERED 1
@@ -18,7 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy remaining application code to container
 COPY . .
 
-# Run the development server
-# TODO: trying to track down error in production cloud run
-# CMD ["bash", "setup.sh", "--migrate", "--load-geos", "--load-programs", "--load-geo-metrics"]
+# Run the pipeline
 CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables", "--load-assoc-table"]

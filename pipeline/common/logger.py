@@ -1,4 +1,5 @@
-"""Provides loggers for use across the application."""
+"""Provides loggers for use across the application.
+"""
 
 import logging
 

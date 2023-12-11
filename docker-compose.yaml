@@ -6,7 +6,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./pgdata2:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -25,11 +25,6 @@ services:
       - POSTGRES_CHECK_TIMEOUT=120
     build:
       context: pipeline
-    command: bash setup.sh --migrate
-    # command: bash setup.sh --migrate --load-dependent-tables
-    # command: python3 -m manage load_assoc_table --only-assoc county distressed
-
-    # command: python3 -m manage load_dependent_tables --skip-file dci_clean.geoparquet justice40.geoparquet
     volumes:
       - ./pipeline:/pipeline
       - ./data:/data
