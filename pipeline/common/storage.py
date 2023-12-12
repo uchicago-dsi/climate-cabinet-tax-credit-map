@@ -174,25 +174,6 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         Yields:
             (`io.IOBase`): A file object.
         """
-        # blob = self.bucket.blob(filename)
-        # data = blob.download_as_bytes()
-        # first_bytes = data[:3]
-
-        # try:
-        #     # Detect UTF-8 BOM
-        #     if first_bytes == b'\xef\xbb\xbf':
-        #         text = data.decode("utf-8-sig")
-        #     else:
-        #         text = data.decode()
-
-        #     f = io.StringIO(text)
-        # except UnicodeDecodeError:
-        #     f = io.BytesIO(data)
-
-        # try:
-        #     yield f
-        # finally:
-        #     f.close()
         blob = self.bucket.blob(filename)
         with tempfile.NamedTemporaryFile(delete=False) as tf:
             blob.download_to_filename(tf.name)

@@ -72,7 +72,7 @@ class DatabaseHelper:
                         target_time = max_time
                 # Adjust the batch size to be closer to the desired length of processing time
                 else:
-                    batch_size = ceil(batch_size * min(target_time / processing_time, 5))
+                    batch_size = ceil(batch_size * (target_time / processing_time))
 
                 batch_ct += 1
                 logger.info("Ending laod method")
