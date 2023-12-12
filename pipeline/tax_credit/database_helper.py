@@ -24,6 +24,9 @@ class DatabaseHelper:
 
             #####
 
+            # force cursor reset
+            connection.close()
+
             batch_ct = 0
             cursor_start_time = datetime.now()
             is_calibrated = False
