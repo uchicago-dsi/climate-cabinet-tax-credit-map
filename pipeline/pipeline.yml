@@ -2,7 +2,7 @@ global:
 
 base:
   geography_type:
-    active: True
+    active: False
     filename: clean/csv/geography_type.csv
     filetype: csv
     row_transform: tax_credit.record_transforms:load_geography_type_row
@@ -16,7 +16,7 @@ base:
     db_field_update:
     - name
   program:
-    active: True
+    active: False
     filename: clean/csv/program.csv
     file_format: csv
     row_transform: tax_credit.record_transforms:load_program_type_row
@@ -35,7 +35,7 @@ base:
     - description
     - base_benefit
   block_group_2010:
-    active: True
+    active: False
     filename: raw/census/block_groups/CenPop2010_Mean_BG.txt
     delimiter: ","
     file_format: csv
@@ -54,7 +54,7 @@ base:
     db_field_update:
     - population
   block_group_2020:
-    active: True
+    active: False
     delimiter: ","
     filename: raw/census/block_groups/CenPop2020_Mean_BG.txt
     file_format: csv
@@ -75,7 +75,7 @@ base:
 
 dependent:
   geography_to_program:
-    active: True
+    active: False
     filename: clean/csv/geography_type_program.csv
     filetype: csv
     row_transform: tax_credit.record_transforms:load_geography_program_match_row
