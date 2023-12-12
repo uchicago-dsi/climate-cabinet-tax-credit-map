@@ -198,14 +198,14 @@ class GoogleCloudStorageHelper(FileSystemHelper):
             blob.download_to_filename(tf.name)
             temp_filename = tf.name
 
-        with open(settings.DATA_DIR / temp_filename, 'rb') as f:
+        with open(temp_filename, 'rb') as f:
             first_bytes = f.read(3)
         
         # Detect UTF-8 BOM
         if first_bytes == b'\xef\xbb\xbf':
-            f = open(settings.DATA_DIR / temp_filename, mode, encoding = "utf-8-sig")
+            f = open(temp_filename, mode, encoding = "utf-8-sig")
         else:
-            f = open(settings.DATA_DIR / temp_filename, mode)
+            f = open(temp_filename, mode)
 
         try:
             yield f
