@@ -17,15 +17,16 @@ class DatabaseHelper:
     def load_batched(job: LoadJob, reader: DataReader, load_batch_size, batch_number_of):
         logger.info(f'Loading batch job : {job.job_name}')
         try:
+            # Good to close the connection here -- reading can take quite a while
+            # Better to have it closed and force a reset before reading file data
+            connection.close()
+
             objs = (
                 job.row_to_model(row)
                 for row in reader.iterate(job.filename, delimiter=job.delimiter)
             )
 
             #####
-
-            # force cursor reset
-            connection.close()
 
             batch_ct = 0
             cursor_start_time = datetime.now()
