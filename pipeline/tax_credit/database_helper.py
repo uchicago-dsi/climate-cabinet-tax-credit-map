@@ -34,20 +34,11 @@ class DatabaseHelper:
             while True:
                 logger.info("Starting load method")
 
-                # Reading data can take a while so we provide to opportunities to terminate the connection
-                # Here is the first one
-                if datetime.now() - cursor_start_time > timedelta(minutes=1):
-                    logger.info("Cursor has been alive too long, resetting")
-                    connection.close()
-                    cursor_start_time = datetime.now()
-
                 batch = list(islice(objs, batch_size))
                 if not batch:
                     break
                 logger.info(f"{job.job_name} Starting batch {batch_ct} : {batch_size}")
 
-                # Reading data can take a while so we provide to opportunities to terminate the connection
-                # Here is the second one
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
                     logger.info("Cursor has been alive too long, resetting")
                     connection.close()
@@ -81,7 +72,7 @@ class DatabaseHelper:
                         target_time = max_time
                 # Adjust the batch size to be closer to the desired length of processing time
                 else:
-                    batch_size = ceil(batch_size * min(target_time / processing_time, 2))
+                    batch_size = ceil(batch_size * min(target_time / processing_time, 5))
 
                 batch_ct += 1
                 logger.info("Ending laod method")
