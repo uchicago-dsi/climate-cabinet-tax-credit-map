@@ -70,7 +70,8 @@ class DatabaseHelper:
                         is_calibrated = True
                         target_time = max_time
                 # Adjust the batch size to be closer to the desired length of processing time
-                batch_size = ceil(batch_size * min(target_time / processing_time, 5))
+                else:
+                    batch_size = ceil(batch_size * min(target_time / processing_time, 2))
 
                 batch_ct += 1
 
