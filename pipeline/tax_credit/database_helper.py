@@ -27,10 +27,10 @@ class DatabaseHelper:
 
             batch_ct = 0
             cursor_start_time = datetime.now()
-            is_calibrated = False
+            # is_calibrated = False
             batch_size = 1
-            target_time = timedelta(seconds=15)
-            max_time = timedelta(seconds=60)
+            target_time = timedelta(seconds=10)
+            # max_time = timedelta(seconds=60)
             while True:
                 logger.info("Starting load method")
 
@@ -67,13 +67,12 @@ class DatabaseHelper:
                 processing_time = end_time - st_time
                 logger.info(f"{job.job_name} Finished batch {batch_ct}")
                 logger.info(f"{job.job_name} Batch {batch_ct} processing time : {processing_time}")
-                if not is_calibrated and abs(processing_time - target_time) <= timedelta(seconds=3):
-                        is_calibrated = True
-                        target_time = max_time
-                # Adjust the batch size to be closer to the desired length of processing time
-                else:
-                    batch_size = ceil(batch_size * (target_time / processing_time))
-                    batch_size=200
+                # if not is_calibrated and abs(processing_time - target_time) <= timedelta(seconds=3):
+                #         is_calibrated = True
+                #         target_time = max_time
+                # # Adjust the batch size to be closer to the desired length of processing time
+                # else:
+                batch_size = ceil(batch_size * (target_time / processing_time))
 
                 batch_ct += 1
                 logger.info("Ending laod method")
