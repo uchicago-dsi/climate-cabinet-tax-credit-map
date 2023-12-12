@@ -29,7 +29,7 @@ class DatabaseHelper:
             cursor_start_time = datetime.now()
             # is_calibrated = False
             batch_size = 1
-            target_time = timedelta(seconds=10)
+            target_time = timedelta(seconds=5)
             # max_time = timedelta(seconds=60)
             while True:
                 logger.info("Starting load method")
