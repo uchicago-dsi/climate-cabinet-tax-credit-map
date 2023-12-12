@@ -175,6 +175,11 @@ class GoogleCloudStorageHelper(FileSystemHelper):
             (`io.IOBase`): A file object.
         """
         blob = self.bucket.blob(filename)
+        # Not the prettiest but the file read is the bottle neck in data loading,
+        # so we want this as local as possible.
+        # There could be some kind of way to use async and cache contents ahead 
+        # while records are pushing to the db.
+        # In that case we might not even need to keep the file locally
         with tempfile.NamedTemporaryFile(delete=False) as tf:
             blob.download_to_filename(tf.name)
             temp_filename = tf.name

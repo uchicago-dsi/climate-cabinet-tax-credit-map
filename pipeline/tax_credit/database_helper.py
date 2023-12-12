@@ -15,6 +15,14 @@ logger = LoggerFactory.get(__name__)
 class DatabaseHelper:
     @staticmethod
     def load_batched(job: LoadJob, reader: DataReader, load_batch_size, batch_number_of):
+        """Loads data for a given job using exponential smoothing to choose batch sizes
+
+        Args:
+            job (LoadJob): Corresponds to a cleaned data file and instructions for how to load. Details for jobs are set in `pipeline.yml`
+            reader (DataReader): Data reader object to handle the file.
+            load_batch_size (int): For smoke test
+            batch_number_of (int): For smoke test
+        """
         logger.info(f'Loading batch job : {job.job_name}')
         try:
 
@@ -25,22 +33,25 @@ class DatabaseHelper:
 
             #####
 
-            batch_ct = 0
-            cursor_start_time = datetime.now()
-            batch_size = 1
             target_time = timedelta(seconds=5)
-            average_proc_time_per_record = timedelta(seconds=0)
             smoothing_factor = 0.1
+            #
+            batch_ct = 0
+            batch_size = 1
+            cursor_start_time = datetime.now()
+            average_proc_time_per_record = timedelta(seconds=0)
             while True:
                 logger.info("Starting load method")
 
                 batch = list(islice(objs, batch_size))
                 if not batch:
                     break
-                logger.info(f"{job.job_name} Starting batch {batch_ct} : {batch_size}")
 
+                logger.info(f"{job.job_name} batch {batch_ct} - Starting, size {batch_size}")
+
+                # TODO can this connection reset be removed?
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
-                    logger.info("Cursor has been alive too long, resetting")
+                    logger.debug("Cursor has been alive too long, resetting")
                     connection.close()
                     cursor_start_time = datetime.now()
                 
@@ -62,21 +73,19 @@ class DatabaseHelper:
                 if batch_number_of is not None and batch_ct >= batch_number_of:
                     break
                 end_time = datetime.now()
+                logger.debug(f"{job.job_name} batch {batch_ct} - Finishing")
                     
                 # Calibrate proper batch size
                 processing_time = end_time - st_time
-                logger.info(f"{job.job_name} Finished batch {batch_ct}")
-                logger.info(f"{job.job_name} Batch {batch_ct} processing time : {processing_time}")
-                # if not is_calibrated and abs(processing_time - target_time) <= timedelta(seconds=3):
-                #         is_calibrated = True
-                #         target_time = max_time
-                # # Adjust the batch size to be closer to the desired length of processing time
-                # else:
                 average_proc_time_per_record = (1 - smoothing_factor) * average_proc_time_per_record + smoothing_factor * processing_time / batch_size
-                batch_size = ceil(target_time / average_proc_time_per_record)
+                while batch_ct < 5:
+                    batch_size = min(ceil(target_time / average_proc_time_per_record), ceil(batch_size * 2))
+                else:
+                    batch_size = ceil(target_time / average_proc_time_per_record)
+                logger.debug(f"{job.job_name} batch {batch_ct} - Processing time : {processing_time}")
 
                 batch_ct += 1
-                logger.info("Ending laod method")
+                logger.debug("Ending load method")
 
         except ProgrammingError as e:
             logger.error(
