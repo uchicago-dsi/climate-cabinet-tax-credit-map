@@ -512,7 +512,7 @@ assoc:
     - bonus_geography_type
 
   municipality_to_distressed:
-    active: True
+    active: False
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: distressed
@@ -524,7 +524,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_energy:
-    active: True
+    active: False
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: energy
@@ -536,7 +536,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_j40:
-    active: True
+    active: False
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: justice40
@@ -548,7 +548,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_low_income:
-    active: True
+    active: False
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: low_income
