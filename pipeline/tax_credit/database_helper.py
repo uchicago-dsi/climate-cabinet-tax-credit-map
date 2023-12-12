@@ -17,9 +17,6 @@ class DatabaseHelper:
     def load_batched(job: LoadJob, reader: DataReader, load_batch_size, batch_number_of):
         logger.info(f'Loading batch job : {job.job_name}')
         try:
-            # Good to close the connection here -- reading can take quite a while
-            # Better to have it closed and force a reset before reading file data
-            connection.close()
 
             objs = (
                 job.row_to_model(row)
@@ -36,11 +33,20 @@ class DatabaseHelper:
             max_time = timedelta(seconds=60)
             while True:
                 logger.info("Starting load method")
+
+                # Reading data can take a while so we provide to opportunities to terminate the connection
+                # Here is the first one
+                if datetime.now() - cursor_start_time > timedelta(minutes=1):
+                    logger.info("Cursor has been alive too long, resetting")
+                    connection.close()
+
                 batch = list(islice(objs, batch_size))
                 if not batch:
                     break
                 logger.info(f"{job.job_name} Starting batch {batch_ct} : {batch_size}")
 
+                # Reading data can take a while so we provide to opportunities to terminate the connection
+                # Here is the second one
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
                     logger.info("Cursor has been alive too long, resetting")
                     connection.close()
