@@ -39,6 +39,7 @@ class DatabaseHelper:
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
                     logger.info("Cursor has been alive too long, resetting")
                     connection.close()
+                    cursor_start_time = datetime.now()
 
                 batch = list(islice(objs, batch_size))
                 if not batch:
@@ -50,6 +51,7 @@ class DatabaseHelper:
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
                     logger.info("Cursor has been alive too long, resetting")
                     connection.close()
+                    cursor_start_time = datetime.now()
                 
                 st_time = datetime.now()
                 if job.unique_fields:
