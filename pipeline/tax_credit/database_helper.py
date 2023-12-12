@@ -37,7 +37,7 @@ class DatabaseHelper:
                 batch = list(islice(objs, batch_size))
                 if not batch:
                     break
-                logger.info(f"{job.job_name} Starting batch {batch_ct}")
+                logger.info(f"{job.job_name} Starting batch {batch_ct} : {batch_size}")
 
                 if datetime.now() - cursor_start_time > timedelta(minutes=1):
                     logger.info("Cursor has been alive too long, resetting")
