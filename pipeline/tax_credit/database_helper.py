@@ -34,6 +34,7 @@ class DatabaseHelper:
             target_time = timedelta(seconds=15)
             max_time = timedelta(seconds=60)
             while True:
+                logger.info("Starting load method")
                 batch = list(islice(objs, batch_size))
                 if not batch:
                     break
@@ -74,6 +75,7 @@ class DatabaseHelper:
                     batch_size = ceil(batch_size * min(target_time / processing_time, 2))
 
                 batch_ct += 1
+                logger.info("Ending laod method")
 
         except ProgrammingError as e:
             logger.error(
