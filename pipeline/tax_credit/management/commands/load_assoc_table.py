@@ -63,7 +63,10 @@ class Command(BaseCommand):
                 st_time = datetime.now()
 
                 logger.debug(f"Matching and loading [ {job.job_name} ] record : {target}")
-                target_record = Geography.objects.filter(id=target.id).values(
+                target_record = Geography.objects.filter(id=target.id).annotate(
+                    state_fips=Substr("fips", 1, 2),
+                    county_fips=Substr("fips", 1, 5)
+                ).values(
                     "id", "fips", "geography_type__name"
                 ).first()
 
@@ -125,11 +128,11 @@ class Command(BaseCommand):
         logger.info(f"Matching with {strategy}")
         if strategy == "fips_county":
             matches = self.match_county_fips(
-                Substr(target_record.values("fips"), 1, 5), bonus
+                target_record.values("state_fips"), bonus
             )
         elif strategy == "fips_state":
             matches = self.match_state_fips(
-                Substr(target_record.values("fips"), 1 ,2), bonus
+                target_record.values("county_fips"), bonus
             )
         elif strategy == "overlap":
             matches = self.match_overlap(target_record.values("id"), bonus)
