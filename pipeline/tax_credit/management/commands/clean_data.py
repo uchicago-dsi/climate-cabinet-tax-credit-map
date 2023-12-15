@@ -1,10 +1,10 @@
 """Cleans raw datasets.
 """
 
-from django.core.management.base import BaseCommand, CommandParser
 from common.logger import LoggerFactory
-from django.conf import settings
 from common.storage import DataFrameReader, DataFrameWriter
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandParser
 from tax_credit.datasets import DatasetFactory, GeoDataset
 
 
@@ -36,7 +36,7 @@ class Command(BaseCommand):
             `None`
         """
         self._logger = LoggerFactory.get(Command.name.upper())
-        super().__init__(*args, **kwargs)        
+        super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser: CommandParser) -> None:
         """Provides an option, "geos", to clean and load only
@@ -59,11 +59,7 @@ class Command(BaseCommand):
         Returns:
             `None`
         """
-        parser.add_argument(
-            '--geos',
-            nargs='+',
-            default=[]
-        )
+        parser.add_argument("--geos", nargs="+", default=[])
 
     def handle(self, *args, **options) -> None:
         """Executes the command. If the "geos" option
@@ -83,7 +79,6 @@ class Command(BaseCommand):
 
         # Process each configured dataset
         for dataset_config in settings.RAW_DATASETS:
-
             # Skip processing if indicated by command line options
             if geos and dataset_config["name"] not in geos:
                 continue
@@ -93,16 +88,15 @@ class Command(BaseCommand):
             logger = LoggerFactory.get(log_name)
 
             # Initialize dataset
-            logger.info("Received request to process dataset "
-                        f"\"{dataset_config['name']}\". Initializing.")
+            logger.info(
+                "Received request to process dataset "
+                f"\"{dataset_config['name']}\". Initializing."
+            )
             fpaths = dataset_config.pop("files")
             dataset: GeoDataset = DatasetFactory.create(
-                **dataset_config,
-                logger=logger,
-                reader=reader,
-                writer=writer
+                **dataset_config, logger=logger, reader=reader, writer=writer
             )
-            
+
             # Load and clean dataset
             logger.info("Beginning processing job.")
             dataset.process(**fpaths)

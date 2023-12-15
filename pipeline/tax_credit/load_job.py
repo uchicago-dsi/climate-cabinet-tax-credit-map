@@ -1,18 +1,18 @@
-from typing import Callable, Any, Type
-import os
 from dataclasses import dataclass
+from typing import Any, Callable, Type
 
-from django.conf import settings
 from django.db.models import Model
 
 
 @dataclass
 class LoadJob:
     """Class holding information about a data base load job. Includes information regarding required files and validation prior to starting the job."""
+
     job_name: str
+    active: bool
 
     # Connection between file and database
-    file_name: str
+    filename: str
     model: Type[Model]
     file_format: str
 
@@ -27,6 +27,23 @@ class LoadJob:
     unique_fields: list[str]
     update_fields: list[str]
 
-    delimiter: str = '|'
+    delimiter: str = "|"
 
     # Note that when loading, a final pitfall is foreign keys -- this can't be readily checked until load time
+
+
+@dataclass
+class AssocJob:
+    job_name: str
+    active: bool
+    model: Type[Model]
+
+    target: str
+    bonus: str
+
+    assoc_strategy: str
+
+    build_row_fn: Callable[[dict[str, Any]], Model]
+
+    unique_fields: list[str]
+    update_fields: list[str]

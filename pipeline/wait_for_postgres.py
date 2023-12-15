@@ -32,7 +32,7 @@ while time() - start_time < check_timeout:
         exit(0)
     except psycopg2.OperationalError:
         logger.info(
-            "Postgres isn't ready. Waiting for " f"{check_interval} second(s)..."
+            "Postgres isn't ready. Waiting for " f"{check_interval} " "second(s)..."
         )
         sleep(check_interval)
 

@@ -9,6 +9,9 @@ class GeographyType(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
 
+    def __str__(self):
+        return f"[ id : {self.id} , name : {self.name} ]"
+
     class Meta:
         db_table = "tax_credit_geography_type"
 
@@ -17,15 +20,19 @@ class Geography(models.Model):
     # Autogenerate id field
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    fips = models.CharField(max_length=255, null=True)
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
-    boundary = MultiPolygonField()
     as_of = models.DateField()
+    published_on = models.DateField(null=True)
     source = models.CharField(max_length=255)
-    fips_info = models.CharField(max_length=255, null=True)
+    geometry = MultiPolygonField()
 
     class Meta:
         db_table = "tax_credit_geography"
-        unique_together = [["name", "geography_type"]]
+        unique_together = [["name", "geography_type", "fips"]]
+    
+    def __str__(self):
+        return f"[ {self.id}, {self.name}, {self.fips}, {self.geography_type} ]"
 
 
 class Program(models.Model):
@@ -43,7 +50,7 @@ class GeographyTypeProgram(models.Model):
     amount_description = models.TextField()
 
     class Meta:
-        db_table = 'tax_credit_geography_type_program'
+        db_table = "tax_credit_geography_type_program"
         unique_together = [["geography_type", "program"]]
 
 
@@ -61,23 +68,16 @@ class TargetBonusAssoc(models.Model):
     class Meta:
         db_table = "tax_credit_target_bonus_assoc"
         unique_together = [["target_geography", "bonus_geography"]]
-    
+
     def __str__(self):
-        return f'{self.target_geography.name} <-> {self.bonus_geography.name}'
+        return f"{self.target_geography.name} <-> {self.bonus_geography.name}"
 
-
-class CensusTract(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
-    centroid = PointField()
-    population = models.IntegerField()
-
-    class Meta:
-        db_table = "tax_credit_census_tract"
 
 class CensusBlockGroup(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     centroid = PointField()
     population = models.IntegerField()
+    year = models.IntegerField()
 
     class Meta:
         db_table = "tax_credit_census_block_group"

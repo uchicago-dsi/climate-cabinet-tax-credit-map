@@ -17,22 +17,22 @@ function ReportWidget() {
   );
 
   return (
-    <div className="px-20">
-      <div className="flex w-full pt-10">
-        <div className="grid grid-cols-8 m-0">
-          {/** MAP */}
-          <div className="col-span-6 border-8 border-ccblue-dark">
-            <MapWidget />
-          </div>
-          {/** SUMMARY STATISTICS SIDEBAR */}
-          <div
-            className={
-              "col-span-2 flex flex-col w-full h-[75vh] px-5 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar " +
-              classNames({ "justify-center": !targetGeo })
-            }
-          >
-            <SummaryStats />
-          </div>
+    <div className="px-4">
+      <div
+        className="grid grid-cols-1 md:grid-cols-8 m-0 min-h-[75vh] pt-10"
+        id="report-widget"
+      >
+        {/** MAP */}
+        <div className="md:col-span-6 col-span-1 border-8 m-0 min-h-[75vh] border-ccblue-dark">
+          <MapWidget />
+        </div>
+        {/** SUMMARY STATISTICS SIDEBAR */}
+        <div
+          className={`md:col-span-2 col-span-1 flex flex-col w-full h-full px-5 m-0 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar ${
+            !targetGeo ? "justify-center" : ""
+          }`}
+        >
+          <SummaryStats />
         </div>
       </div>
     </div>

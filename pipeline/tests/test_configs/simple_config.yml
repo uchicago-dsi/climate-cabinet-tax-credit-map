@@ -1,0 +1,144 @@
+# Simple config with one entry for each section used for testing the load config reader
+base:
+  geography_type:
+    active: True
+    filename: geography_type.csv
+    filetype: csv
+    row_transform: tax_credit.record_transforms:load_geography_type_row
+    model: tax_credit.models:GeographyType
+    file_format: csv
+    file_field_required:
+    - Id
+    - Name
+    db_field_unique:
+    - id
+    db_field_update:
+    - name
+
+dependent:
+  county:
+    active: True
+    filename: county_clean.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_county_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - County
+    - State
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+    - fips_info
+  low_income:
+    active: True
+    filename: low_income_tracts_filtered.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_low_income_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - tractId
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  state:
+    active: True
+    filename: state_clean.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_state_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - State
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+  rural_coop:
+    active: True
+    filename: rural_coops.geoparquet
+    filetype: parquet
+    row_transform: tax_credit.record_transforms:load_coop_geography_row
+    model: tax_credit.models:Geography
+    file_format: parquet
+    required_model:
+    - tax_credit.models:GeographyType
+    file_field_required:
+    - NAME
+    - geometry
+    - simple_boundary
+    db_field_unique:
+    - name
+    - geography_type
+    db_field_update:
+    - boundary
+    - simple_boundary
+    - as_of
+    - source
+
+assoc:
+  county_to_low_income:
+    active: True
+    model: tax_credit.models:TargetBonusAssoc
+    target: county
+    bonus: low_income
+    assoc_strategy: fips_county
+    # build_row_fn: 
+    db_field_unique:
+    - target_geography
+    - bonus_geography
+    db_field_update:
+    - target_geography_type
+    - bonus_geography_type
+  state_to_low_income:
+    active: True
+    model: tax_credit.models:TargetBonusAssoc
+    target: state
+    bonus: low_income
+    assoc_strategy: fips_state
+    db_field_unique:
+    - target_geography
+    - bonus_geography
+    db_field_update:
+    - target_geography_type
+    - bonus_geography_type
+  state_to_rural_coop:
+    active: True
+    model: tax_credit.models:TargetBonusAssoc
+    target: state
+    bonus: rural_coop
+    assoc_strategy: overlap
+    db_field_unique:
+    - target_geography
+    - bonus_geography
+    db_field_update:
+    - target_geography_type
+    - bonus_geography_type
+    

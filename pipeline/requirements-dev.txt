@@ -6,6 +6,7 @@ mypy
 coverage
 docformatter
 pytest
+pytest-django
 
 pandas-stubs
 types-google-cloud-ndb

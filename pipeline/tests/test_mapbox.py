@@ -400,7 +400,7 @@ class TestTilesets(unittest.TestCase):
                 f"\"{tileset_formal_name}\"."
             )
                 
-        # # Get tileset metadata
+        # Get tileset metadata
         TestTilesets._logger.info(
             "Fetching TileJSON metadata for newly-published tileset."
         )
