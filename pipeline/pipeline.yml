@@ -2,7 +2,7 @@ global:
 
 base:
   geography_type:
-    active: False
+    active: True
     filename: clean/csv/geography_type.csv
     filetype: csv
     row_transform: tax_credit.record_transforms:load_geography_type_row
@@ -16,7 +16,7 @@ base:
     db_field_update:
     - name
   program:
-    active: False
+    active: True
     filename: clean/csv/program.csv
     file_format: csv
     row_transform: tax_credit.record_transforms:load_program_type_row
@@ -35,7 +35,7 @@ base:
     - description
     - base_benefit
   block_group_2010:
-    active: False
+    active: True
     filename: raw/census/block_groups/CenPop2010_Mean_BG.txt
     delimiter: ","
     file_format: csv
@@ -54,7 +54,7 @@ base:
     db_field_update:
     - population
   block_group_2020:
-    active: False
+    active: True
     delimiter: ","
     filename: raw/census/block_groups/CenPop2020_Mean_BG.txt
     file_format: csv
@@ -75,7 +75,7 @@ base:
 
 dependent:
   geography_to_program:
-    active: False
+    active: True
     filename: clean/csv/geography_type_program.csv
     filetype: csv
     row_transform: tax_credit.record_transforms:load_geography_program_match_row
@@ -93,7 +93,7 @@ dependent:
     - program
     - amount_description
   counties:
-    active: False
+    active: True
     filename: clean/geoparquet/counties.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -120,7 +120,7 @@ dependent:
     - source
     - geometry
   distressed_communities:
-    active: False
+    active: True
     filename: clean/geoparquet/distressed_communities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -147,7 +147,7 @@ dependent:
     - source
     - geometry
   coal_communities:
-    active: False
+    active: True
     filename: clean/geoparquet/energy_communities___coal.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -174,7 +174,7 @@ dependent:
     - source
     - geometry
   fossil_fuel_communities:
-    active: False
+    active: True
     filename: clean/geoparquet/energy_communities___fossil_fuels.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -201,7 +201,7 @@ dependent:
     - source
     - geometry
   justice40:
-    active: False
+    active: True
     filename: clean/geoparquet/justice40_communities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -228,7 +228,7 @@ dependent:
     - source
     - geometry
   low_income:
-    active: False
+    active: True
     filename: clean/geoparquet/low_income_communities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -255,7 +255,7 @@ dependent:
     - source
     - geometry
   municiapl_utilities:
-    active: False
+    active: True
     filename: clean/geoparquet/municipal_utilities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -282,7 +282,7 @@ dependent:
     - source
     - geometry
   municipalities:
-    active: False
+    active: True
     filename: clean/geoparquet/municipalities.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -309,7 +309,7 @@ dependent:
     - source
     - geometry
   rural_coops:
-    active: False
+    active: True
     filename: clean/geoparquet/rural_cooperatives.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -336,7 +336,7 @@ dependent:
     - source
     - geometry
   state:
-    active: False
+    active: True
     filename: clean/geoparquet/states.geoparquet
     filetype: parquet
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
@@ -365,7 +365,7 @@ dependent:
 
 assoc:
   state_to_distressed:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: state
     bonus: distressed
@@ -377,7 +377,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   state_to_energy:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: state
     bonus: energy
@@ -389,7 +389,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   state_to_j40:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: state
     bonus: justice40
@@ -401,10 +401,10 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   state_to_low_income:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: state
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_state
     db_field_unique:
     - target_geography
@@ -414,7 +414,7 @@ assoc:
     - bonus_geography_type
 
   county_to_distressed:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: distressed
@@ -426,7 +426,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   county_to_energy:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: energy
@@ -438,7 +438,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   county_to_j40:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: county
     bonus: justice40
@@ -450,10 +450,10 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   county_to_low_income:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: county
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_county
     db_field_unique:
     - target_geography
@@ -463,7 +463,7 @@ assoc:
     - bonus_geography_type
 
   municipal_utility_to_distressed:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipal utility
     bonus: distressed
@@ -475,7 +475,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipal_utility_to_energy:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipal utility
     bonus: energy
@@ -487,7 +487,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipal_utility_to_j40:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipal utility
     bonus: justice40
@@ -499,10 +499,10 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipal_utility_to_low_income:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipal utility
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: overlap
     db_field_unique:
     - target_geography
@@ -512,7 +512,7 @@ assoc:
     - bonus_geography_type
 
   municipality_to_distressed:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: distressed
@@ -524,7 +524,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_energy:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: energy
@@ -536,7 +536,7 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_j40:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: justice40
@@ -548,10 +548,10 @@ assoc:
     - target_geography_type
     - bonus_geography_type
   municipality_to_low_income:
-    active: False
+    active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_county
     db_field_unique:
     - target_geography
@@ -600,7 +600,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: rural cooperative
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: overlap
     db_field_unique:
     - target_geography
