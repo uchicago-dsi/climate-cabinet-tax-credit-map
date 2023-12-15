@@ -65,10 +65,11 @@ class Command(BaseCommand):
                 logger.debug(f"Matching and loading [ {job.job_name} ] record : {target}")
                 target_record = Geography.objects.filter(id=target.id).values(
                     "id", "fips", "geography_type__name"
-                )[:1]
+                ).first()
 
                 strategy = job.assoc_strategy.lower()
                 matches = self.match_fips(strategy, target_record, job.bonus)
+                logger.info(f"Query now : {matches.query}")
 
                 matches = matches.annotate(
                     target_id=target_record.values("id"),
@@ -121,13 +122,14 @@ class Command(BaseCommand):
             ValueError: If the matching strategy is not defined, raises
         """
         # TODO validate valid fips
+        logger.info(f"Matching with {strategy}")
         if strategy == "fips_county":
             matches = self.match_county_fips(
-                target_record.values("fips")[:5], bonus
+                Substr(target_record.values("fips"), 1, 5), bonus
             )
         elif strategy == "fips_state":
             matches = self.match_state_fips(
-                target_record.values("fips")[:2], bonus
+                Substr(target_record.values("fips"), 1 ,2), bonus
             )
         elif strategy == "overlap":
             matches = self.match_overlap(target_record.values("id"), bonus)
