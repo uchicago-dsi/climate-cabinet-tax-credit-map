@@ -8,7 +8,9 @@ import io
 import json
 import os
 import pandas as pd
+import pathlib
 import tempfile
+
 from abc import ABC, abstractmethod
 from common.logger import LoggerFactory
 from contextlib import contextmanager
@@ -98,7 +100,10 @@ class LocalFileSystemHelper(FileSystemHelper):
         Yields:
             (`io.IOBase`): A file object.
         """
-        f = open(settings.DATA_DIR / filename, mode)
+        fpath = settings.DATA_DIR / filename
+        if mode == "w":
+            pathlib.Path(fpath).parent.mkdir(parents=True, exist_ok=True)
+        f = open(fpath, mode)
         try:
             yield f
         finally:
@@ -383,10 +388,10 @@ class DataFrameReader:
     """
 
     def __init__(self) -> None:
-        """Initializes a new instance of a `DataWriter`.
-        Maintains a reference to a `FileSystemHelper`
-        that reads and writes to and from either
-        Google Cloud or the local file system.
+        """Initializes a new instance of a `DataFrameReader`.
+        Maintains a reference to a `FileSystemHelper` that
+        reads from either Google Cloud or the local file 
+        system based on the current development environment.
 
         Args:
             None
@@ -515,10 +520,10 @@ class DataFrameWriter:
     """
 
     def __init__(self) -> None:
-        """Initializes a new instance of a `DataWriter`.
+        """Initializes a new instance of a `DataFrameWriter`.
         Maintains a reference to a `FileSystemHelper`
-        that reads and writes to and from either
-        Google Cloud or the local file system.
+        that writes to either Google Cloud or the local file 
+        system based on the current development environment.
 
         Args:
             None
