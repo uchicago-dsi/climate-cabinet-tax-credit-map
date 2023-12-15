@@ -98,6 +98,7 @@ class Command(BaseCommand):
                     f"FROM ({raw_sql_query}) AS subquery "
                     "ON CONFLICT DO NOTHING"
                 )
+                logger.info(insert_query)
                 with connection.cursor() as cursor:
                     cursor.execute(
                         insert_query,
