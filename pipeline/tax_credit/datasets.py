@@ -254,7 +254,7 @@ class GeoDataset(ABC):
                 Defaults to `False`.
 
         Returns:
-            None
+            `None`
         """
         if self.is_empty:
             raise RuntimeError("Dataset is empty. Cannot write file.")
@@ -274,7 +274,7 @@ class CoalDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -299,7 +299,7 @@ class CoalDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -318,7 +318,7 @@ class CoalDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -338,7 +338,7 @@ class CountyDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -374,7 +374,7 @@ class CountyDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -391,7 +391,7 @@ class CountyDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -413,7 +413,7 @@ class DistressedDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -451,7 +451,7 @@ class DistressedDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -466,7 +466,7 @@ class DistressedDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -481,7 +481,7 @@ class DistressedDataset(GeoDataset):
         (i.e., zip code tabulation areas marked as distressed).
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -504,7 +504,7 @@ class FossilFuelDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -538,7 +538,7 @@ class FossilFuelDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -552,7 +552,7 @@ class FossilFuelDataset(GeoDataset):
                 row (`pd.Series`): The DataFrame row.
 
             Returns:
-                (str): The name.
+                (`str`): The name.
             """
             if row["msa_qual"] == "Non_MSA":
                 prefix = "Non-Metropolitan Area"
@@ -577,7 +577,7 @@ class FossilFuelDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -591,7 +591,7 @@ class FossilFuelDataset(GeoDataset):
         be overridden by subclasses.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -611,7 +611,7 @@ class Justice40Dataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -637,7 +637,7 @@ class Justice40Dataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -651,7 +651,7 @@ class Justice40Dataset(GeoDataset):
                 row (`pd.Series`): The DataFrame row.
 
             Returns:
-                (str): The name.
+                (`str`): The name.
             """
             # Format tract id
             tract_id = row["GEOID10"]
@@ -679,7 +679,7 @@ class Justice40Dataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -694,7 +694,7 @@ class Justice40Dataset(GeoDataset):
         therefore have a population size of zero.)
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -827,7 +827,7 @@ class LowIncomeDataset(GeoDataset):
         yet been released.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -892,7 +892,7 @@ class LowIncomeDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -915,7 +915,7 @@ class LowIncomeDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -937,7 +937,7 @@ class MunicipalityDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -991,7 +991,7 @@ class MunicipalityDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1005,7 +1005,7 @@ class MunicipalityDataset(GeoDataset):
                 row (`pd.Series`): The DataFrame row.
 
             Returns:
-                (str): The name.
+                (`str`): The name.
             """
             state = row["STATE_NAME"].upper()
             county = row["COUNTYNAME"].upper()
@@ -1037,7 +1037,7 @@ class MunicipalityDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1050,7 +1050,7 @@ class MunicipalityDataset(GeoDataset):
         (i.e., relevant geography type classes).
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1071,7 +1071,7 @@ class MunicipalUtilityDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1106,7 +1106,7 @@ class MunicipalUtilityDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1123,7 +1123,7 @@ class MunicipalUtilityDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1137,7 +1137,7 @@ class MunicipalUtilityDataset(GeoDataset):
         District of Columbia, and U.S. territories).
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1184,7 +1184,7 @@ class RuralCoopDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1203,7 +1203,7 @@ class RuralCoopDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1216,7 +1216,7 @@ class RuralCoopDataset(GeoDataset):
         (i.e., rural cooperatives only).
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1238,7 +1238,7 @@ class StateDataset(GeoDataset):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1266,7 +1266,7 @@ class StateDataset(GeoDataset):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1279,7 +1279,7 @@ class StateDataset(GeoDataset):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -1319,20 +1319,20 @@ class DatasetFactory:
         """Static method for creating a `GeoDataset` subclass.
 
         Args:
-            name (str): The informal name for the dataset.
+            name (`str`): The informal name for the dataset.
 
-            as_of (str): The date on which the data became current.
+            as_of (`str`): The date on which the data became current.
 
-            geography_type (str): The geography type (e.g.,
+            geography_type (`str`): The geography type (e.g., 
                 state, county) represented by the dataset.
 
-            epsg (int): The coordinate reference system (CRS)
+            epsg (`int`): The coordinate reference system (CRS) 
                 of the dataset in terms of the standard EPSG code.
 
-            published_on (str): The date on which the
+            published_on (`str`): The date on which the 
                 data was published/released.
 
-            source (str): The organization publishing the data.
+            source (`str`): The organization publishing the data.
 
             logger (`logging.Logger`): A standard logger instance.
 

@@ -6,7 +6,10 @@ import glob
 import io
 import json
 import os
+import pandas as pd
+import pathlib
 import tempfile
+
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import Any, Dict, Iterator, List, Optional
@@ -23,21 +26,19 @@ logger = LoggerFactory.get(__name__)
 class FileSystemHelper(ABC):
     """Abstract class for accessing file systems."""
 
-
-class FileSystemHelper(ABC):
     @abstractmethod
     def list_contents(self, pathname: Optional[str] = None) -> List[str]:
         """Lists files and directories within
         the root data bucket defined in settings.
 
         Args:
-            pathname (str): Paths to search for within
+            pathname (`str`): Paths to search for within
                 the bucket. Defaults to `None`,
                 in which case only files and directories
                 directly under the root are listed.
 
         Returns:
-            (list of str): The list of filenames matching
+            (`list` of `str`): The list of filenames matching
                 the pathname in the bucket.
         """
         raise NotImplementedError
@@ -48,11 +49,11 @@ class FileSystemHelper(ABC):
         """Opens a file with the given name and mode.
 
         Args:
-            filename (str): The file name (i.e., key), representing
+            filename (`str`): The file name (i.e., key), representing
                 the path to the file within the data bucket
                 (e.g., "states.geoparquet").
 
-            mode (str): The file opening method. Defaults to
+            mode (`str`): The file opening method. Defaults to
                 reading text ("r").
 
         Yields:
@@ -69,13 +70,13 @@ class LocalFileSystemHelper(FileSystemHelper):
         the root data bucket defined in settings.
 
         Args:
-            pathname (str): Paths to search for within
+            pathname (`str`): Paths to search for within
                 the bucket. Defaults to `None`,
                 in which case only files and directories
                 directly under the root are listed.
 
         Returns:
-            (list of str): The list of filenames matching
+            (`list` of `str`): The list of filenames matching
                 the pathname in the bucket.
         """
         if not pathname:
@@ -97,25 +98,32 @@ class LocalFileSystemHelper(FileSystemHelper):
         """Opens a file with the given name and mode.
 
         Args:
-            filename (str): The file name (i.e., key), representing
+            filename (`str`): The file name (i.e., key), representing
                 the path to the file within the data bucket
                 (e.g., "states.geoparquet").
 
-            mode (str): The file opening method. Defaults to
+            mode (`str`): The file opening method. Defaults to
                 reading text (i.e., "r").
 
         Yields:
             (`io.IOBase`): A file object.
         """
-        with open(settings.DATA_DIR / filename, 'rb') as f:
+        # Define file path
+        fpath = settings.DATA_DIR / filename
+
+        # Create nested parent directories if writing mode specified
+        if mode == "w":
+            pathlib.Path(fpath).parent.mkdir(parents=True, exist_ok=True)
+
+        # Read first few bytes
+        with open(fpath, 'rb') as f:
             first_bytes = f.read(3)
         
-        # Detect UTF-8 BOM
-        if first_bytes == b'\xef\xbb\xbf':
-            f = open(settings.DATA_DIR / filename, mode, encoding = "utf-8-sig")
-        else:
-            f = open(settings.DATA_DIR / filename, mode)
+        # Detect UTF-8 BOM encoding from bytes
+        encoding = "utf-8-sig" if first_bytes == b'\xef\xbb\xbf' else None
 
+        # Yield file object
+        f = open(fpath, mode, encoding = encoding)
         try:
             yield f
         finally:
@@ -129,10 +137,10 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         """Initializes a new instance of a `_CloudFileSystemHelper`.
 
         Args:
-            None
+            `None`
 
         Returns:
-            None
+            `None`
         """
         from google.cloud import storage
 
@@ -144,13 +152,13 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         the root data bucket defined in settings.
 
         Args:
-            pathname (str): Paths to search for within
+            pathname (`str`): Paths to search for within
                 the bucket. Defaults to `None`,
                 in which case only files and directories
                 directly under the root are listed.
 
         Returns:
-            (list of str): The list of filenames matching
+            (`list` of `str`): The list of filenames matching
                 the pathname in the bucket.
         """
         blobs: List[str] = [
@@ -164,11 +172,11 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         """Opens a file with the given name and mode.
 
         Args:
-            filename (str): The file name (i.e., key), representing
+            filename (`str`): The file name (i.e., key), representing
                 the path to the file within the data bucket
                 (e.g., "states.geoparquet").
 
-            mode (str): The file opening method. Defaults to
+            mode (`str`): The file opening method. Defaults to
                 reading text (i.e., "r").
 
         Yields:
@@ -209,7 +217,7 @@ class FileSystemHelperFactory:
         development environment (e.g., "DEV" or "PROD").
 
         Args:
-            None
+            `None`
 
         Returns:
             (`FileSystemHelper`)
@@ -251,13 +259,13 @@ class DataReader(ABC):
         Raises an exception if not implemented by subclasses.
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the
                 reader library used by the concrete instance.
 
         Returns:
-            (list of str): The names.
+            (`list` of `str`): The names.
         """
         raise NotImplementedError
 
@@ -267,13 +275,13 @@ class DataReader(ABC):
         returning a generator that yields one row at a time.
 
          Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the
                 reader library used by the concrete instance.
 
         Yields:
-            (list of dict): The rows.
+            (`list` of `dict`): The rows.
         """
         raise NotImplementedError
 
@@ -282,13 +290,13 @@ class DataReader(ABC):
         the root data bucket defined in settings.
 
         Args:
-            pathname (str): Paths to search for within
+            pathname (`str`): Paths to search for within
                 the bucket. Defaults to `None`,
                 in which case only files and directories
                 directly under the root are listed.
 
         Returns:
-            (list of str): The list of filenames matching
+            (`list` of `str`): The list of filenames matching
                 the pathname in the bucket.
         """
         return self._file_helper.list_contents(pathname)
@@ -301,14 +309,14 @@ class CsvDataReader(DataReader):
         """Opens the CSV file and then returns its columns.
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the underlying
                 Python standard library's `csv.DictReader` constructor
                 (e.g., "delimiter").
 
         Returns:
-            (list of str): The column names.
+            (`list` of `str`): The column names.
         """
         # Set default value for delimiter if not specified by keyword arguments
         try:
@@ -326,13 +334,13 @@ class CsvDataReader(DataReader):
         generator yielding one row at a time.
 
          Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the underlying
                 Python standard library `csv.DictReader` constructor.
 
         Yields:
-            (list of dict): The rows.
+            (`list` of `dict`): The rows.
         """
         # Set default value for delimiter if not specified by keyword arguments
         try:
@@ -356,13 +364,13 @@ class ParquetDataReader(DataReader):
         """Reads the Parquet file and then returns its columns.
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the underlying
                 pyarrow `ParquetFile` constructor.
 
         Returns:
-            (list of str): The column names.
+            (`list` of `str`): The column names.
         """
         with self._file_helper.open_file(filename, mode="rb") as f:
             pf: pq.ParquetFile = pq.ParquetFile(f)
@@ -376,13 +384,13 @@ class ParquetDataReader(DataReader):
         generator yielding one row at a time.
 
          Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords passed to the underlying
                 pyarrow `ParquetFile` constructor.
 
         Yields:
-            (list of dict): The GeoJSON features.
+            (`list` of `dict`): The GeoJSON features.
         """
         with self._file_helper.open_file(filename, mode="rb") as f:
             pf = pq.ParquetFile(f)
@@ -417,16 +425,16 @@ class DataFrameReader:
     """Base class for reading GeoDataFrames from data stores."""
 
     def __init__(self) -> None:
-        """Initializes a new instance of a `DataWriter`.
-        Maintains a reference to a `FileSystemHelper`
-        that reads and writes to and from either
-        Google Cloud or the local file system.
+        """Initializes a new instance of a `DataFrameReader`.
+        Maintains a reference to a `FileSystemHelper` that
+        reads from either Google Cloud or the local file 
+        system based on the current development environment.
 
         Args:
-            None
+            `None`
 
         Returns:
-            None
+            `None`
         """
         self._file_helper = FileSystemHelperFactory.get()
 
@@ -435,13 +443,13 @@ class DataFrameReader:
         the root data bucket defined in settings.
 
         Args:
-            pathname (str): Paths to search for within
+            pathname (`str`): Paths to search for within
                 the bucket. Defaults to `None`,
                 in which case only files and directories
                 directly under the root are listed.
 
         Returns:
-            (list of str): The list of filenames matching
+            (`list` of `str`): The list of filenames matching
                 the pathname in the bucket.
         """
         return self._file_helper.list_contents(pathname)
@@ -453,7 +461,7 @@ class DataFrameReader:
         - https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords to pass to the
                 underlying `pandas.read_csv` method.
@@ -471,7 +479,7 @@ class DataFrameReader:
         - https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords to pass to the
                 underlying `pandas.read_excel` method.
@@ -489,7 +497,7 @@ class DataFrameReader:
         - https://geopandas.org/en/stable/docs/reference/api/geopandas.read_parquet.html
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
             **kwargs: Additional keywords to pass to the
                 underlying `geopandas.read_parquet` method.
@@ -509,9 +517,9 @@ class DataFrameReader:
         - https://geopandas.org/en/stable/docs/reference/api/geopandas.read_file.html
 
         Args:
-            filename (str): The path to the file.
+            filename (`str`): The path to the file.
 
-            zip_file_path (str): The path to the dataset
+            zip_file_path (`str`): The path to the dataset
                 within the shapefile if the shapefile
                 is zipped. Defaults to `None`.
 
@@ -544,16 +552,16 @@ class DataFrameWriter:
     """Base class for writing GeoDataFrames to data stores."""
 
     def __init__(self) -> None:
-        """Initializes a new instance of a `DataWriter`.
+        """Initializes a new instance of a `DataFrameWriter`.
         Maintains a reference to a `FileSystemHelper`
-        that reads and writes to and from either
-        Google Cloud or the local file system.
+        that writes to either Google Cloud or the local file 
+        system based on the current development environment.
 
         Args:
-            None
+            `None`
 
         Returns:
-            None
+            `None`
         """
         self._file_helper = FileSystemHelperFactory.get()
 
@@ -564,11 +572,11 @@ class DataFrameWriter:
         configured in settings.
 
         Args:
-            filename (str): The file name/key in the bucket.
+            filename (`str`): The file name/key in the bucket.
 
             data (`gpd.GeoDataFrame`): The data.
 
-            index (bool): Boolean indicating whether the index
+            index (`bool`): Boolean indicating whether the index
                 should be kept in the output GeoJSON lines.
 
         Returns:
@@ -591,11 +599,11 @@ class DataFrameWriter:
         configured in settings.
 
         Args:
-            filename (str): The file name/key in the bucket.
+            filename (`str`): The file name/key in the bucket.
 
             data (`gpd.GeoDataFrame`): The data.
 
-            index (bool): Boolean indicating whether the
+            index (`bool`): Boolean indicating whether the
                 GeoDataFrame index should be kept in the
                 output geoparquet file.
 

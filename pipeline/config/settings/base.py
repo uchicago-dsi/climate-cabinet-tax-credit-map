@@ -153,92 +153,125 @@ class BaseConfig(Configuration):
             "published_on": "2021-02-02",
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {"states": "raw/census/states/tl_2020_us_state.zip"},
-        },
+        }
     ]
 
     # Clean datasets
-    CENSUS_BLOCK_FILE = "raw/block_groups/CenPop2020_Mean_BG.txt"
-    CENSUS_TRACT_FILE = "raw/tracts/census_tract_pop.geoparquet"
-    COAL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities__coal.geoparquet"
-    COUNTY_GEOGRAPHY_FILE = "clean/geoparquet/counties.geoparquet"
-    DCI_GEOGRAPHY_FILE = "clean/geoparquet/distressed_communities.geoparquet"
-    FOSSIL_FUEL_GEOGRAPHY_FILE = (
-        "clean/geoparquet/energy_communities__fossil_fuels.geoparquet"
+    CENSUS_BLOCK_FILE = (
+        "raw/block_groups/CenPop2020_Mean_BG.txt"
     )
-    GEOGRAPHY_TYPE_FILE = "clean/csv/geography_type.csv"
-    GEOGRAPHY_TYPE_PROGRAM_FILE = "clean/csv/geography_type_program.csv"
-    J40_GEOGRAPHY_FILE = "clean/geoparquet/justice40_communities.geoparquet"
-    LOW_INCOME_GEOGRAPHY_FILE = "clean/geoparquet/low_income_communities.geoparquet"
-    MUNICIPAL_UTIL_GEOGRAPHY_FILE = "clean/geoparquet/municipal_utilities.geoparquet"
-    MUNICIPALITY_GEOGRAPHY_FILE = "clean/geoparquet/municipalities.geoparquet"
-    PROGRAM_FILE = "clean/csv/program.csv"
-    RURAL_COOP_GEOGRAPHY_FILE = "clean/geoparquet/rural_cooperatives.geoparquet"
-    STATE_GEOGRAPHY_FILE = "clean/geoparquet/states.geoparquet"
-
+    CENSUS_TRACT_FILE = (
+        "raw/tracts/census_tract_pop.geoparquet"
+    )
+    COAL_GEOGRAPHY_FILE = (
+        "clean/geoparquet/energy_communities___coal.geoparquet"
+    )
+    COUNTY_GEOGRAPHY_FILE = (
+        "clean/geoparquet/counties.geoparquet"
+    )
+    DCI_GEOGRAPHY_FILE = (
+        "clean/geoparquet/distressed_communities.geoparquet"
+    )
+    FOSSIL_FUEL_GEOGRAPHY_FILE = (
+        "clean/geoparquet/energy_communities___fossil_fuels.geoparquet"
+    )
+    GEOGRAPHY_TYPE_FILE = (
+        "clean/csv/geography_type.csv"
+    )
+    GEOGRAPHY_TYPE_PROGRAM_FILE = (
+        "clean/csv/geography_type_program.csv"
+    )
+    J40_GEOGRAPHY_FILE = (
+        "clean/geoparquet/justice40_communities.geoparquet"
+    )
+    LOW_INCOME_GEOGRAPHY_FILE = (
+        "clean/geoparquet/low_income_communities.geoparquet"
+    )
+    MAPBOX_TILEJSON_METADATA_FILE = (
+        "clean/mapbox/mapbox_tilesets.json"
+    )
+    MUNICIPAL_UTIL_GEOGRAPHY_FILE = (
+        "clean/geoparquet/municipal_utilities.geoparquet"
+    )
+    MUNICIPALITY_GEOGRAPHY_FILE = (
+        "clean/geoparquet/municipalities.geoparquet"
+    )
+    PROGRAM_FILE = (
+        "clean/csv/program.csv"
+    )
+    RURAL_COOP_GEOGRAPHY_FILE = (
+        "clean/geoparquet/rural_cooperatives.geoparquet"
+    )
+    STATE_GEOGRAPHY_FILE = (
+        "clean/geoparquet/states.geoparquet"
+    )
+    
     # MAPBOX TILESETS
+    MAPBOX_TILESET_PUBLISH_SECONDS_WAIT = 10
+    MAPBOX_TILESET_SOURCE_BATCH_SIZE = 10000
     MAPBOX_TILESETS = [
         {
-            "name": "cc-counties",
-            "dataset_name": "counties",
+            "formal_name": "cc_counties",
+            "display_name": "counties",
             "min_zoom": 3,
             "max_zoom": 5,
             "files": ["clean/geojsonl/counties.geojsonl"],
         },
         {
-            "name": "cc-distressed",
-            "dataset_name": "distressed communities",
+            "formal_name": "cc_distressed",
+            "display_name": "distressed communities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": ["clean/geojsonl/distressed_communities.geojsonl"],
         },
         {
-            "name": "cc-energy",
-            "dataset_name": "energy communities",
+            "formal_name": "cc_energy",
+            "display_name": "energy communities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": [
-                "clean/geojsonl/energy_communities__coal.geojsonl",
-                "clean/geojsonl/energy_communities__fossil_fuels.geojsonl",
-            ],
+                "clean/geojsonl/energy_communities___coal.geojsonl",
+                "clean/geojsonl/energy_communities___fossil_fuels.geojsonl"
+            ]
         },
         {
-            "name": "cc-justice40",
-            "dataset_name": "justice40 communities",
+            "formal_name": "cc_justice40",
+            "display_name": "justice40 communities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": ["clean/geojsonl/justice40_communities.geojsonl"],
         },
         {
-            "name": "cc-low-income",
-            "dataset_name": "low-income communities",
+            "formal_name": "cc_low_income",
+            "display_name": "low-income communities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": ["clean/geojsonl/low_income_communities.geojsonl"],
         },
         {
-            "name": "cc-municipalities",
-            "dataset_name": "municipalities",
+            "formal_name": "cc_municipalities",
+            "display_name": "municipalities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": ["clean/geojsonl/municipalities.geojsonl"],
         },
         {
-            "name": "cc-municipal-utils",
-            "dataset_name": "municipal utilities",
+            "formal_name": "cc_municipal_utils",
+            "display_name": "municipal utilities",
             "min_zoom": 1,
             "max_zoom": 10,
             "files": ["clean/geojsonl/municipal_utilities.geojsonl"],
         },
         {
-            "name": "cc-rural-cooperatives",
-            "dataset_name": "rural cooperatives",
+            "formal_name": "cc_rural_cooperatives",
+            "display_name": "rural cooperatives",
             "min_zoom": 1,
             "max_zoom": 5,
             "files": ["clean/geojsonl/rural_cooperatives.geojsonl"],
         },
         {
-            "name": "cc-states",
-            "dataset_name": "states",
+            "formal_name": "cc_states",
+            "display_name": "states",
             "min_zoom": 1,
             "max_zoom": 5,
             "files": ["clean/geojsonl/states.geojsonl"],

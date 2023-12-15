@@ -9,8 +9,7 @@ from tax_credit.datasets import DatasetFactory, GeoDataset
 
 
 class Command(BaseCommand):
-    """
-    Loads raw datasets from the configured storage location; cleans
+    """Loads raw datasets from the configured storage location; cleans
     them to remove irrelevant records and standardize geography
     names, FIPS codes, and geometries; and finally, saves the data as
     geoparquet and line-delimited GeoJSON files for later database
@@ -34,7 +33,7 @@ class Command(BaseCommand):
             **The default keyword arguments for the base class.
 
         Returns:
-            None
+            `None`
         """
         self._logger = LoggerFactory.get(Command.name.upper())
         super().__init__(*args, **kwargs)
@@ -63,16 +62,15 @@ class Command(BaseCommand):
         parser.add_argument("--geos", nargs="+", default=[])
 
     def handle(self, *args, **options) -> None:
-        """
-        Executes the command. If the "geos" option
+        """Executes the command. If the "geos" option
         has been provided, only the listed datasets
         are cleaned. Otherwise, all datasets are cleaned.
 
         Args:
-            None
+            `None`
 
         Returns:
-            None
+            `None`
         """
         # Initialize variables
         geos = options["geos"]
