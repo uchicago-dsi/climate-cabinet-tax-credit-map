@@ -22,6 +22,10 @@ jobs:
       # Needs to be run before "auth" action
       - uses: actions/checkout@v3
 
+      - name: About
+        run: |
+          echo "Ref : ${{ github.ref }}"
+
       # Use OIDC authentication to get an access token from GitHub
       - id: auth
         name: "Authenticate to Google Cloud"

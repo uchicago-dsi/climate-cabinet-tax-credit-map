@@ -183,24 +183,29 @@ class GoogleCloudStorageHelper(FileSystemHelper):
             (`io.IOBase`): A file object.
         """
         blob = self.bucket.blob(filename)
-        data = blob.download_as_bytes()
-        first_bytes = data[:3]
+        # Not the prettiest but the file read is the bottle neck in data loading,
+        # so we want this as local as possible.
+        # There could be some kind of way to use async and cache contents ahead 
+        # while records are pushing to the db.
+        # In that case we might not even need to keep the file locally
+        with tempfile.NamedTemporaryFile(delete=False) as tf:
+            blob.download_to_filename(tf.name)
+            temp_filename = tf.name
 
-        try:
-            # Detect UTF-8 BOM
-            if first_bytes == b'\xef\xbb\xbf':
-                text = data.decode("utf-8-sig")
-            else:
-                text = data.decode()
-
-            f = io.StringIO(text)
-        except UnicodeDecodeError:
-            f = io.BytesIO(data)
+        with open(temp_filename, 'rb') as f:
+            first_bytes = f.read(3)
+        
+        # Detect UTF-8 BOM
+        if first_bytes == b'\xef\xbb\xbf':
+            f = open(temp_filename, mode, encoding = "utf-8-sig")
+        else:
+            f = open(temp_filename, mode)
 
         try:
             yield f
         finally:
             f.close()
+            os.remove(temp_filename)
 
 
 class FileSystemHelperFactory:

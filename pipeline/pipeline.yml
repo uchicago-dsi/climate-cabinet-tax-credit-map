@@ -404,7 +404,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: state
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_state
     db_field_unique:
     - target_geography
@@ -453,7 +453,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: county
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_county
     db_field_unique:
     - target_geography
@@ -502,7 +502,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipal utility
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: overlap
     db_field_unique:
     - target_geography
@@ -551,7 +551,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: fips_county
     db_field_unique:
     - target_geography
@@ -600,7 +600,7 @@ assoc:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: rural cooperative
-    bonus: low_income
+    bonus: low-income
     assoc_strategy: overlap
     db_field_unique:
     - target_geography
