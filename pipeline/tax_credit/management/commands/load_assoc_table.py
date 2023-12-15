@@ -68,7 +68,7 @@ class Command(BaseCommand):
                     county_fips=Substr("fips", 1, 5)
                 ).values(
                     "id", "fips", "geography_type__name"
-                ).first()
+                )[:1]
 
                 strategy = job.assoc_strategy.lower()
                 matches = self.match_fips(strategy, target_record, job.bonus)
