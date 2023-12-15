@@ -1116,6 +1116,7 @@ class MunicipalUtilityDataset(GeoDataset):
             + ", "
             + self.data["STATE"].apply(lambda s: STATE_ABBREVIATIONS[s])
         )
+        self.data["name"] = self.data["name"].str.upper()
         return self.data.copy()
 
     def _build_fips(self) -> gpd.GeoDataFrame:

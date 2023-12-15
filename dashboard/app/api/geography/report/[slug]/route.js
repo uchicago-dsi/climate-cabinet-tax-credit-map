@@ -27,28 +27,62 @@ export async function GET(request, { params }) {
   let rawGeos = await prisma.$queryRaw`
         SELECT ST_ASGeoJSON(t.*) AS data
         FROM (
-            SELECT
-                geo.id,
-                geo.name,
-                geotype.name AS geography_type,
-                CASE
-                    WHEN geo.id = ${geographyId} THEN TRUE
-                    ELSE FALSE
-                END AS is_target,
-                CASE
-                    WHEN geo.id = ${geographyId} THEN ST_ENVELOPE(geo.boundary)
-                    ELSE null
-                END AS bbox
-            FROM tax_credit_geography AS geo
-            JOIN tax_credit_geography_type AS geotype
-                ON geotype.id = geo.geography_type_id
-            WHERE geo.id IN (${geographyId}) OR geo.id IN (
-                SELECT bonus_geography_id
-                FROM tax_credit_target_bonus_assoc
-                WHERE target_geography_id = ${geographyId}
+            WITH target_block_group AS (
+                SELECT DISTINCT(bg.id) AS bg_id
+                FROM tax_credit_census_block_group AS bg
+                JOIN tax_credit_geography AS geo
+                    ON ST_WITHIN(bg.centroid, geo.geometry)
+                WHERE geo.id = ${geographyId}
+                ORDER BY bg_id ASC
+            ),
+            geography AS (
+                SELECT
+                    geo.id,
+                    geo.name,
+                    geo.fips,
+                    geotype.name AS geography_type,
+                    geo.geometry,
+                    CASE
+                        WHEN geo.id = ${geographyId}
+                        THEN TRUE
+                        ELSE FALSE
+                    END AS is_target,
+                    CASE
+                        WHEN geo.id = ${geographyId} 
+                        THEN ST_ENVELOPE(geo.geometry)
+                        ELSE null
+                    END AS bbox
+                FROM tax_credit_geography AS geo
+                JOIN tax_credit_geography_type AS geotype
+                    ON geotype.id = geo.geography_type_id
+                WHERE geo.id IN (${geographyId}) OR geo.id IN (
+                    SELECT bonus_geography_id
+                    FROM tax_credit_target_bonus_assoc
+                    WHERE target_geography_id = ${geographyId}
+                )
             )
-            GROUP BY(geo.id, geotype.name)
-        ) AS t
+            SELECT
+                geography.id,
+                geography.name,
+                geography.fips,
+                geography.geography_type,
+                geography.is_target,
+                geography.bbox
+            FROM geography
+            JOIN tax_credit_census_block_group AS bg
+                ON ST_WITHIN(bg.centroid, geography.geometry)
+            JOIN target_block_group AS tbg
+                ON bg.id = tbg.bg_id
+            GROUP BY(
+                geography.id,
+                geography.name,
+                geography.fips,
+                geography.geography_type,
+                geography.is_target,
+                geography.bbox
+            )
+        ) as t
+  
     `;
   let geographies = rawGeos.map((r) => JSON.parse(r.data));
 
@@ -81,7 +115,7 @@ export async function GET(request, { params }) {
                 geotype.name AS type
             FROM tax_credit_census_block_group AS bg
             JOIN tax_credit_geography AS geo
-                ON ST_Within(bg.centroid, geo.boundary)
+                ON ST_Within(bg.centroid, geo.geometry)
             JOIN tax_credit_geography_type AS geotype
                 ON geotype.id = geo.geography_type_id
             WHERE (
@@ -109,10 +143,10 @@ export async function GET(request, { params }) {
       `;
 
   // Handle BigInt values
-  const bigIntHandler = (key, value) =>
+  const bigIntHandler = (_, value) =>
     typeof value === "bigint"
-      ? value.toString() // convert BigInt to string
-      : value; // return everything else unchanged
+      ? value.toString()
+      : value;
 
   // Compose final response payload
   let payload = {
@@ -120,8 +154,6 @@ export async function GET(request, { params }) {
     programs: programs,
     summaryStats: JSON.stringify(summaryStats, bigIntHandler),
   };
-
-  console.log("payload", payload);
 
   return NextResponse.json(payload, bigIntHandler);
 }

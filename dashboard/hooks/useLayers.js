@@ -42,7 +42,7 @@ function useLayers(features, layerState) {
       };
       const layer = new MVTLayer({
         id: config.id,
-        data: `https://a.tiles.mapbox.com/v4/${config.mapboxTilesetId}/{z}/{x}/{y}.vector.pbf?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+        data: `https://a.tiles.mapbox.com/v4/${process.env.NEXT_PUBLIC_MAPBOX_USERNAME}.${config.mapboxTilesetName}/{z}/{x}/{y}.vector.pbf?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
         opacity: config.opacity,
         stroked: true,
         filled: true,
@@ -59,7 +59,7 @@ function useLayers(features, layerState) {
         onHover: (layer) => {
           // Parse properties from layer object
           let props = layer?.object?.properties;
-          let geoType = props?.geoType;
+          let geoType = props?.geography_type;
           let name = props?.name;
 
           // If hovering over geography, update state

@@ -9,7 +9,7 @@ import classNames from "classnames";
 import debounce from "lodash/debounce";
 import { memo, useCallback, useState, Suspense } from "react";
 import { useSnapshot } from "valtio";
-import { searchStore, reportStore } from "@/states/search";
+import { searchStore } from "@/states/search";
 
 function Autocomplete() {
   // Initialize value for search box

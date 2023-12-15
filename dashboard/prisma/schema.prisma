@@ -155,7 +155,7 @@ model tax_credit_census_tract {
 model tax_credit_geography {
   id                                                                                                    BigInt                          @id @default(autoincrement())
   name                                                                                                  String                          @db.VarChar(255)
-  boundary                                                                                              Unsupported("geometry")
+  geometry                                                                                              Unsupported("geometry")
   as_of                                                                                                 DateTime                        @db.Date
   source                                                                                                String                          @db.VarChar(255)
   geography_type_id                                                                                     Int
@@ -164,7 +164,7 @@ model tax_credit_geography {
   tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography")
 
   @@unique([name, geography_type_id], map: "tax_credit_geography_name_geography_type_id_2fecb6f9_uniq")
-  @@index([boundary], map: "tax_credit_geography_boundary_059cae64_id", type: Gist)
+  @@index([geometry], map: "tax_credit_geography_boundary_059cae64_id", type: Gist)
   @@index([geography_type_id], map: "tax_credit_geography_geography_type_id_39643e65")
 }
 

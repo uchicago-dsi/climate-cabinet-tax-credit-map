@@ -20,9 +20,6 @@ function MapControlPanel() {
   // Intialize panel visiblity
   const [expanded, setExpanded] = useState(true);
 
-  console.log("reportSnap", reportSnap);
-  console.log("layerSnap", layerSnap);
-
   useEffect(() => {
     // Function to check the window's width and update the expanded state
     const updateMenuState = () => {

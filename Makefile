@@ -29,7 +29,6 @@ test-pipeline:
 	# docker exec -it test-app pytest tests/test_load_tables.py::test_load_assoc_with_state_fips_match -s
 	docker exec -it test-app pytest -s
 
-
 clean:
 	find . | grep -E "(/__pycache__\$$|/migrations/.*_initial.py)" | xargs rm -rf
 	rm -rf pgdata

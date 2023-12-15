@@ -4,27 +4,18 @@
 
 const layerConfig = [
     {
-        externalId: "low_income",
-        id: "Low Income Census Tracts",
-        mapboxTilesetId: "launa-greer.cc-low-income",
-        fillColor: [255, 0, 0],
+        externalId: "county",
+        id: "Counties",
+        mapboxTilesetName: "cc_counties",
+        fillColor: [0, 0, 0],
         opacity: 0.1,
         canToggle: true,
-        initialVisibility: true
-    },
-    {
-        externalId: "justice40",
-        id: "Justice 40 Communities",
-        mapboxTilesetId: "launa-greer.cc-justice40",
-        fillColor: [255, 255, 153],
-        opacity: 0.1,
-        canToggle: true,
-        initialVisibility: true
+        initialVisibility: false
     },
     {
         externalId: "distressed",
         id: "Distressed Communities",
-        mapboxTilesetId: "launa-greer.cc-distressed",
+        mapboxTilesetName: "cc_distressed",
         fillColor: [153, 0, 153],
         opacity: 0.1,
         canToggle: true,
@@ -33,43 +24,61 @@ const layerConfig = [
     {
         externalId: "energy",
         id: "Energy Communities",
-        mapboxTilesetId: "launa-greer.cc-energy",
+        mapboxTilesetName: "cc_energy",
         fillColor: [0, 153, 0],
         opacity: 0.1,
         canToggle: true,
         initialVisibility: true
     },
     {
-        externalId: "municipal_util",
-        id: "Municipal Utilities",
-        mapboxTilesetId: "launa-greer.cc-municipal-utils",
-        fillColor: [255, 255, 100],
-        opacity: 0.1,
-        canToggle: false,
-        initialVisibility: true
-    },
-    {
-        externalId: "rural_coop",
-        id: "Rural Co-Ops",
-        mapboxTilesetId: "launa-greer.cc-rural-coops",
-        fillColor: [255, 255, 100],
-        opacity: 0.1,
-        canToggle: false,
-        initialVisibility: true
-    },
-    {
-        externalId: "county",
-        id: "Counties",
-        mapboxTilesetId: "launa-greer.cc-counties",
-        fillColor: [0, 0, 0],
+        externalId: "justice40",
+        id: "Justice 40 Communities",
+        mapboxTilesetName: "cc_justice40",
+        fillColor: [174, 209, 29],
         opacity: 0.1,
         canToggle: true,
-        initialVisibility: false
+        initialVisibility: true
+    },
+    {
+        externalId: "low-income",
+        id: "Low Income Census Tracts",
+        mapboxTilesetName: "cc_low_income",
+        fillColor: [255, 0, 0],
+        opacity: 0.1,
+        canToggle: true,
+        initialVisibility: true
+    },
+    {
+        externalId: "municipal utility",
+        id: "Municipal Utilities",
+        mapboxTilesetName: "cc_municipal_utils",
+        fillColor: [255, 165, 0],
+        opacity: 0.1,
+        canToggle: false,
+        initialVisibility: true
+    },
+    {
+        externalId: "municipality",
+        id: "Municipalities",
+        mapboxTilesetName: "cc_municipalities",
+        fillColor: [209, 29, 84],
+        opacity: 0.1,
+        canToggle: false,
+        initialVisibility: true
+    },
+    {
+        externalId: "rural cooperative",
+        id: "Rural Co-Ops",
+        mapboxTilesetName: "cc_rural_coops",
+        fillColor: [255, 255, 100],
+        opacity: 0.1,
+        canToggle: false,
+        initialVisibility: true
     },
     {
         externalId: "state",
         id: "States",
-        mapboxTilesetId: "",
+        mapboxTilesetName: "cc_states",
         fillColor: [0, 0, 0],
         opacity: 0,
         canToggle: false,

@@ -34,19 +34,19 @@ class SummaryBuilder {
 
     // TODO: this is kind of a hack
     this.programDict = {
-      distressed: {
+      "distressed": {
         singular: "Distressed Community",
         plural: "Distressed Communities",
       },
-      energy: {
+      "energy": {
         singular: "Energy Community",
         plural: "Energy Communities",
       },
-      justice40: {
+      "justice40": {
         singular: "Justice 40 Community",
         plural: "Justice 40 Communities",
       },
-      low_income: {
+      "low-income": {
         singular: "Low Income Census Tract",
         plural: "Low Income Census Tracts",
       },
@@ -97,12 +97,17 @@ class SummaryBuilder {
           single: "county",
           plural: "counties",
         };
-      case "rural_coop":
+      case "rural cooperative":
         return {
           single: "rural co-op",
           plural: "rural co-ops",
         };
-      case "municipal_util":
+      case "municipality":
+          return {
+            single: "municipality",
+            plural: "municipalities",
+          };
+      case "municipal utility":
         return {
           single: "municipal utility",
           plural: "municipal utilities",
@@ -122,7 +127,7 @@ class SummaryBuilder {
           single: "Justice 40 census tract",
           plural: "Justice 40 census tracts",
         };
-      case "low_income":
+      case "low-income":
         return {
           single: "low income census tract",
           plural: "low income census tracts",
@@ -134,7 +139,13 @@ class SummaryBuilder {
   }
 
   #groupBonusTerritories(geos) {
-    let targetTypes = ["municipal_util", "rural_coop", "county", "state"];
+    let targetTypes = [
+      "municipality", 
+      "municipal utility", 
+      "rural cooperative", 
+      "county", 
+      "state"
+    ];
     return geos.reduce((grp, geo) => {
       let key = geo.properties.geography_type;
       if (targetTypes.includes(key)) return grp;
@@ -189,12 +200,14 @@ class SummaryBuilder {
   }
 
   get targetPop() {
-    for (const item of ["state", "county", "municipal_util", "rural_coop"]) {
+    for (const item of [
+      "state", 
+      "county", 
+      "municipality", 
+      "municipal_util", 
+      "rural_coop"
+    ]) {
       if (item in this.summaryStats) {
-        console.log(
-          "In the target pop builder",
-          this.summaryStats[item].population
-        );
         return this.summaryStats[item].population.toLocaleString();
       }
     }
@@ -272,9 +285,6 @@ function SummaryStats() {
 
   const layerType = builder.targetGeoTypeRaw;
   const sideBarOpacity = 0.3;
-
-  console.log("summaryStats", builder.summaryStats);
-  console.log("targetPop", builder.targetPop);
 
   // TODO: Not sure that this is the right spot to do this but setting default county visibility here
   const countySelected = builder.targetGeoType === "county";
