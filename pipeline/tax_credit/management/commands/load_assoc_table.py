@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     state_fips=Substr("fips", 1, 2),
                     county_fips=Substr("fips", 1, 5)
                 ).values(
-                    "id", "state_fips", "county_fips" "geography_type__name"
+                    "id", "state_fips", "county_fips", "geography_type__name"
                 )[:1]
 
                 strategy = job.assoc_strategy.lower()
