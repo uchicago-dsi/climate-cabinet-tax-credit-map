@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     state_fips=Substr("fips", 1, 2),
                     county_fips=Substr("fips", 1, 5)
                 ).values(
-                    "id", "fips", "geography_type__name"
+                    "id", "state_fips", "county_fips" "geography_type__name"
                 )[:1]
 
                 strategy = job.assoc_strategy.lower()
@@ -128,11 +128,11 @@ class Command(BaseCommand):
         logger.info(f"Matching with {strategy}")
         if strategy == "fips_county":
             matches = self.match_county_fips(
-                target_record.values("state_fips"), bonus
+                target_record.values("county_fips"), bonus
             )
         elif strategy == "fips_state":
             matches = self.match_state_fips(
-                target_record.values("county_fips"), bonus
+                target_record.values("state_fips"), bonus
             )
         elif strategy == "overlap":
             matches = self.match_overlap(target_record.values("id"), bonus)
