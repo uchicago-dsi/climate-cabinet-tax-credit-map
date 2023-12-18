@@ -20,7 +20,7 @@ class Geography(models.Model):
     # Autogenerate id field
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    fips = models.CharField(max_length=255, null=True)
+    fips = models.CharField(max_length=255, default='', blank=True)
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     as_of = models.DateField()
     published_on = models.DateField(null=True)
