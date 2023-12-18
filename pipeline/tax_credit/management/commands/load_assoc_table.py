@@ -63,8 +63,11 @@ class Command(BaseCommand):
                 st_time = datetime.now()
 
                 logger.debug(f"Matching and loading [ {job.job_name} ] record : {target}")
-                target_record = Geography.objects.filter(id=target.id).values(
-                    "id", "fips", "geography_type__name"
+                target_record = Geography.objects.filter(id=target.id).annotate(
+                    state_fips=Substr("fips", 1, 2),
+                    county_fips=Substr("fips", 1, 5)
+                ).values(
+                    "id", "state_fips", "county_fips", "geography_type__name"
                 )[:1]
 
                 strategy = job.assoc_strategy.lower()
@@ -98,6 +101,7 @@ class Command(BaseCommand):
                     f"FROM ({raw_sql_query}) AS subquery "
                     "ON CONFLICT DO NOTHING"
                 )
+                logger.debug(f"Running parameters and query : {params} {insert_query}")
                 with connection.cursor() as cursor:
                     cursor.execute(
                         insert_query,
@@ -119,14 +123,14 @@ class Command(BaseCommand):
         Raises:
             ValueError: If the matching strategy is not defined, raises
         """
-        # TODO validate valid fips
+        logger.debug(f"Matching with {strategy}")
         if strategy == "fips_county":
             matches = self.match_county_fips(
-                target_record.values("fips")[:5], bonus
+                target_record.values("county_fips"), bonus
             )
         elif strategy == "fips_state":
             matches = self.match_state_fips(
-                target_record.values("fips")[:2], bonus
+                target_record.values("state_fips"), bonus
             )
         elif strategy == "overlap":
             matches = self.match_overlap(target_record.values("id"), bonus)
