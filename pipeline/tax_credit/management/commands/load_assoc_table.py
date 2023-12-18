@@ -72,7 +72,6 @@ class Command(BaseCommand):
 
                 strategy = job.assoc_strategy.lower()
                 matches = self.match_fips(strategy, target_record, job.bonus)
-                logger.info(f"Query now : {matches.query}")
 
                 matches = matches.annotate(
                     target_id=target_record.values("id"),
@@ -102,7 +101,7 @@ class Command(BaseCommand):
                     f"FROM ({raw_sql_query}) AS subquery "
                     "ON CONFLICT DO NOTHING"
                 )
-                logger.info(f"Parameters and query : {params} {insert_query}")
+                logger.debug(f"Running parameters and query : {params} {insert_query}")
                 with connection.cursor() as cursor:
                     cursor.execute(
                         insert_query,
@@ -124,8 +123,7 @@ class Command(BaseCommand):
         Raises:
             ValueError: If the matching strategy is not defined, raises
         """
-        # TODO validate valid fips
-        logger.info(f"Matching with {strategy}")
+        logger.debug(f"Matching with {strategy}")
         if strategy == "fips_county":
             matches = self.match_county_fips(
                 target_record.values("county_fips"), bonus
