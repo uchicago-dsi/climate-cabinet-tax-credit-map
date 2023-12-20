@@ -12,7 +12,7 @@ services:
 
   # PIPELINE
   climate-cabinet-pipeline:
-    restart: unless-stopped
+    restart: "no"
     environment:
       - DJANGO_SECRET_KEY=local
       - ENV=DEV
@@ -39,7 +39,7 @@ services:
     depends_on:
       - climate-cabinet-postgis
     image: dpage/pgadmin4
-    platform: linux/arm64
+    platform: linux/amd64
     environment:
       - COMPOSE_HTTP_TIMEOUT=300
       - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com

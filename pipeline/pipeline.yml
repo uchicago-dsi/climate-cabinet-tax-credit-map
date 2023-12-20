@@ -42,7 +42,8 @@ base:
     row_transform: tax_credit.record_transforms:load_census_block_row_2010
     model: tax_credit.models:CensusBlockGroup
     db_field_unique:
-    - id
+    - fips
+    - year
     file_field_required:
     - STATEFP
     - COUNTYFP
@@ -61,7 +62,8 @@ base:
     row_transform: tax_credit.record_transforms:load_census_block_row_2020
     model: tax_credit.models:CensusBlockGroup
     db_field_unique:
-    - id
+    - fips
+    - year
     file_field_required:
     - STATEFP
     - COUNTYFP
@@ -140,8 +142,6 @@ dependent:
     - source
     - geometry
     db_field_update:
-    - fips
-    - geography_type
     - as_of
     - published_on
     - source
@@ -254,7 +254,7 @@ dependent:
     - published_on
     - source
     - geometry
-  municiapl_utilities:
+  municipal_utilities:
     active: True
     filename: clean/geoparquet/municipal_utilities.geoparquet
     filetype: parquet

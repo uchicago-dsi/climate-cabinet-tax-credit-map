@@ -6,9 +6,9 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("tax_credit", "0001_initial")
-    ]
+    initial = True
+
+    dependencies = []
 
     operations = [
         TrigramExtension()

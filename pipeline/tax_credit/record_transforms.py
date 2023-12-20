@@ -38,7 +38,7 @@ def load_program_type_row(row):
 
 def load_census_block_row_2010(row):
     return CensusBlockGroup(
-        id          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
+        fips          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
         centroid    = GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
         population  = row["POPULATION"],
         year        = 2010
@@ -47,7 +47,7 @@ def load_census_block_row_2010(row):
 
 def load_census_block_row_2020(row):
     return CensusBlockGroup(
-        id          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
+        fips          = f'{row["STATEFP"]}-{row["COUNTYFP"]}-{row["TRACTCE"]}-{row["BLKGRPCE"]}',
         centroid    = GEOSGeometry(Point(float(row["LONGITUDE"]), float(row["LATITUDE"]))),
         population  = row["POPULATION"],
         year        = 2020
@@ -61,7 +61,7 @@ def load_geography_dataset_row(row):
     geography_type = GeographyType.objects.get(name=row["geography_type"])
     return Geography(
         name = row["name"],
-        fips = row["fips"],
+        fips = "" if not row["fips"] else row["fips"],
         geography_type = geography_type,
         as_of = row["as_of"],
         published_on = row["published_on"],

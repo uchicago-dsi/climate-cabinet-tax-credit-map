@@ -1080,6 +1080,7 @@ class MunicipalUtilityDataset(GeoDataset):
         try:
             corrected_names_fpath = kwargs["corrected_names"]
             utilities_fpath = kwargs["utilities"]
+            hinton_iowa_fpath = kwargs["hinton_iowa"]
         except KeyError as e:
             raise RuntimeError(
                 "Missing file path. Expected to find key "
@@ -1099,6 +1100,15 @@ class MunicipalUtilityDataset(GeoDataset):
         self.data = self.data.merge(
             right=corrected_names, how="left", on="OBJECTID", suffixes=["_DHS", "_CC"]
         )
+
+        # Fix erroneous boundary for Hinton, IA
+        # NOTE: The original dataset used the boundaries for Hinton, WV
+        hinton = self.reader.read_shapefile(filename=hinton_iowa_fpath)
+        bad_data_idx = (self.data
+                        .query("NAME_DHS == 'CITY OF HINTON' & STATE == 'IA'")
+                        .index
+                        .values[0])
+        self.data.at[bad_data_idx, "geometry"] = hinton.iloc[0]["geometry"]
 
         return self.data.copy()
 

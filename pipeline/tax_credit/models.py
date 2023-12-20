@@ -20,7 +20,7 @@ class Geography(models.Model):
     # Autogenerate id field
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    fips = models.CharField(max_length=255, default='', blank=True)
+    fips = models.CharField(max_length=255, blank=True, default="")
     geography_type = models.ForeignKey(GeographyType, on_delete=models.CASCADE)
     as_of = models.DateField()
     published_on = models.DateField(null=True)
@@ -29,7 +29,12 @@ class Geography(models.Model):
 
     class Meta:
         db_table = "tax_credit_geography"
-        unique_together = [["name", "geography_type", "fips"]]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("name", "geography_type", "fips"),
+                name="unique_geography"
+            )
+        ]
     
     def __str__(self):
         return f"[ {self.id}, {self.name}, {self.fips}, {self.geography_type} ]"
@@ -74,10 +79,17 @@ class TargetBonusAssoc(models.Model):
 
 
 class CensusBlockGroup(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    fips = models.CharField(max_length=255)
     centroid = PointField()
     population = models.IntegerField()
     year = models.IntegerField()
 
     class Meta:
         db_table = "tax_credit_census_block_group"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["fips", "year"],
+                name="unique_census_block_group"
+            )
+        ]

@@ -131,6 +131,7 @@ class BaseConfig(Configuration):
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
                 "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
+                "hinton_iowa": "raw/bonus/retail/hinton_municipal_iowa.zip",
                 "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip",
             },
         },
