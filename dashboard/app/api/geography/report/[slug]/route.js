@@ -27,68 +27,36 @@ export async function GET(request, { params }) {
   let rawGeos = await prisma.$queryRaw`
         SELECT ST_ASGeoJSON(t.*) AS data
         FROM (
-            WITH target_block_group AS (
-                SELECT DISTINCT(bg.id) AS bg_id
-                FROM tax_credit_census_block_group AS bg
-                JOIN tax_credit_geography AS geo
-                    ON ST_WITHIN(bg.centroid, geo.geometry)
-                WHERE geo.id = ${geographyId}
-                ORDER BY bg_id ASC
-            ),
-            geography AS (
-                SELECT
-                    geo.id,
-                    geo.name,
-                    geo.fips,
-                    geotype.name AS geography_type,
-                    geo.geometry,
-                    CASE
-                        WHEN geo.id = ${geographyId}
-                        THEN TRUE
-                        ELSE FALSE
-                    END AS is_target,
-                    CASE
-                        WHEN geo.id = ${geographyId} 
-                        THEN ST_ENVELOPE(geo.geometry)
-                        ELSE null
-                    END AS bbox
-                FROM tax_credit_geography AS geo
-                JOIN tax_credit_geography_type AS geotype
-                    ON geotype.id = geo.geography_type_id
-                WHERE geo.id IN (${geographyId}) OR geo.id IN (
-                    SELECT bonus_geography_id
-                    FROM tax_credit_target_bonus_assoc
-                    WHERE target_geography_id = ${geographyId}
-                )
-            )
             SELECT
-                geography.id,
-                geography.name,
-                geography.fips,
-                geography.geography_type,
-                geography.is_target,
-                geography.bbox
-            FROM geography
-            JOIN tax_credit_census_block_group AS bg
-                ON ST_WITHIN(bg.centroid, geography.geometry)
-            JOIN target_block_group AS tbg
-                ON bg.id = tbg.bg_id
-            GROUP BY(
-                geography.id,
-                geography.name,
-                geography.fips,
-                geography.geography_type,
-                geography.is_target,
-                geography.bbox
+                geo.id,
+                geo.name,
+                geotype.name AS geography_type,
+                CASE
+                    WHEN geo.id = ${geographyId} THEN TRUE
+                    ELSE FALSE
+                END AS is_target,
+                CASE
+                    WHEN geo.id = ${geographyId} THEN ST_ENVELOPE(geo.geometry)
+                    ELSE null
+                END AS bbox
+            FROM tax_credit_geography AS geo
+            JOIN tax_credit_geography_type AS geotype
+                ON geotype.id = geo.geography_type_id
+            WHERE geo.id IN (${geographyId}) OR geo.id IN (
+                SELECT bonus_geography_id
+                FROM tax_credit_target_bonus_assoc
+                WHERE target_geography_id = ${geographyId}
             )
-        ) as t
-  
+            GROUP BY(geo.id, geotype.name)
+        ) AS t
     `;
   let geographies = rawGeos.map((r) => JSON.parse(r.data));
 
   // Query DB for tax credit programs related to geographies
   let geoIds = geographies.map((g) => g.properties.id);
-  let programs = await prisma.$queryRaw`
+  let programs = []
+  if (geographies.length > 0) {
+    programs = await prisma.$queryRaw`
         SELECT DISTINCT
             geo_type.name AS geography_type,
             program.name AS program_name,
@@ -104,11 +72,14 @@ export async function GET(request, { params }) {
         JOIN tax_credit_program AS program
             ON program.id = geo_type_program.program_id
         WHERE geo.id IN (${Prisma.join(geoIds)});`;
+  }
+
 
   let summaryStats = await prisma.$queryRaw`
         WITH block_groups AS (
             SELECT DISTINCT ON (bg.id, geotype.name)
                 bg.id AS block_group_id,
+                bg.year,
                 population,
                 geo.id AS geo_id,
                 geo.name,
@@ -131,7 +102,7 @@ export async function GET(request, { params }) {
         target_block_groups AS (
             SELECT *
             FROM block_groups
-            WHERE geo_id = ${geographyId}
+            WHERE geo_id = ${geographyId} and year = 2020
         )
         SELECT
             bg.type,

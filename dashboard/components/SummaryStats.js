@@ -321,7 +321,7 @@ function SummaryStats() {
           </div>
         </div>
         <h6 className="pb-1">
-          <b>Total Population</b>
+          <b>Total Population (2020)</b>
           <br />
           {builder.targetPop}
           <br />
@@ -331,8 +331,8 @@ function SummaryStats() {
             <b>Bonus Territories</b>
             <p className="text-sm p-0">
               Populations are estimated in the overlap of your search area
-              (state, county, municipal utility, or coop) and the bonus
-              territories
+              (state, county, municipal utility, or rural co-op) and the bonus
+              territories and then rounded to the nearest thousand.
             </p>
           </h6>
           <span>
@@ -348,7 +348,7 @@ function SummaryStats() {
                     }}
                   ></div>
                   <div>
-                    <b className="mr-.5">{builder.summaryStats[key].count}</b>{" "}
+                    <b className="mr-.5">{builder.summaryStats[key].count.toLocaleString()}</b>{" "}
                     {builder.summaryStats[key].count === 1
                       ? builder.programDict[key].singular
                       : builder.programDict[key].plural}{" "}
