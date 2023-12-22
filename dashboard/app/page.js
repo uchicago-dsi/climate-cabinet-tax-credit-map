@@ -10,6 +10,8 @@ import Link from "@/components/Link";
 import ReportWidget from "@/components/ReportWidget";
 import { get } from "lib/http";
 import React, { useEffect, useState } from "react";
+import { layerConfig } from "@/config/layers";
+import { capitalize } from "lodash";
 
 export default function SearchPage() {
   const [programs, setPrograms] = useState([]);
@@ -19,8 +21,8 @@ export default function SearchPage() {
       try {
         const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/programs/`;
         const errMsg = `Failed to retrieve programs`;
-        const response = await get(url, errMsg);
-        setPrograms(response.data);
+        const data = await get(url, errMsg);
+        setPrograms(data);
       } catch (error) {
         console.error("Failed to retrieve programs data", error);
       }
@@ -28,10 +30,10 @@ export default function SearchPage() {
     getPrograms();
   }, []);
 
-  const formatBonusDescription = (text) => {
-    return text.split(/\\n/g).map((t) => {
-      let [title, description] = t.split(":");
-      return { title: title.trim(), description: description.trim() };
+  const formatBonusDescription = (obj) => {
+    return Object.entries(obj).map(([key, val], _) => {
+      let config = layerConfig.find((c) => c.externalId === key);
+      return {title: config.id, description: capitalize(val)}
     });
   };
 
@@ -76,7 +78,7 @@ export default function SearchPage() {
       </div>
       {/** REPORT WIDGET */}
       <div>
-        <ReportWidget />
+        <ReportWidget programs={programs}/>
       </div>
       <div className="flex flex-col items-center">
         <div className="max-w-5xl pt-12 overflow-x-auto">
@@ -188,6 +190,8 @@ export default function SearchPage() {
             sources from different years (e.g., state GIS portals, Energy
             Information Administration Tiger/Line Shapefiles).
           </p>
+
+          {/** ENERGY COMMUNITIES */}
           <h4>Energy Communities</h4>
           <p>
             Two datasets for coal closure and fossil fuel employment qualifying
@@ -223,6 +227,8 @@ export default function SearchPage() {
             energy communities, and then merged together to create the final
             dataset.
           </p>
+
+          {/** JUSTICE40 COMMUNITIES */}
           <h4>Justice40 Communities</h4>
           <p>
             A Shapefile containing metadata and geographic boundaries for
@@ -239,6 +245,8 @@ export default function SearchPage() {
             criteria: climate change, energy, health, housing, legacy pollution,
             transportation, water and wastewater, and workforce development.
           </p>
+
+          {/** LOW-INCOME COMMUNITIES */}
           <h4>Low-Income Communities</h4>
           <p>
             According to statute (
@@ -274,12 +282,13 @@ export default function SearchPage() {
             script was then executed to merge and filter the data to produce the
             final dataset.
           </p>
+
           {/* METHODOLOGY EXPLANATION */}
           <h3 className="text-center pt-10 font-bold">Methodology</h3>
           <hr />
           <p>
             To estimate populations in specific geographic regions, we utilized
-            the population-weighted centroid of Census Block Groups from the
+            the population-weighted centroids of Census Block Groups from the
             2020 United States Census. Block groups are subdivisions of census
             tracts, typically holding 600 to 3,000 people. Block groups allow
             for a more fine-grained approach to population estimates since
@@ -300,6 +309,25 @@ export default function SearchPage() {
             was in the overlapping region. If the population-weighted centroid
             was not in the intersecting area, we did not allocate any of the
             population to the overlapping area.
+          </p>
+          <p>
+            We compared two different methodologies for calculating population using
+            census block groups. In one methodology, we calculated the percentage area 
+            of a block group that intersected with a specific geography, and we 
+            allocated that percentage of the block group's population to that geography.
+            In the other methodology, we allocated the entire population of a block group 
+            to a specific geography if the population-weighted centroid was inside of 
+            that geography. The area allocated population methodology is much more 
+            computationally expensive than the population-weighted centroid methodology.
+          </p>
+          <p>
+            To test the difference between the two methodologies, we used a paired 
+            T-test with 1,100 samples. To pick our sample size, we used an estimated 
+            effect size of 0.1, a significance level of 0.05, and a power of 0.9. The 
+            T-statistic was -0.36 and the p-value was 0.72, which indicates that 
+            the differences in methodologies are not statistically significant. 
+            Based on this, we used the less computationally expensive 
+            population-weighted centroid methodology.
           </p>
         </div>
       </div>

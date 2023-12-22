@@ -8,16 +8,16 @@ import { reportStore } from "@/states/search";
 import { useSnapshot } from "valtio";
 import { layerConfig } from "@/config/layers";
 import { layerStore } from "@/states/search";
+import intersection from "lodash/intersection";
+import some from "lodash/some";
 
 class SummaryBuilder {
   #target;
   #bonusGrps;
   #programGrps;
 
-  constructor(report) {
+  constructor(report, programs) {
     let geos = report.geographies;
-    let programs = report.programs;
-
     this.summaryStats = {};
 
     JSON.parse(report.summaryStats).forEach((item) => {
@@ -30,7 +30,7 @@ class SummaryBuilder {
 
     this.#target = geos.find((g) => g.properties.is_target).properties;
     this.#bonusGrps = this.#groupBonusTerritories(geos);
-    this.#programGrps = this.#groupPrograms(programs);
+    this.#programGrps = this.#groupPrograms(geos, programs);
 
     // TODO: this is kind of a hack
     this.programDict = {
@@ -43,8 +43,8 @@ class SummaryBuilder {
         plural: "Energy Communities",
       },
       "justice40": {
-        singular: "Justice 40 Community",
-        plural: "Justice 40 Communities",
+        singular: "Justice40 Community",
+        plural: "Justice40 Communities",
       },
       "low-income": {
         singular: "Low Income Census Tract",
@@ -124,8 +124,8 @@ class SummaryBuilder {
         };
       case "justice40":
         return {
-          single: "Justice 40 census tract",
-          plural: "Justice 40 census tracts",
+          single: "Justice40 census tract",
+          plural: "Justice40 census tracts",
         };
       case "low-income":
         return {
@@ -155,23 +155,32 @@ class SummaryBuilder {
     }, {});
   }
 
-  #groupPrograms(programs) {
+  #groupPrograms(geos, programs) {
+    let geoTypes = geos.map((g, _) => g.properties.geography_type);
     return programs
-      .toSorted((a, b) => (a.program_name < b.program_name ? -1 : 1))
+      .filter(p => {
+        let programGeoTypes = Object.keys(p.bonus_amounts);
+        return some(intersection(geoTypes, programGeoTypes));
+      })
+      .toSorted((a, b) => (a.name < b.name ? -1 : 1))
       .reduce((grp, prog) => {
-        let key = prog.program_name;
+        let key = prog.name;
         let initial = {
           name: key,
-          agency: prog.program_agency === "nan" ? "N/A" : prog.program_agency,
-          description: prog.program_description,
-          baseBenefit: prog.program_base_benefit,
+          agency: prog.agency === "nan" ? "N/A" : prog.agency,
+          description: prog.description,
+          baseBenefit: prog.base_benefit,
           geoBenefits: [],
         };
-        grp[key] = grp[key] ?? initial;
-        grp[key].geoBenefits.push({
-          geoType: this.#getFormalGeoType(prog.geography_type).single,
-          additionalAmount: prog.program_amount_description,
-        });
+        grp[key] = grp[key] ?? initial;        
+        Object.entries(prog.bonus_amounts).forEach((kvp, _) => {
+          let [bonusGeoName, bonusGeoDescription] = kvp;
+          grp[key].geoBenefits.push({
+            geoType: this.#getFormalGeoType(bonusGeoName).single,
+            additionalAmount: bonusGeoDescription
+          })
+        })
+        
         return grp;
       }, {});
   }
@@ -185,6 +194,10 @@ class SummaryBuilder {
       `${this.#formatNum(numGeos)} ${typeName} with a ` +
       `total population of ${this.#formatNum(totalPop)}`
     );
+  }
+
+  get bonusGroups() {
+    return this.#bonusGrps;
   }
 
   get targetGeoType() {
@@ -245,7 +258,7 @@ class SummaryBuilder {
   }
 }
 
-function SummaryStats() {
+function SummaryStats({ programs }) {
   const reportSnap = useSnapshot(reportStore);
 
   if (!reportSnap.report?.geographies) {
@@ -275,7 +288,7 @@ function SummaryStats() {
     );
   }
 
-  const builder = new SummaryBuilder(reportSnap.report);
+  const builder = new SummaryBuilder(reportSnap.report, programs);
 
   const layerConfigObject = {};
 
@@ -287,13 +300,13 @@ function SummaryStats() {
   const sideBarOpacity = 0.3;
 
   // TODO: Not sure that this is the right spot to do this but setting default county visibility here
-  const countySelected = builder.targetGeoType === "county";
+  // const countySelected = builder.targetGeoType === "county";
 
-  if (countySelected) {
-    layerStore["Counties"].visible = true;
-  } else {
-    layerStore["Counties"].visible = false;
-  }
+  // if (countySelected) {
+  //   layerStore["Counties"].visible = true;
+  // } else {
+  //   layerStore["Counties"].visible = false;
+  // }
 
   return (
     <div>
@@ -337,7 +350,7 @@ function SummaryStats() {
           </h6>
           <span>
             <ol className="text-sm">
-              {Object.entries(builder.programDict).map(([key, value]) => (
+              {Object.entries(builder.programDict).map(([key, _]) => (
                 <li key={key} className="flex items-center">
                   <div
                     className="swatch"
@@ -348,8 +361,10 @@ function SummaryStats() {
                     }}
                   ></div>
                   <div>
-                    <b className="mr-.5">{builder.summaryStats[key].count.toLocaleString()}</b>{" "}
-                    {builder.summaryStats[key].count === 1
+                    <b className="mr-.5">
+                      {builder.bonusGroups[key]?.length?.toLocaleString() ?? 0}
+                    </b>{" "}
+                    {(builder.bonusGroups[key]?.length ?? 0) === 1
                       ? builder.programDict[key].singular
                       : builder.programDict[key].plural}{" "}
                     with{" "}
@@ -374,7 +389,7 @@ function SummaryStats() {
             <ol className="list-disc text-sm">
               {Object.entries(builder.programDetails).map((entry, idx) => {
                 let [_, prog] = entry;
-                return <li>{prog.name}</li>;
+                return <li key={idx}>{prog.name}</li>;
               })}
             </ol>
           </span>

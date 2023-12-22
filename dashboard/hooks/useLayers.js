@@ -7,23 +7,36 @@ import { MVTLayer } from "@deck.gl/geo-layers";
 import { useSetTooltipStore } from "./useTooltipStore";
 
 function useLayers(features, layerState) {
+  
   /**
    * Initializes data for hover events.
    */
   const setHoverInfo = useSetTooltipStore();
 
   /**
+   * Resets data state whenever new geographies are requested.
+   */
+  useMemo(() => {
+      Object.keys(layerState).forEach((id) => {
+        layerState[id].hasData = false;
+      });
+    }, 
+    [features]
+  );
+
+  /**
    * Groups GeoJSON features by geography type to form datasets.
    */
   const geoDatasets = useMemo(
-    () =>
+    () => 
       features?.reduce((grp, geo) => {
         let key = geo.properties.geography_type;
         if (key === "state") return grp;
         grp[key] = grp[key] ?? [];
         grp[key].push(geo.properties.name);
         return grp;
-      }, {}),
+      }, {"county": []})
+    ,
     [features]
   );
 
@@ -40,6 +53,12 @@ function useLayers(features, layerState) {
         }
         return [0, 0, 0, 0];
       };
+      const getWhiteOrEmpty = (feature) => {
+        if (active && dataset.includes(feature.properties.name)) {
+          return [255, 255, 255];
+        }
+        return key === "county" ? config.fillColor : [0, 0, 0, 0];
+      };
       const layer = new MVTLayer({
         id: config.id,
         data: `https://a.tiles.mapbox.com/v4/${process.env.NEXT_PUBLIC_MAPBOX_USERNAME}.${config.mapboxTilesetName}/{z}/{x}/{y}.vector.pbf?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
@@ -52,8 +71,8 @@ function useLayers(features, layerState) {
         updateTriggers: {
           getFillColor: [layerState],
         },
-        getLineColor: [255, 255, 255],
-        getLineWidth: 50,
+        getLineColor: getWhiteOrEmpty,
+        getLineWidth: key === "county" ? 200 : 50,
         pickable: active,
         visible: active,
         onHover: (layer) => {
@@ -63,7 +82,7 @@ function useLayers(features, layerState) {
           let name = props?.name;
 
           // If hovering over geography, update state
-          if (geoType && dataset.includes(name)) {
+          if (geoType && (geoType === "county" || dataset.includes(name))) {
             setHoverInfo({
               name: name,
               x: layer?.x,
@@ -89,13 +108,6 @@ function useLayers(features, layerState) {
   };
 
   /**
-   * Returns all the GeoJSON layers currently holding data.
-   *
-   * @returns The layers.
-   */
-  const getAllLayers = () => _allLayers;
-
-  /**
    * Returns the ids of the layers that generally can be toggled,
    * regardless of whether data currently exists for that layer or not.
    * Used upstream for populating the layer display options on the
@@ -110,45 +122,11 @@ function useLayers(features, layerState) {
     }, []);
 
   /**
-   * Returns a boolean indicating whether any data exists for the given layer.
-   * For example, a user search query might not have resulted in a Justice 40
-   * community being returned from the API. Used upstream for disabling
-   * layer display options on the map control panel.
-   *
-   * @param {*} layerId The unique identifier for the layer.
-   * @returns The `true` or `false` value.
-   */
-  const layerHasData = (layerId) => {
-    let layer = _allLayers.find((layer) => layer.id === layerId) ?? null;
-    return layer !== null;
-  };
-
-  /**
-   * Returns a boolean indicating whether the layer is currently displayed.
-   *
-   * @param {*} layerId The unique identifier for the layer.
-   * @returns The `true` or `false` value.
-   */
-  const layerIsVisible = (layerId) => {
-    return layerState[layerId].visible;
-  };
-
-  /**
-   * Returns the layers currently visible on the map.
-   *
-   * @returns The visible/displayed layers.
-   */
-  const getVisibleLayers = () => {
-    return _allLayers.filter((layer) => layerIsVisible(layer.id));
-  };
-
-  /**
    * Changes the visibility of all toggleable layers to `true`.     *
    */
   const showAllLayers = () => {
     Object.keys(layerState).forEach((id) => {
       layerState[id].visible = true;
-      layerState[id].pickable = true;
     });
   };
 
@@ -160,7 +138,6 @@ function useLayers(features, layerState) {
     Object.keys(layerState).forEach((id) => {
       if (toggleable.includes(id)) {
         layerState[id].visible = false;
-        layerState[id].pickable = false;
       }
     });
   };
@@ -179,11 +156,7 @@ function useLayers(features, layerState) {
 
   return {
     getLayer,
-    getAllLayers,
-    getVisibleLayers,
     getToggleOptions,
-    layerHasData,
-    layerIsVisible,
     showAllLayers,
     hideAllLayers,
     toggleLayer,

@@ -31,8 +31,14 @@ export async function POST(request) {
         geo.name, 
         similarity(geo.name, ${searchTerm}) AS sml
       FROM tax_credit_geography AS geo
-      WHERE geo.geography_type_id IN (0, 1, 2, 4, 10)
-        AND geo.name ILIKE ${regex}
+      WHERE geo.geography_type IN (
+        'county', 
+        'municipal utility',
+        'municipality',
+        'rural cooperative',
+        'state'
+      )
+      AND geo.name ILIKE ${regex}
       ORDER BY sml DESC
       LIMIT ${limit};
     `;

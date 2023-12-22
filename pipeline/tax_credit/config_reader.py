@@ -65,7 +65,7 @@ class _LoadConfigReaderImpl(LoadConfigReader):
                     assoc_strategy=job_details["assoc_strategy"],
                     build_row_fn=None,
                     unique_fields=job_details["db_field_unique"],
-                    update_fields=job_details["db_field_update"],
+                    update_fields=None
                 )
             )
         return [job for job in assoc_jobs if job.active]

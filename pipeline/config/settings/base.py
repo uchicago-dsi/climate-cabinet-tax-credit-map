@@ -161,9 +161,6 @@ class BaseConfig(Configuration):
     CENSUS_BLOCK_FILE = (
         "raw/block_groups/CenPop2020_Mean_BG.txt"
     )
-    CENSUS_TRACT_FILE = (
-        "raw/tracts/census_tract_pop.geoparquet"
-    )
     COAL_GEOGRAPHY_FILE = (
         "clean/geoparquet/energy_communities___coal.geoparquet"
     )
@@ -175,12 +172,6 @@ class BaseConfig(Configuration):
     )
     FOSSIL_FUEL_GEOGRAPHY_FILE = (
         "clean/geoparquet/energy_communities___fossil_fuels.geoparquet"
-    )
-    GEOGRAPHY_TYPE_FILE = (
-        "clean/csv/geography_type.csv"
-    )
-    GEOGRAPHY_TYPE_PROGRAM_FILE = (
-        "clean/csv/geography_type_program.csv"
     )
     J40_GEOGRAPHY_FILE = (
         "clean/geoparquet/justice40_communities.geoparquet"

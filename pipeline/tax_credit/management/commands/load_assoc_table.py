@@ -54,7 +54,7 @@ class Command(BaseCommand):
             logger.info(f"Running job : {job.job_name}")
 
             # cache target pk's
-            target_type_filter = Q(geography_type__name=job.target)
+            target_type_filter = Q(geography_type=job.target)
             target_records: list = DatabaseHelper.query_and_cache(
                 Geography, "id", target_type_filter
             )
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     state_fips=Substr("fips", 1, 2),
                     county_fips=Substr("fips", 1, 5)
                 ).values(
-                    "id", "state_fips", "county_fips", "geography_type__name"
+                    "id", "state_fips", "county_fips", "geography_type"
                 )[:1]
 
                 strategy = job.assoc_strategy.lower()
@@ -76,10 +76,10 @@ class Command(BaseCommand):
                 matches = matches.annotate(
                     target_id=target_record.values("id"),
                     target_geography_type_name=target_record.values(
-                        "geography_type__name"
+                        "geography_type"
                     ),
                 ).values(
-                    bonus_geography_type=F("geography_type__name"),
+                    bonus_geography_type=F("geography_type"),
                     bonus_geography_id=F("id"),
                     target_geography_type=F("target_geography_type_name"),
                     target_geography_id=F("target_id"),
@@ -88,14 +88,10 @@ class Command(BaseCommand):
                 insert_query = (
                     f"INSERT INTO {TargetBonusAssoc._meta.db_table} "
                     "("
-                    "target_geography_type, "
-                    "bonus_geography_type, "
                     "bonus_geography_id, "
                     "target_geography_id"
                     ") "
                     "SELECT "
-                    "target_geography_type, "
-                    "bonus_geography_type, "
                     "bonus_geography_id, "
                     "target_geography_id "
                     f"FROM ({raw_sql_query}) AS subquery "
@@ -142,7 +138,7 @@ class Command(BaseCommand):
 
     def match_county_fips(self, fips, bonus: str):
         return Geography.objects.annotate(county_fips=Substr("fips", 1, 5)).filter(
-            geography_type__name=str(bonus), county_fips=fips
+            geography_type=str(bonus), county_fips=fips
         )
 
     def match_state_fips(self, fips, bonus: str):
@@ -150,13 +146,13 @@ class Command(BaseCommand):
         # but remember that state fips info will only have 2 characters to begin
         # with
         return Geography.objects.annotate(state_fips=Substr("fips", 1, 2)).filter(
-            geography_type__name=bonus,
+            geography_type=bonus,
             state_fips=fips,
         )
 
     def match_overlap(self, target_id: str, bonus_type: str):
         target_boundary = Geography.objects.filter(id=target_id).values("geometry")
         return Geography.objects.filter(
-            geography_type__name=bonus_type,
+            geography_type=bonus_type,
             geometry__intersects=Subquery(target_boundary),
         )

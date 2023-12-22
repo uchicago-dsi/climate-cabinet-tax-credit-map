@@ -1,32 +1,19 @@
 global:
 
 base:
-  geography_type:
-    active: True
-    filename: clean/csv/geography_type.csv
-    filetype: csv
-    row_transform: tax_credit.record_transforms:load_geography_type_row
-    model: tax_credit.models:GeographyType
-    file_format: csv
-    file_field_required:
-    - Id
-    - Name
-    db_field_unique:
-    - id
-    db_field_update:
-    - name
   program:
     active: True
     filename: clean/csv/program.csv
     file_format: csv
-    row_transform: tax_credit.record_transforms:load_program_type_row
+    row_transform: tax_credit.record_transforms:load_program_row
     model: tax_credit.models:Program
     file_field_required:
     - Id
     - Program
     - Agency
     - Description
-    - Base_benefit
+    - Base_Benefit
+    - Bonus_Amounts
     db_field_unique:
     - id
     db_field_update:
@@ -34,6 +21,7 @@ base:
     - agency
     - description
     - base_benefit
+    - bonus_amounts
   block_group_2010:
     active: True
     filename: raw/census/block_groups/CenPop2010_Mean_BG.txt
@@ -76,24 +64,6 @@ base:
     - population
 
 dependent:
-  geography_to_program:
-    active: True
-    filename: clean/csv/geography_type_program.csv
-    filetype: csv
-    row_transform: tax_credit.record_transforms:load_geography_program_match_row
-    model: tax_credit.models:GeographyTypeProgram
-    file_format: csv
-    file_field_required:
-    - Id
-    - Geography_Type
-    - Program
-    - Abount_Description
-    db_field_unique:
-    - id
-    db_field_update:
-    - geography_type
-    - program
-    - amount_description
   counties:
     active: True
     filename: clean/geoparquet/counties.geoparquet
@@ -101,8 +71,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -128,8 +96,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -153,8 +119,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -180,8 +144,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -207,8 +169,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -234,8 +194,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -261,8 +219,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - fips
@@ -288,8 +244,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -315,8 +269,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -342,8 +294,6 @@ dependent:
     row_transform: tax_credit.record_transforms:load_geography_dataset_row
     model: tax_credit.models:Geography
     file_format: parquet
-    required_model:
-    - tax_credit.models:GeographyType
     db_field_unique:
     - name
     - geography_type
@@ -373,9 +323,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   state_to_energy:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -385,9 +332,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   state_to_j40:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -397,9 +341,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   state_to_low_income:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -409,9 +350,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
 
   county_to_distressed:
     active: True
@@ -422,9 +360,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   county_to_energy:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -434,9 +369,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   county_to_j40:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -446,9 +378,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   county_to_low_income:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -458,9 +387,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
 
   municipal_utility_to_distressed:
     active: True
@@ -471,9 +397,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipal_utility_to_energy:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -483,9 +406,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipal_utility_to_j40:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -495,9 +415,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipal_utility_to_low_income:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -507,9 +424,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
 
   municipality_to_distressed:
     active: True
@@ -520,45 +434,33 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipality_to_energy:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: energy
-    assoc_strategy: fips_county
+    assoc_strategy: overlap
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipality_to_j40:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: justice40
-    assoc_strategy: fips_county
+    assoc_strategy: overlap
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   municipality_to_low_income:
     active: True
     model: tax_credit.models:TargetBonusAssoc
     target: municipality
     bonus: low-income
-    assoc_strategy: fips_county
+    assoc_strategy: overlap
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
 
   rural_cooperative_to_distressed:
     active: True
@@ -569,9 +471,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   rural_cooperative_to_energy:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -581,9 +480,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   rural_cooperative_to_j40:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -593,9 +489,6 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
   rural_cooperative_to_low_income:
     active: True
     model: tax_credit.models:TargetBonusAssoc
@@ -605,6 +498,4 @@ assoc:
     db_field_unique:
     - target_geography
     - bonus_geography
-    db_field_update:
-    - target_geography_type
-    - bonus_geography_type
+  
