@@ -78,7 +78,7 @@ class DatabaseHelper:
                 # Calibrate proper batch size
                 processing_time = end_time - st_time
                 average_proc_time_per_record = (1 - smoothing_factor) * average_proc_time_per_record + smoothing_factor * processing_time / batch_size
-                while batch_ct < 5:
+                if batch_ct < 5:
                     batch_size = min(ceil(target_time / average_proc_time_per_record), ceil(batch_size * 2))
                 else:
                     batch_size = ceil(target_time / average_proc_time_per_record)

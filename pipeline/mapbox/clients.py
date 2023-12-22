@@ -735,8 +735,8 @@ class MapboxTilesetSyncClient:
         self._tileset_names = [t["name"] for t in self._client.list_tilesets()]
         if self._tileset_names:
             self._logger.info(
-                f"Found {len(self._tileset_names)} tileset(s) on "
-                f"Mapbox server: {', '.join(self._tileset_names)}."
+                f"Found {len(self._tileset_names)} existing tileset(s) "
+                f"on Mapbox server: {', '.join(self._tileset_names)}."
             )
         else:
             self._logger.info("No tilesets found.")
@@ -974,7 +974,7 @@ class MapboxTilesetSyncClient:
         display_name: str,
         min_zoom: int,
         max_zoom: int,
-        files: List[str]) -> Dict:
+        files: List[str]) -> None:
         """Creates or updates a tileset with one or more data files
         and metadata (i.e., min and max zoom, name, and id).
 
@@ -1000,7 +1000,7 @@ class MapboxTilesetSyncClient:
                 populate the tileset.
 
         Returns:
-            (`dict`): TileJSON metadata for the tileset.
+            `None`
         """
         # Log start of data sync
         self._logger.info(f"Syncing tileset \"{display_name}\".")
@@ -1037,15 +1037,4 @@ class MapboxTilesetSyncClient:
             self._monitor_tileset_publishing_job(formal_name, job_id)
         except Exception as e:
             raise RuntimeError(f"Failed to publish tileset. {e}") from None
-
-        # Fetch TileJSON metadata for newly-published tileset
-        try:
-            self._logger.info(
-                "Fetching TileJSON metadata for published tileset."
-            )
-            metadata = self._client.get_tilejson_metadata(formal_name)
-        except Exception as e:
-            raise RuntimeError("Error fetching TileJSON "
-                               f"metadata. {e}") from None
         
-        return metadata

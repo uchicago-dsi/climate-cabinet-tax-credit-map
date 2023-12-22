@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -142,62 +142,30 @@ model spatial_ref_sys {
   proj4text String? @db.VarChar(2048)
 }
 
-model tax_credit_census_tract {
-  id         String                  @id @db.VarChar(255)
-  centroid   Unsupported("geometry")
-  population Int
-
-  @@index([centroid], map: "tax_credit_census_tract_centroid_45daf5ee_id", type: Gist)
-  @@index([id], map: "tax_credit_census_tract_id_171d526c_like")
-}
-
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
 model tax_credit_geography {
   id                                                                                                    BigInt                          @id @default(autoincrement())
   name                                                                                                  String                          @db.VarChar(255)
-  boundary                                                                                              Unsupported("geometry")
+  fips                                                                                                  String                          @db.VarChar(255)
+  geography_type                                                                                        String                          @db.VarChar
   as_of                                                                                                 DateTime                        @db.Date
+  published_on                                                                                          DateTime?                       @db.Date
   source                                                                                                String                          @db.VarChar(255)
-  geography_type_id                                                                                     Int
-  tax_credit_geography_type                                                                             tax_credit_geography_type       @relation(fields: [geography_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_geography_geography_type_id_39643e65_fk_tax_credi")
+  geometry                                                                                              Unsupported("geometry")
   tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography  tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography")
   tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography")
 
-  @@unique([name, geography_type_id], map: "tax_credit_geography_name_geography_type_id_2fecb6f9_uniq")
-  @@index([boundary], map: "tax_credit_geography_boundary_059cae64_id", type: Gist)
-  @@index([geography_type_id], map: "tax_credit_geography_geography_type_id_39643e65")
-}
-
-model tax_credit_geography_type {
-  id                                Int                                 @id
-  name                              String                              @unique @db.VarChar(255)
-  tax_credit_geography              tax_credit_geography[]
-  tax_credit_geography_type_program tax_credit_geography_type_program[]
-
-  @@index([name], map: "tax_credit_geography_type_name_d3148d69_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model tax_credit_geography_type_program {
-  id                        Int                       @id
-  amount_description        String
-  geography_type_id         Int
-  program_id                Int
-  tax_credit_geography_type tax_credit_geography_type @relation(fields: [geography_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_geography_geography_type_id_9c1262d4_fk_tax_credi")
-  tax_credit_program        tax_credit_program        @relation(fields: [program_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_geography_program_id_b563a4bb_fk_tax_credi")
-
-  @@unique([geography_type_id, program_id], map: "tax_credit_geography_typ_geography_type_id_progra_b6318e73_uniq")
-  @@index([geography_type_id], map: "tax_credit_geography_type_program_geography_type_id_9c1262d4")
-  @@index([program_id], map: "tax_credit_geography_type_program_program_id_b563a4bb")
+  @@unique([name, geography_type, fips], map: "unique_geography")
+  @@index([geometry], map: "tax_credit_geography_geometry_a87c0c81_id", type: Gist)
 }
 
 model tax_credit_program {
-  id                                Int                                 @id
-  name                              String                              @unique @db.VarChar(255)
-  agency                            String                              @db.VarChar(255)
-  description                       String
-  base_benefit                      String
-  tax_credit_geography_type_program tax_credit_geography_type_program[]
+  id            Int    @id
+  name          String @unique @db.VarChar(255)
+  agency        String @db.VarChar(255)
+  description   String
+  base_benefit  String
+  bonus_amounts Json
 
   @@index([name], map: "tax_credit_program_name_7cc8c339_like")
 }
@@ -205,14 +173,23 @@ model tax_credit_program {
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
 model tax_credit_target_bonus_assoc {
   id                                                                                           Int                  @id @default(autoincrement())
-  target_geography_type                                                                        String               @db.VarChar(255)
-  bonus_geography_type                                                                         String               @db.VarChar(255)
   bonus_geography_id                                                                           BigInt
   target_geography_id                                                                          BigInt
   tax_credit_geography_tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography  tax_credit_geography @relation("tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography", fields: [bonus_geography_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_bonus_geography_id_dd2660aa_fk_tax_credi")
   tax_credit_geography_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_geography @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography", fields: [target_geography_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_target_geography_id_dd8cf942_fk_tax_credi")
 
-  @@unique([target_geography_id, bonus_geography_id], map: "tax_credit_target_bonus__target_geography_id_bonu_dc0d34e0_uniq")
+  @@unique([target_geography_id, bonus_geography_id], map: "unique_target_bonus_geography_association")
   @@index([bonus_geography_id], map: "tax_credit_target_bonus_assoc_bonus_geography_id_dd2660aa")
   @@index([target_geography_id], map: "tax_credit_target_bonus_assoc_target_geography_id_dd8cf942")
+}
+
+model tax_credit_census_block_group {
+  id         BigInt                  @id @default(autoincrement())
+  fips       String                  @db.VarChar(255)
+  centroid   Unsupported("geometry")
+  population Int
+  year       Int
+
+  @@unique([fips, year], map: "unique_census_block_group")
+  @@index([centroid], map: "tax_credit_census_block_group_centroid_25aa68b6_id", type: Gist)
 }

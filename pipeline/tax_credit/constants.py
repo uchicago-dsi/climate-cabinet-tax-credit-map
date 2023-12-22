@@ -1,9 +1,7 @@
 """Constants used throughout the Django app.
 """
 
-# State abbreviations
 STATE_ABBREVIATIONS = {
-    # 50 states
     "AK": "Alaska",
     "AL": "Alabama",
     "AR": "Arkansas",
@@ -54,9 +52,7 @@ STATE_ABBREVIATIONS = {
     "WI": "Wisconsin",
     "WV": "West Virginia",
     "WY": "Wyoming",
-    # District of Columbia
     "DC": "District of Columbia",
-    # U.S. Territories
     "AS": "American Samoa",
     "PR": "Puerto Rico",
     "GU": "Guam",

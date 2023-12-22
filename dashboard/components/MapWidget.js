@@ -35,7 +35,6 @@ function MapWidget() {
     }
     return layers;
   }, []);
-  console.log(viewportStore.current);
 
   const flyToLocation = (lat, lon, z) => {
     if (!mapRef.current) return;

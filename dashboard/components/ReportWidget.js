@@ -7,10 +7,9 @@
 import MapWidget from "@/components/MapWidget";
 import SummaryStats from "@/components/SummaryStats";
 import { reportStore } from "@/states/search";
-import classNames from "classnames";
 import { useSnapshot } from "valtio";
 
-function ReportWidget() {
+function ReportWidget({ programs }) {
   const reportSnapshot = useSnapshot(reportStore);
   const targetGeo = reportSnapshot?.report?.geographies?.find(
     (m) => m.properties.is_target
@@ -32,7 +31,7 @@ function ReportWidget() {
             !targetGeo ? "justify-center" : ""
           }`}
         >
-          <SummaryStats />
+          <SummaryStats programs={programs} />
         </div>
       </div>
     </div>

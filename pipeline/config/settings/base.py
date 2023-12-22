@@ -131,6 +131,7 @@ class BaseConfig(Configuration):
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
                 "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
+                "hinton_iowa": "raw/bonus/retail/hinton_municipal_iowa.zip",
                 "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip",
             },
         },
@@ -160,9 +161,6 @@ class BaseConfig(Configuration):
     CENSUS_BLOCK_FILE = (
         "raw/block_groups/CenPop2020_Mean_BG.txt"
     )
-    CENSUS_TRACT_FILE = (
-        "raw/tracts/census_tract_pop.geoparquet"
-    )
     COAL_GEOGRAPHY_FILE = (
         "clean/geoparquet/energy_communities___coal.geoparquet"
     )
@@ -174,12 +172,6 @@ class BaseConfig(Configuration):
     )
     FOSSIL_FUEL_GEOGRAPHY_FILE = (
         "clean/geoparquet/energy_communities___fossil_fuels.geoparquet"
-    )
-    GEOGRAPHY_TYPE_FILE = (
-        "clean/csv/geography_type.csv"
-    )
-    GEOGRAPHY_TYPE_PROGRAM_FILE = (
-        "clean/csv/geography_type_program.csv"
     )
     J40_GEOGRAPHY_FILE = (
         "clean/geoparquet/justice40_communities.geoparquet"

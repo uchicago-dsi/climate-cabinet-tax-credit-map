@@ -20,7 +20,10 @@ const viewportStore = useViewportStore();
 
 // Initialize deck.gl layer visiblity store
 let isVisible = layerConfig.reduce((acc, config) => {
-    acc[config.id] = { visible: config.initialVisibility, hasData: false };
+    acc[config.id] = { 
+        visible: config.initialVisibility, 
+        hasData: false
+    };
     return acc;
 }, {});
 const layerStore = proxy(isVisible);
@@ -33,7 +36,7 @@ const reportStore = proxy({
     report: null,
     status: null,
     setReport: (value) => reportStore.report = value,
-})
+});
 
 // Subscribe to search store to update reports and map viewport
 derive({

@@ -26,10 +26,19 @@ export async function POST(request) {
   let { searchTerm, limit } = await request.json();
   let regex = `%${searchTerm.trim().split(" ").join("%")}%`;
   let data = await prisma.$queryRaw`
-      SELECT geo.id::varchar(255), geo.name, similarity(geo.name, ${searchTerm}) AS sml
+      SELECT 
+        geo.id::varchar(255), 
+        geo.name, 
+        similarity(geo.name, ${searchTerm}) AS sml
       FROM tax_credit_geography AS geo
-      WHERE geo.geography_type_id IN (0, 1, 2, 4) 
-        AND geo.name ILIKE ${regex}
+      WHERE geo.geography_type IN (
+        'county', 
+        'municipal utility',
+        'municipality',
+        'rural cooperative',
+        'state'
+      )
+      AND geo.name ILIKE ${regex}
       ORDER BY sml DESC
       LIMIT ${limit};
     `;

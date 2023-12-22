@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Type
+from typing import Any, Callable, Dict, List, Type
 
 from django.db.models import Model
 
@@ -17,15 +17,15 @@ class LoadJob:
     file_format: str
 
     # Instrictions for mapping -- should be static
-    row_to_model: Callable[[dict[str, Any]], Model]
+    row_to_model: Callable[[Dict[str, Any]], Model]
 
     # Info for validation
-    file_field_names: list[str]
-    required_models: list[Model]
+    file_field_names: List[str]
+    required_models: List[Model]
 
     # Info for loading
-    unique_fields: list[str]
-    update_fields: list[str]
+    unique_fields: List[str]
+    update_fields: List[str]
 
     delimiter: str = "|"
 
@@ -37,13 +37,9 @@ class AssocJob:
     job_name: str
     active: bool
     model: Type[Model]
-
     target: str
     bonus: str
-
     assoc_strategy: str
-
-    build_row_fn: Callable[[dict[str, Any]], Model]
-
-    unique_fields: list[str]
-    update_fields: list[str]
+    build_row_fn: Callable[[Dict[str, Any]], Model]
+    unique_fields: List[str]
+    update_fields: List[str]
