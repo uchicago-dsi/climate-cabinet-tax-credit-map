@@ -206,7 +206,7 @@ class BaseConfig(Configuration):
             "formal_name": "cc_counties",
             "display_name": "counties",
             "min_zoom": 3,
-            "max_zoom": 5,
+            "max_zoom": 10,
             "files": ["clean/geojsonl/counties.geojsonl"],
         },
         {
