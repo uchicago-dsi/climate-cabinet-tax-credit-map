@@ -64,8 +64,8 @@ class GeoDataset(ABC):
     """
 
     @property
-    def is_empty(self) -> bool:
-        """A boolean indicating whether the dataset has any records."""
+    def is_null(self) -> bool:
+        """A boolean indicating whether the dataset is currently null."""
         return self.data is None
 
     @abstractmethod
@@ -110,13 +110,7 @@ class GeoDataset(ABC):
     def _correct_geometry(self) -> gpd.GeoDataFrame:
         """Updates the geometry column of the dataset by transforming
         Polygons to MultiPolygons (at the time of writing, necessary
-        for database load), updating the CRS to EPSG:4326, and adding a
-        buffer to remove overlaps. NOTE: Because the buffer has already
-        been converted to degrees, user warnings about applying buffers
-        to geographic projections are suppressed.
-
-        Documentation:
-        - ["geopandas.GeoSeries.buffer"](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.buffer.html)
+        for database load) and setting the CRS to EPSG:4326.
 
         Args:
             None
@@ -133,11 +127,8 @@ class GeoDataset(ABC):
             self.data = self.data.set_crs(epsg=int(self.epsg))
             self.data = self.data.to_crs(epsg=4326)
 
-            # Buffer geometries to remove slight distortions/overlaps
-            with warnings.catch_warnings():
-                warnings.simplefilter(action="ignore", category=UserWarning)
-                self.data.geometry = self.data.geometry.buffer(settings.BUFFER_DEG)
             return self.data.copy()
+        
         except Exception as e:
             raise Exception(f"Failed to correct geometry column. {e}") from None
 
@@ -226,7 +217,14 @@ class GeoDataset(ABC):
         return self.data.copy()
 
     def to_geoparquet(self, index: bool = False) -> None:
-        """Writes the dataset to a geoparquet file.
+        """Writes the dataset to a geoparquet file after
+        buffering the geometry to remove overlaps. NOTE: 
+        Because the buffer has already been converted to 
+        degrees, user warnings about applying buffers
+        to geographic projections are suppressed.
+
+        Documentation:
+        - ["geopandas.GeoSeries.buffer"](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.buffer.html)
 
         Args:
             index (`bool`): A boolean indicating whether the
@@ -236,10 +234,25 @@ class GeoDataset(ABC):
         Returns:
             None
         """
-        if self.is_empty:
+        # Confirm dataset is not null
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot write file.")
+        
+        # Make copy of DataFrame to avoid changing internal data state
+        copy = self.data.copy()
+
+        # Buffer geometry to remove slight overlaps
+        with warnings.catch_warnings():
+            warnings.simplefilter(action="ignore", category=UserWarning)
+            copy.geometry = copy.geometry.buffer(settings.BUFFER_DEG)
+
+        # Convert geometries back into Shapely MultiPolygons
+        trans = lambda b: MultiPolygon([b]) if isinstance(b, Polygon) else b
+        copy.geometry = copy.geometry.apply(trans)
+
+        # Write to file
         fname = "_".join(self.name.replace("-", "_").split(" ")) + ".geoparquet"
-        self.writer.write_geoparquet(fname, self.data, index=index)
+        self.writer.write_geoparquet(fname, copy, index=index)
 
     def to_geojson_lines(self, index: bool = False) -> None:
         """Writes the dataset to a newline-delimited GeoJSON file.
@@ -256,8 +269,11 @@ class GeoDataset(ABC):
         Returns:
             `None`
         """
-        if self.is_empty:
+        # Confirm dataset is not null
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot write file.")
+        
+        # Write to file
         fname = "_".join(self.name.replace("-", "_").split(" ")) + ".geojsonl"
         self.writer.write_geojsonl(fname, self.data, index=index)
 
@@ -304,6 +320,8 @@ class CoalDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = (
             self.data["CensusTrac"].str.upper()
             + ", "
@@ -323,6 +341,8 @@ class CoalDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["geoid_trac"]
         return self.data.copy()
 
@@ -379,6 +399,8 @@ class CountyDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = (
             self.data["NAMELSAD"].str.upper()
             + ", "
@@ -396,6 +418,8 @@ class CountyDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["STATEFP"] + self.data["COUNTYFP"]
         return self.data.copy()
 
@@ -456,7 +480,7 @@ class DistressedDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = "DISTRESSED ZCTA " + self.data["Zipcode"].str.upper()
         return self.data.copy()
@@ -471,7 +495,7 @@ class DistressedDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = None
         return self.data.copy()
@@ -486,7 +510,7 @@ class DistressedDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         self.data = self.data.query("`Quintile (5=Distressed)` == '5'")
         return self.data.copy()
@@ -543,8 +567,9 @@ class FossilFuelDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-
-        # Define local function
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
+        
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
 
@@ -567,7 +592,6 @@ class FossilFuelDataset(GeoDataset):
                 )
                 return f"{prefix} {locale_name}, {state_names}".upper()
 
-        # Apply function to generate name columns
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
         return self.data.copy()
@@ -582,6 +606,8 @@ class FossilFuelDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = None
         return self.data.copy()
 
@@ -596,6 +622,8 @@ class FossilFuelDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot filter records.")
         self.data = self.data.query("EC_qual_st == 'Yes'")
         return self.data.copy()
 
@@ -642,8 +670,9 @@ class Justice40Dataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-
-        # Define local function
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
+        
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
 
@@ -669,7 +698,6 @@ class Justice40Dataset(GeoDataset):
             # Compose name
             return f"JUSTICE40 {tract}{county}{state}"
 
-        # Apply function to generate name column.
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
         return self.data.copy()
@@ -684,6 +712,8 @@ class Justice40Dataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["GEOID10"]
         return self.data.copy()
 
@@ -699,7 +729,7 @@ class Justice40Dataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         has_geom = ~self.data.geometry.isna()
         is_disadv = self.data.SN_C == 1
@@ -897,7 +927,7 @@ class LowIncomeDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = (
             "LOW-INCOME "
@@ -920,7 +950,7 @@ class LowIncomeDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["GEOID"]
         return self.data.copy()
@@ -996,8 +1026,9 @@ class MunicipalityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-
-        # Define local function
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
+        
         def parse_row(row: pd.Series) -> str:
             """Builds a geography name using other fields.
 
@@ -1027,7 +1058,6 @@ class MunicipalityDataset(GeoDataset):
 
             return f"{subdivision_full}, {county}, {state}"
 
-        # Apply function to generate name column
         self.data["name"] = self.data.apply(parse_row, axis=1)
 
         return self.data.copy()
@@ -1042,6 +1072,8 @@ class MunicipalityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["GEOID"]
         return self.data.copy()
 
@@ -1055,7 +1087,7 @@ class MunicipalityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         valid_classes = ["C2", "C5", "T1", "T5", "Z2", "Z3", "Z5", "Z7"]
         self.data = self.data.query("CLASSFP in @valid_classes")
@@ -1121,6 +1153,8 @@ class MunicipalUtilityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct names.")
         self.data["name"] = (
             self.data["NAME_CC"]
             + ", "
@@ -1139,6 +1173,8 @@ class MunicipalUtilityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = None
         return self.data.copy()
 
@@ -1153,7 +1189,7 @@ class MunicipalUtilityDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         municipal_types = ["MUNICIPAL", "MUNICIPAL MKTG AUTHORITY"]
         excluded_states = ["AB", "BC"]
@@ -1200,6 +1236,8 @@ class RuralCoopDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct names.")
         map_state = lambda s: STATE_ABBREVIATIONS[s]
         self.data["name"] = (
             "RURAL COOPERATIVE "
@@ -1219,6 +1257,8 @@ class RuralCoopDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = None
         return self.data.copy()
 
@@ -1232,7 +1272,7 @@ class RuralCoopDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        if self.is_empty:
+        if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         self.data = self.data.query("TYPE == 'COOPERATIVE'")
         return self.data.copy()
@@ -1282,6 +1322,8 @@ class StateDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = self.data["NAME"].str.upper()
         return self.data.copy()
 
@@ -1295,6 +1337,8 @@ class StateDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["STATEFP"]
         return self.data.copy()
 
@@ -1326,7 +1370,7 @@ class DatasetFactory:
         logger: logging.Logger,
         reader: DataFrameReader,
         writer: DataFrameWriter,
-    ) -> type:
+    ) -> GeoDataset:
         """Static method for creating a `GeoDataset` subclass.
 
         Args:
@@ -1359,7 +1403,10 @@ class DatasetFactory:
         try:
             dataset_type = DatasetFactory._REGISTRY[name]
         except KeyError:
-            raise RuntimeError("Dataset not found in registry. " "Terminating process.")
+            raise RuntimeError(
+                f"Dataset \"{name}\" not found in "
+                "registry. Terminating process."
+            )
         return dataset_type(
             name,
             as_of,

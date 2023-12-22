@@ -79,6 +79,7 @@ class Command(BaseCommand):
 
         # Process each configured dataset
         for dataset_config in settings.RAW_DATASETS:
+            
             # Skip processing if indicated by command line options
             if geos and dataset_config["name"] not in geos:
                 continue
