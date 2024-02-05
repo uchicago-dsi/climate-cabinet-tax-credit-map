@@ -17,13 +17,13 @@ export default function RootLayout({ children }) {
       <body className="h-full">
         <div className="flex justify-center max-w-screen-xl mx-auto bg-ccwhite">
           <main className="w-screen">
-            <div className="max-w-7xl mx-auto py-5">
+            {/* <div className="max-w-7xl mx-auto py-5">
               <Header />
-            </div>
+            </div> */}
             {children}
-            <div className="w-full py-5">
+            {/* <div className="w-full py-5">
               <Footer />
-            </div>
+            </div> */}
           </main>
         </div>
       </body>

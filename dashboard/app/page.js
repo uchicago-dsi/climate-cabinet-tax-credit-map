@@ -33,7 +33,7 @@ export default function SearchPage() {
   const formatBonusDescription = (obj) => {
     return Object.entries(obj).map(([key, val], _) => {
       let config = layerConfig.find((c) => c.externalId === key);
-      return {title: config.id, description: capitalize(val)}
+      return { title: config.id, description: capitalize(val) };
     });
   };
 
@@ -42,7 +42,7 @@ export default function SearchPage() {
       {/** HEADER  */}
       <div className="flex flex-col items-center">
         {/** TITLE BANNER */}
-        <div
+        {/* <div
           className="w-screen py-12 bg-center bg-cover bg-no-repeat"
           style={{ backgroundImage: `url('/images/c3titlebanner2.jpg')` }}
         >
@@ -51,9 +51,9 @@ export default function SearchPage() {
               Federal Funding Bonus Eligibility Map (beta)
             </h1>
           </div>
-        </div>
+        </div> */}
         {/** DESCRIPTION */}
-        <div className="max-w-5xl pt-12">
+        {/* <div className="max-w-5xl pt-12">
           <p>
             With this new tool from Climate Cabinet Education, discover which
             parts of your community have the potential to maximize the benefits
@@ -70,7 +70,7 @@ export default function SearchPage() {
             programs are available and how much bonus eligibility parts of your
             community can access.
           </p>
-        </div>
+        </div> */}
         {/** AUTOCOMPLETE SEARCH BAR */}
         <div className="px-2 sm:px-20 mt-10 mb-5 z-50 self-start w-11/12 mx-auto">
           <Autocomplete />
@@ -78,9 +78,9 @@ export default function SearchPage() {
       </div>
       {/** REPORT WIDGET */}
       <div>
-        <ReportWidget programs={programs}/>
+        <ReportWidget programs={programs} />
       </div>
-      <div className="flex flex-col items-center">
+      {/* <div className="flex flex-col items-center">
         <div className="max-w-5xl pt-12 overflow-x-auto">
           <h3 className="text-center pt-10 font-bold">Tax Credit Programs</h3>
           <hr />
@@ -128,14 +128,14 @@ export default function SearchPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
 
-          {/* DATA DESCRIPTION */}
-          <h3 className="text-center pt-10 font-bold">Data</h3>
-          <hr />
+      {/* DATA DESCRIPTION */}
+      {/* <h3 className="text-center pt-10 font-bold">Data</h3>
+          <hr /> */}
 
-          {/* ADMINISTRATIVE BOUNDARIES */}
-          <h4>Administrative Boundaries</h4>
+      {/* ADMINISTRATIVE BOUNDARIES */}
+      {/* <h4>Administrative Boundaries</h4>
           <p>
             Boundaries for counties, states, zip codes, and U.S. territories
             were extracted from TIGER/Line Shapefiles corresponding to the 2020
@@ -151,10 +151,10 @@ export default function SearchPage() {
               text="FTP server"
             />
             .
-          </p>
+          </p> */}
 
-          {/* DISTRESSED COMMUNITIES */}
-          <h4>Distressed Communities</h4>
+      {/* DISTRESSED COMMUNITIES */}
+      {/* <h4>Distressed Communities</h4>
           <p>
             Distressed zip codes were obtained by downloading and filtering a
             CSV data file from the latest release of the Economic Innovation
@@ -168,10 +168,10 @@ export default function SearchPage() {
             identified as "distressed" by EIG were then merged with 2020
             TIGER/Line zip code Shapefiles from the U.S. Census Bureau to
             produce the final dataset.
-          </p>
+          </p> */}
 
-          {/* ELECTRIC UTILITIES */}
-          <h4>Electric Retail Service Territories</h4>
+      {/* ELECTRIC UTILITIES */}
+      {/* <h4>Electric Retail Service Territories</h4>
           <p>
             Shapefiles for rural cooperatives and municipal utilities were
             downloaded from the Homeland Infrastructure Foundation-Level Data
@@ -189,10 +189,10 @@ export default function SearchPage() {
             , was last published on December 9, 2022, and utilizes multiple data
             sources from different years (e.g., state GIS portals, Energy
             Information Administration Tiger/Line Shapefiles).
-          </p>
+          </p> */}
 
-          {/** ENERGY COMMUNITIES */}
-          <h4>Energy Communities</h4>
+      {/** ENERGY COMMUNITIES */}
+      {/* <h4>Energy Communities</h4>
           <p>
             Two datasets for coal closure and fossil fuel employment qualifying
             energy communities were downloaded from the{" "}
@@ -226,10 +226,10 @@ export default function SearchPage() {
             Shapefiles, filtered to include only geographies qualifying as
             energy communities, and then merged together to create the final
             dataset.
-          </p>
+          </p> */}
 
-          {/** JUSTICE40 COMMUNITIES */}
-          <h4>Justice40 Communities</h4>
+      {/** JUSTICE40 COMMUNITIES */}
+      {/* <h4>Justice40 Communities</h4>
           <p>
             A Shapefile containing metadata and geographic boundaries for
             Justice40 Communities was directly downloaded from the{" "}
@@ -244,10 +244,10 @@ export default function SearchPage() {
             were classified as "disadvantaged" for at least one of eight
             criteria: climate change, energy, health, housing, legacy pollution,
             transportation, water and wastewater, and workforce development.
-          </p>
+          </p> */}
 
-          {/** LOW-INCOME COMMUNITIES */}
-          <h4>Low-Income Communities</h4>
+      {/** LOW-INCOME COMMUNITIES */}
+      {/* <h4>Low-Income Communities</h4>
           <p>
             According to statute (
             <Link
@@ -281,9 +281,10 @@ export default function SearchPage() {
             metropolitan statistical area, and state geography levels. A Python
             script was then executed to merge and filter the data to produce the
             final dataset.
-          </p>
+          </p> */}
 
-          {/* METHODOLOGY EXPLANATION */}
+      {/* METHODOLOGY EXPLANATION */}
+      {/* 
           <h3 className="text-center pt-10 font-bold">Methodology</h3>
           <hr />
           <p>
@@ -330,7 +331,7 @@ export default function SearchPage() {
             population-weighted centroid methodology.
           </p>
         </div>
-      </div>
+      </div>  */}
     </div>
   );
 }
