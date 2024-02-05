@@ -47,17 +47,10 @@
   }
 }
 
-body {
+/* Seems like the actual site is just white */
+/* body {
   @apply bg-ccwhite
-  /* TODO: This is the default way that Next does this
-  /* color: rgb(var(--foreground-rgb)); */
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
-}
+} */
 
 h1 {
   @apply text-3xl uppercase text-ccblack-dark

@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="h-full">
-        <div className="flex justify-center max-w-screen-xl mx-auto bg-ccwhite">
+        <div className="flex justify-center max-w-screen-xl mx-auto">
           <main className="w-screen">
             {/* <div className="max-w-7xl mx-auto py-5">
               <Header />
