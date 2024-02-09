@@ -1,9 +1,12 @@
 """Syncs tileset data in the datastore with that in Mapbox.
 """
 
-from common.logger import LoggerFactory
+# Third-party imports
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
+
+# Application imports
+from common.logger import LoggerFactory
 from mapbox.clients import MapboxTilesetSyncClient
 
 
@@ -32,7 +35,7 @@ class Command(BaseCommand):
             `None`
         """
         self._logger = LoggerFactory.get(Command.name.upper())
-        super().__init__(*args, **kwargs)        
+        super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser: CommandParser) -> None:
         """Provides an option, "geos", to sync tilesets for only
@@ -54,11 +57,7 @@ class Command(BaseCommand):
         Returns:
             `None`
         """
-        parser.add_argument(
-            '--geos',
-            nargs='+',
-            default=[]
-        )
+        parser.add_argument("--geos", nargs="+", default=[])
 
     def handle(self, *args, **options) -> None:
         """Executes the command. If the "geos" option
@@ -72,7 +71,7 @@ class Command(BaseCommand):
             `None`
         """
         # Log start of command
-        self._logger.info("Received command to sync Mapbox tilesets from data.")        
+        self._logger.info("Received command to sync Mapbox tilesets from data.")
 
         # Process each configured geography type
         geos = options["geos"]

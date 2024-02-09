@@ -102,7 +102,7 @@ class BaseConfig(Configuration):
             "source": "NMTC Program, Department of the Treasury",
             "files": {
                 "county_fips": "raw/census/fips/fips_counties.csv",
-                "low_income_territories": "raw/bonus/low_income/NMTC_LIC_Territory_2020_December_2023",
+                "low_income_territories": "raw/bonus/low_income/NMTC_LIC_Territory_2020_December_2023.xlsx",
                 "low_income_states": "raw/bonus/low_income/NMTC_2016-2020_ACS_LIC_Sept1_2023.xlsb",
                 "state_fips": "raw/census/fips/fips_states.csv",
                 "tracts_2020": "raw/census/tracts/tl_2020_**_tract.zip",
@@ -116,7 +116,7 @@ class BaseConfig(Configuration):
             "published_on": "2021-02-02",
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {
-                "corrections": "raw/census/government_units/corrections.json",
+                "corrections": "raw/census/government_units/gov_unit_corrections.json",
                 "county_fips": "raw/census/fips/fips_counties.csv",
                 "county_subdivisions": "raw/census/county_subdivisions/**.zip",
                 "government_units": "raw/census/government_units/Govt_Units_2021_Final.xlsx",
@@ -146,9 +146,9 @@ class BaseConfig(Configuration):
             "published_on": None,
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
-                "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
-                "hinton_iowa": "raw/bonus/retail/hinton_municipal_iowa.zip",
-                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip",
+                "corrected_names": "raw/retail/municipal_utility_name_matches.csv",
+                "hinton_iowa": "raw/retail/hinton_municipal_iowa.zip",
+                "utilities": "raw/retail/Electric_Retail_Service_Territories.zip",
             },
         },
         {
@@ -159,7 +159,7 @@ class BaseConfig(Configuration):
             "published_on": None,
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
-                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
+                "utilities": "raw/retail/Electric_Retail_Service_Territories.zip"
             },
         },
         {
@@ -237,7 +237,10 @@ class BaseConfig(Configuration):
             "display_name": "municipalities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": ["clean/geojsonl/municipalities.geojsonl"],
+            "files": [
+                "clean/geojsonl/municipalities___states.geojsonl",
+                "clean/geojsonl/municipalities___territories.geojsonl",
+            ],
         },
         {
             "formal_name": "cc_municipal_utils",

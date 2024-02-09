@@ -42,7 +42,7 @@ class FileSystemHelperTestMixins:
         helper = self._CLIENT
         contents = helper.list_contents(
             root_dir=self._ROOT_DIR,
-            glob_pattern=f"{self._POPULATED_DIR}/*?",
+            glob_pattern=f"{self._POPULATED_DIR}/**/**?",
         )
         assert len(contents) == self._NUM_FILES_POPULATED_DIR
 
@@ -423,7 +423,8 @@ class TestDataWriter(unittest.TestCase):
 
         # Confirm files successfully written
         contents = self._LOADER.list_directory_contents()
-        assert file_name in contents and zip_file_name in contents
+        file_names = [pth.split("/")[-1] for pth in contents]
+        assert (file_name in file_names) and (zip_file_name in file_names)
 
     def test_write_geoparquet(self) -> None:
         """Asserts that writing GeoParquet files to
@@ -443,4 +444,5 @@ class TestDataWriter(unittest.TestCase):
 
         # # Confirm files successfully written
         contents = self._LOADER.list_directory_contents()
-        assert file_name in contents and zip_file_name in contents
+        file_names = [pth.split("/")[-1] for pth in contents]
+        assert (file_name in file_names) and (zip_file_name in file_names)

@@ -19,6 +19,7 @@ from shapely.geometry.polygon import Polygon
 # Application imports
 from common.storage import DataLoader, DataWriter
 from tax_credit.constants import STATE_ABBREVIATIONS
+from tax_credit.models import Geography
 
 
 @dataclass
@@ -167,6 +168,7 @@ class GeoDataset(ABC):
             [
                 "name",
                 "fips",
+                "fips_pattern",
                 "geography_type",
                 "as_of",
                 "published_on",
@@ -353,6 +355,7 @@ class CoalDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["geoid_trac"]
+        self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY_TRACT
         return self.data.copy()
 
 
@@ -430,6 +433,7 @@ class CountyDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["STATEFP"] + self.data["COUNTYFP"]
+        self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY
         return self.data.copy()
 
 
@@ -506,7 +510,7 @@ class DistressedDataset(GeoDataset):
         """
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
-        self.data["fips"] = None
+        self.data["fips"] = self.data["fips_pattern"] = None
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -617,7 +621,7 @@ class FossilFuelDataset(GeoDataset):
         """
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
-        self.data["fips"] = None
+        self.data["fips"] = self.data["fips_pattern"] = None
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -638,7 +642,7 @@ class FossilFuelDataset(GeoDataset):
 
 
 class Justice40Dataset(GeoDataset):
-    """Represents a dataset of Justice40 communities parsed
+    """Represents a dataset of Justice40 census tracts parsed
     from the Climate and Economic Justice Screening Tool.
     """
 
@@ -724,6 +728,7 @@ class Justice40Dataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["GEOID10"]
+        self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY_TRACT
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -798,7 +803,10 @@ class LowIncomeDataset(GeoDataset):
 
         # Load NMTC high migration indicators for census tracts within U.S. states
         nmtc_state_mig = self.reader.read_excel(
-            file_name=income_states_fpath, sheet_name="High migration tracts", dtype=str
+            file_name=income_states_fpath,
+            sheet_name="High migration tracts",
+            skiprows=1,
+            dtype=str,
         )
 
         # Load NMTC poverty indicators for census tracts within U.S. island territories
@@ -887,6 +895,7 @@ class LowIncomeDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["GEOID"]
+        self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY_TRACT
         return self.data.copy()
 
 
@@ -970,7 +979,7 @@ class MunicipalUtilityDataset(GeoDataset):
         """
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
-        self.data["fips"] = None
+        self.data["fips"] = self.data["fips_pattern"] = None
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -1220,11 +1229,20 @@ class MunicipalityWithinStateDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
 
-        # Map FIPS code based on dataset type
-        map_func = lambda r: (
-            r["GEOID_PLACE"] if r["DATASET"] == "places" else r["GEOID_SUBDIV"]
+        # Define local function to map FIPS code and pattern based on dataset type
+        def map(row: pd.Series):
+            if row["DATASET"] == "places":
+                return row["GEOID_PLACE"], Geography.FipsPattern.STATE_PLACE
+            else:
+                return (
+                    row["GEOID_SUBDIV"],
+                    Geography.FipsPattern.STATE_COUNTY_COUNTY_SUBDIVISION,
+                )
+
+        # Apply function
+        self.data[["fips", "fips_pattern"]] = self.data.apply(
+            map, axis=1, result_type="expand"
         )
-        self.data["fips"] = self.data.apply(map_func, axis=1)
 
         return self.data.copy()
 
@@ -1408,6 +1426,16 @@ class MunicipalityWithinTerritoryDataset(GeoDataset):
         # Set FIPS column
         self.data["fips"] = self.data["GEOID"]
 
+        # Define local function to map FIPS code pattern based on dataset type
+        map_func = lambda r: (
+            Geography.FipsPattern.STATE_PLACE
+            if r["DATASET"] == "places"
+            else Geography.FipsPattern.STATE_COUNTY_COUNTY_SUBDIVISION
+        )
+
+        # Apply function
+        self.data["fips_pattern"] = self.data.apply(map_func, axis=1)
+
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -1502,7 +1530,7 @@ class RuralCoopDataset(GeoDataset):
         """
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
-        self.data["fips"] = None
+        self.data["fips"] = self.data["fips_pattern"] = None
         return self.data.copy()
 
     def _filter_records(self) -> gpd.GeoDataFrame:
@@ -1583,6 +1611,7 @@ class StateDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["STATEFP"]
+        self.data["fips_pattern"] = Geography.FipsPattern.STATE
         return self.data.copy()
 
 

@@ -24,23 +24,29 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function POST(request) {
   let { searchTerm, limit } = await request.json();
-  let regex = `%${searchTerm.trim().split(" ").join("%")}%`;
   let data = await prisma.$queryRaw`
-      SELECT 
-        geo.id::varchar(255), 
-        geo.name, 
-        similarity(geo.name, ${searchTerm}) AS sml
-      FROM tax_credit_geography AS geo
-      WHERE geo.geography_type IN (
-        'county', 
-        'municipal utility',
-        'municipality',
-        'rural cooperative',
-        'state'
-      )
-      AND geo.name ILIKE ${regex}
-      ORDER BY sml DESC
-      LIMIT ${limit};
+    SELECT * FROM
+      (
+        SELECT 
+          id::varchar(255), 
+          name,
+          geography_type,
+          ts_rank(
+            name_vector, 
+            phraseto_tsquery('english', ${searchTerm})
+          ) as rank
+        FROM tax_credit_geography
+        WHERE geography_type IN (
+          'county', 
+          'municipal utility',
+          'municipality',
+          'rural cooperative',
+          'state'
+        )
+        ORDER BY rank DESC, name ASC
+        LIMIT ${limit}
+      ) as results
+      WHERE rank > 1e-20
     `;
   return NextResponse.json({ data });
 }

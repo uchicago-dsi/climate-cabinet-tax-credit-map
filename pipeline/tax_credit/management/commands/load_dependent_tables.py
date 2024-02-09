@@ -1,7 +1,7 @@
 from typing import Optional
 
 from common.logger import LoggerFactory
-from common.storage import DataReaderFactory
+from common.storage import IterativeDataReaderFactory
 from django.conf import settings
 from django.core.management import BaseCommand, CommandParser
 from tax_credit.config_reader import get_load_config_reader
@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         for job in config.dependent_jobs:
             try:
-                reader = DataReaderFactory.get(job.file_format)
+                reader = IterativeDataReaderFactory.get(job.file_format)
                 Validator.validate(job, reader)
                 DatabaseHelper.load_batched(
                     job, reader, load_batch_size, batch_number_of

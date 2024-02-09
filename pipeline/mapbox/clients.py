@@ -18,8 +18,7 @@ from mapbox.fieldsets import *
 
 
 class MapboxTilingApiClient:
-    """Wrapper for API requests against the Mapbox Tiling Service (MTS).
-    """
+    """Wrapper for API requests against the Mapbox Tiling Service (MTS)."""
 
     def __init__(self) -> None:
         """Initializes a new instance of a `MapboxTilesetClient`.
@@ -29,7 +28,7 @@ class MapboxTilingApiClient:
 
         Raises:
             `KeyError` if the environment variables
-                `MAPBOX_API_BASE_URL`, `MAPBOX_API_TOKEN`, 
+                `MAPBOX_API_BASE_URL`, `MAPBOX_API_TOKEN`,
                 and `MAPBOX_USERNAME` do not exist.
 
         Returns:
@@ -42,7 +41,7 @@ class MapboxTilingApiClient:
         except KeyError as e:
             raise RuntimeError(
                 "Failed to instantiate a MapboxTilesetClient. "
-                f"Missing required environment variable \"{e}\"."
+                f'Missing required environment variable "{e}".'
             )
 
     def _build_query_params(self, fields: BaseFieldset) -> Dict:
@@ -62,22 +61,19 @@ class MapboxTilingApiClient:
                 params[field["name"]] = field["value"]
         return params
 
-    def create_or_append_tileset_source(
-        self,
-        source_id: str,
-        file: io.IOBase) -> Dict:
+    def create_or_append_tileset_source(self, source_id: str, file: io.IOBase) -> Dict:
         """Creates a new tileset source from a data file or
         appends an additional file to the tileset source if it
         already exists. (The "create" and "append" endpoints described
         in the documentation appear to now be the same.) The API token
         must have a scope of "tilesets:write".
-        
+
         Documentation:
             - ["Create a tileset source"](https://docs.mapbox.com/api/maps/mapbox-tiling-service/#create-a-tileset-source)
             - ["Example response: Create a tileset source"](https://docs.mapbox.com/api/maps/mapbox-tiling-service/#response-create-a-tileset-source)
             - ["Append to an existing tileset source"](https://docs.mapbox.com/api/maps/mapbox-tiling-service/#append-to-an-existing-tileset-source)
             - ["Example response: Append to an existing tileset source"](https://docs.mapbox.com/api/maps/mapbox-tiling-service/#append-to-an-existing-tileset-source)
-        
+
         Args:
             source_id (`str`): The id for the tile source
                 to be created. Limited to 32 characters
@@ -94,9 +90,9 @@ class MapboxTilingApiClient:
             token=Token(value=self._token),
             username=Username(value=self._username),
             source_id=TilesetSourceId(value=source_id),
-            file=TilesetSourceFile(value=file)
+            file=TilesetSourceFile(value=file),
         )
-        
+
         # Build request URL
         url = (
             f"{self._base_url}/tilesets/v1/sources/"
@@ -111,13 +107,13 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to create a new tileset source "
-                f"for user \"{fields.username.value}\" failed "
-                f"with a \"{r.status_code} - {r.reason}\" "
-                f"status code and the text \"{r.text}\"."
+                f'for user "{fields.username.value}" failed '
+                f'with a "{r.status_code} - {r.reason}" '
+                f'status code and the text "{r.text}".'
             )
-        
+
         return r.json()
-   
+
     def create_tileset(
         self,
         formal_name: str,
@@ -125,7 +121,8 @@ class MapboxTilingApiClient:
         source_id: str,
         layer_name: str,
         min_zoom: int,
-        max_zoom: int) -> Dict:
+        max_zoom: int,
+    ) -> Dict:
         """Creates a new tileset on the Mapbox server side.
 
         Documentation:
@@ -137,15 +134,15 @@ class MapboxTilingApiClient:
 
         Args:
             formal_name (`str`): The unique name of the tileset.
-                Limited to 32 characters and only allows '-' 
+                Limited to 32 characters and only allows '-'
                 and '_' as special characters. Does not contain
                 the "{username}." prefix.
 
             display_name (`str`): The descriptive name of
                 the tileset. Limited to 64 characters.
 
-            source_id (`str`): The id of a pre-existing 
-                tileset source, from which the tileset 
+            source_id (`str`): The id of a pre-existing
+                tileset source, from which the tileset
                 will be created.
 
             layer_name (`str`): The layer to include in
@@ -171,31 +168,31 @@ class MapboxTilingApiClient:
             layer_name=TilesetLayerName(value=layer_name),
             max_zoom=TilesetZoom(value=max_zoom),
             min_zoom=TilesetZoom(value=min_zoom),
-            source_id=TilesetSourceId(value=source_id)
+            source_id=TilesetSourceId(value=source_id),
         )
 
         # Build request URL
         url = (
             f"{self._base_url}/tilesets/v1/"
             f"{fields.username.value}.{fields.formal_name.value}"
-        )       
-        
+        )
+
         # Build request body
         body = {
             "recipe": {
                 "version": 1,
                 "layers": {
-                   fields.layer_name.value: {
+                    fields.layer_name.value: {
                         "source": (
                             "mapbox://tileset-source/"
                             f"{fields.username.value}/{fields.source_id.value}"
                         ),
                         "minzoom": fields.min_zoom.value,
-                        "maxzoom": fields.max_zoom.value
+                        "maxzoom": fields.max_zoom.value,
                     }
-                }
+                },
             },
-            "name": fields.display_name.value
+            "name": fields.display_name.value,
         }
 
         # Build query parameters
@@ -206,11 +203,11 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to create a new tileset "
-                f"for user \"{fields.username.value}\" failed "
-                f"with a \"{r.status_code} - {r.reason}\" "
-                f"status scode and the text \"{r.text}\"."
+                f'for user "{fields.username.value}" failed '
+                f'with a "{r.status_code} - {r.reason}" '
+                f'status scode and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def delete_tileset(self, tileset_formal_name: str) -> None:
@@ -229,7 +226,7 @@ class MapboxTilingApiClient:
         fields = TilesetDeleteFieldset(
             token=Token(value=self._token),
             username=Username(value=self._username),
-            tileset_formal_name=TilesetFormalName(value=tileset_formal_name)
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
         )
 
         # Build request URL
@@ -246,11 +243,11 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to delete the tileset "
-                f"\"{fields.tileset_formal_name.value}\" for user \""
-                f"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
-            )  
+                f'"{fields.tileset_formal_name.value}" for user "'
+                f'{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
+            )
 
     def delete_tileset_source(self, source_id: str) -> None:
         """Permanently deletes a tileset source and all of its
@@ -272,7 +269,7 @@ class MapboxTilingApiClient:
         fields = TilesetSourceDeleteFieldset(
             token=Token(value=self._token),
             username=Username(value=self._username),
-            source_id=TilesetSourceId(value=source_id)
+            source_id=TilesetSourceId(value=source_id),
         )
 
         # Build request URL
@@ -289,11 +286,11 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to delete the tileset source "
-                f"\"{fields.source_id.value}\" for user \""
-                f"{fields.username.value}\" failed with a \""
-                f"{r.status_code} - {r.reason}\" status code "
-                f"and the text \"{r.text}\"."
-            )        
+                f'"{fields.source_id.value}" for user "'
+                f'{fields.username.value}" failed with a "'
+                f'{r.status_code} - {r.reason}" status code '
+                f'and the text "{r.text}".'
+            )
 
     def get_tilejson_metadata(self, tileset_formal_name: str) -> Dict:
         """Retrieves the TileJSON metadata for a given tileset.
@@ -314,7 +311,7 @@ class MapboxTilingApiClient:
         fields = TilesetMetadataGetFieldset(
             token=Token(value=self._token),
             username=Username(value=self._username),
-            tileset_formal_name=TilesetFormalName(value=tileset_formal_name)
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
         )
 
         # Build request URL
@@ -331,12 +328,12 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to fetch TileJSON metadata for "
-                f"tileset \"{fields.tileset_formal_name.value}\" "
-                f"under user \"{fields.username.value}\" failed "
-                f"with a \"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'tileset "{fields.tileset_formal_name.value}" '
+                f'under user "{fields.username.value}" failed '
+                f'with a "{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def get_tileset_job(self, tileset_formal_name: str, job_id: str) -> Dict:
@@ -358,10 +355,10 @@ class MapboxTilingApiClient:
         """
         # Validate fields used to build HTTP request
         fields = TilesetJobGetFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
-           job_id=TilesetJobId(value=job_id)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
+            job_id=TilesetJobId(value=job_id),
         )
 
         # Build request URL
@@ -378,21 +375,22 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to fetch tileset processing job "
-                f"\"{fields.job_id.value}\" for tileset "
-                f"\"{fields.tileset_formal_name.value}\" under user"
-                f"\"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'"{fields.job_id.value}" for tileset '
+                f'"{fields.tileset_formal_name.value}" under user'
+                f'"{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def list_tileset_jobs(
         self,
         tileset_formal_name: str,
-        stage: Optional[str]=None,
-        limit: Optional[int]=None,
-        start: Optional[str]=None) -> List[Dict]:
+        stage: Optional[str] = None,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
+    ) -> List[Dict]:
         """Lists information about all jobs associated with
         a tileset in the current user account. The API token
         must have a scope of "tilesets:list".
@@ -422,12 +420,12 @@ class MapboxTilingApiClient:
         """
         # Validate fields used to build HTTP request
         fields = TilesetJobListFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
-           stage=TilesetJobStage(value=stage),
-           limit=ResultSetLimit(value=limit),
-           start=ResultSetStart(value=start)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
+            stage=TilesetJobStage(value=stage),
+            limit=ResultSetLimit(value=limit),
+            start=ResultSetStart(value=start),
         )
 
         # Build request URL
@@ -444,18 +442,19 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to list tileset job metadata "
-                f"for user \"{fields.username.value}\" failed "
-                f"with \"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'for user "{fields.username.value}" failed '
+                f'with "{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def list_tileset_sources(
         self,
-        sort_by: Optional[str]=None,
-        limit: Optional[int]=None,
-        start: Optional[str]=None) -> List[Dict]:
+        sort_by: Optional[str] = None,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
+    ) -> List[Dict]:
         """Lists the tileset sources that belong to the current user
         account. The API token must have a scope of "tilesets:list".
 
@@ -481,11 +480,11 @@ class MapboxTilingApiClient:
         """
         # Validate fields used to build HTTP request
         fields = TilesetSourceListFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           sort_by=ResultSetTimestampSortBy(value=sort_by),
-           limit=ResultSetLimit(value=limit),
-           start=ResultSetStart(value=start)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            sort_by=ResultSetTimestampSortBy(value=sort_by),
+            limit=ResultSetLimit(value=limit),
+            start=ResultSetStart(value=start),
         )
 
         # Build request URL
@@ -499,20 +498,21 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to list tileset sources for user "
-                f"\"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'"{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def list_tilesets(
         self,
-        type: Optional[str]=None,
-        visibility: Optional[str]=None,
-        sort_by: Optional[str]=None,
-        limit: Optional[int]=None,
-        start: Optional[str]=None) -> List[Dict]:
+        type: Optional[str] = None,
+        visibility: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
+    ) -> List[Dict]:
         """Lists the tilesets that belong to the current user account.
         The API token must have a scope of "tilesets:list".
 
@@ -544,13 +544,13 @@ class MapboxTilingApiClient:
         """
         # Validate fields used to build HTTP request
         fields = TilesetListFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           type=TilesetType(value=type),
-           visibility=TilesetVisibility(value=visibility),
-           sort_by=ResultSetTimestampSortBy(value=sort_by),
-           limit=ResultSetLimit(value=limit),
-           start=ResultSetStart(value=start)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            type=TilesetType(value=type),
+            visibility=TilesetVisibility(value=visibility),
+            sort_by=ResultSetTimestampSortBy(value=sort_by),
+            limit=ResultSetLimit(value=limit),
+            start=ResultSetStart(value=start),
         )
 
         # Build request url
@@ -564,9 +564,9 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to list tilesets for user "
-                f"\"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'"{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
 
         return r.json()
@@ -588,9 +588,9 @@ class MapboxTilingApiClient:
         """
         # Validate fields used to build HTTP request
         fields = TilesetJobCreateFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           tileset_formal_name=TilesetFormalName(value=tileset_formal_name)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
         )
 
         # Build request URL
@@ -607,12 +607,12 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to publish the tileset "
-                f"\"{fields.tileset_formal_name.value}\" for user "
-                f"\"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'"{fields.tileset_formal_name.value}" for user '
+                f'"{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
-        
+
         return r.json()
 
     def update_tileset_recipe(
@@ -621,7 +621,8 @@ class MapboxTilingApiClient:
         source_id: str,
         layer_name: str,
         min_zoom: int,
-        max_zoom: int) -> None:
+        max_zoom: int,
+    ) -> None:
         """Updates a pre-existing tileset recipe.
 
         Documentation:
@@ -631,7 +632,7 @@ class MapboxTilingApiClient:
         Args:
             tileset_formal_name (`str`): The unique, formal name of the tileset.
 
-            source_id (`str`): The id of a 
+            source_id (`str`): The id of a
                 pre-existing tileset source, from which
                 the tileset will be created.
 
@@ -649,15 +650,15 @@ class MapboxTilingApiClient:
         Returns:
             `None`
         """
-         # Validate fields used to build HTTP request
+        # Validate fields used to build HTTP request
         fields = TilesetRecipeUpdateFieldset(
-           token=Token(value=self._token),
-           username=Username(value=self._username),
-           tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
-           source_id=TilesetSourceId(value=source_id),
-           layer_name=TilesetLayerName(value=layer_name),
-           max_zoom=TilesetZoom(value=max_zoom),
-           min_zoom=TilesetZoom(value=min_zoom)
+            token=Token(value=self._token),
+            username=Username(value=self._username),
+            tileset_formal_name=TilesetFormalName(value=tileset_formal_name),
+            source_id=TilesetSourceId(value=source_id),
+            layer_name=TilesetLayerName(value=layer_name),
+            max_zoom=TilesetZoom(value=max_zoom),
+            min_zoom=TilesetZoom(value=min_zoom),
         )
 
         # Build request URL
@@ -676,9 +677,9 @@ class MapboxTilingApiClient:
                         f"{fields.username.value}/{fields.source_id.value}"
                     ),
                     "minzoom": fields.min_zoom.value,
-                    "maxzoom": fields.max_zoom.value
+                    "maxzoom": fields.max_zoom.value,
                 }
-            }
+            },
         }
 
         # Build query parameters
@@ -689,11 +690,12 @@ class MapboxTilingApiClient:
         if not r.ok:
             raise RuntimeError(
                 "The request to update the tileset "
-                f"\"{fields.tileset_formal_name.value}\" for user "
-                f"\"{fields.username.value}\" failed with a "
-                f"\"{r.status_code} - {r.reason}\" status "
-                f"code and the text \"{r.text}\"."
+                f'"{fields.tileset_formal_name.value}" for user '
+                f'"{fields.username.value}" failed with a '
+                f'"{r.status_code} - {r.reason}" status '
+                f'code and the text "{r.text}".'
             )
+
 
 class MapboxTilesetSyncClient:
     """Orchestrates a data sync between one or more
@@ -704,8 +706,8 @@ class MapboxTilesetSyncClient:
         """Initializes a new instance of a `MapboxTilesetSyncClient`.
 
         Args:
-            logger (`logging.Logger`): An instance of a sstandard logger.
-        
+            logger (`logging.Logger`): An instance of a standard logger.
+
         Returns:
             `None`
         """
@@ -714,7 +716,7 @@ class MapboxTilesetSyncClient:
         self._logger = logger
 
     def __enter__(self) -> Self:
-        """Prepares for data syncing by deleting all current 
+        """Prepares for data syncing by deleting all current
         tileset sources and taking an inventory of available tilesets.
 
         Args:
@@ -740,14 +742,15 @@ class MapboxTilesetSyncClient:
             )
         else:
             self._logger.info("No tilesets found.")
-        
+
         return self
 
     def __exit__(
         self,
         type: Optional[Type[BaseException]],
         value: Optional[BaseException],
-        traceback: Optional[TracebackType]) -> None:
+        traceback: Optional[TracebackType],
+    ) -> None:
         """Cleans up artifacts created by the data sync by
         deleting all tileset sources on the server side and
         then persists a snapshot of the tilesets by fetching
@@ -781,9 +784,9 @@ class MapboxTilesetSyncClient:
         # Write metadata to file
         self._logger.info("Persisting TileJSON metadata to file.")
         fpath = settings.MAPBOX_TILEJSON_METADATA_FILE
-        with self._file_helper.open_file(fpath, "w") as f:
+        with self._file_helper.open_file(fpath, mode="w") as f:
             json.dump(all_metadata, f, indent=4)
-        
+
     def _append_tileset_source_file(self, source_id: str, fpath: str) -> None:
         """Appends a file to a tileset source.
 
@@ -800,8 +803,8 @@ class MapboxTilesetSyncClient:
             `None`
         """
         # Log start of process
-        self._logger.info(f"Opening tileset source file at \"{fpath}\".")
-        
+        self._logger.info(f'Opening tileset source file at "{fpath}".')
+
         # Initialize settings for limiting no. of GeoJSON lines sent to server
         batch_size = settings.MAPBOX_TILESET_SOURCE_BATCH_SIZE
         end_of_file = False
@@ -809,12 +812,9 @@ class MapboxTilesetSyncClient:
         # Process file
         with self._file_helper.open_file(fpath) as f:
             while not end_of_file:
-                
                 # Write temp file with line count up to batch size
                 with tempfile.TemporaryDirectory() as temp_dir:
-                    self._logger.info(
-                        "Writing partial file contents to temp file."
-                    )
+                    self._logger.info("Writing partial file contents to temp file.")
                     tmp_fpath = f"{temp_dir}/tmp.geojsonl"
                     with open(tmp_fpath, "w") as tmp:
                         for _ in range(batch_size):
@@ -829,8 +829,7 @@ class MapboxTilesetSyncClient:
                     self._logger.info(f"Uploading temp file to Mapbox.")
                     with open(tmp_fpath, "r") as tmp:
                         self._client.create_or_append_tileset_source(
-                            source_id=source_id,
-                            file=tmp
+                            source_id=source_id, file=tmp
                         )
 
     def _delete_tileset_sources(self) -> None:
@@ -846,15 +845,12 @@ class MapboxTilesetSyncClient:
         """
         for source in self._client.list_tileset_sources():
             source_id = source["id"].split("/")[-1]
-            self._logger.info(
-                f"Deleting pre-existing tileset source \"{source_id}\"."
-            )
+            self._logger.info(f'Deleting pre-existing tileset source "{source_id}".')
             self._client.delete_tileset_source(source_id)
 
     def _monitor_tileset_publishing_job(
-        self,
-        tileset_formal_name: str,
-        job_id: str) -> None:
+        self, tileset_formal_name: str, job_id: str
+    ) -> None:
         """Montitors a tileset publishing job until a terminal state is reached.
 
         Args:
@@ -870,14 +866,13 @@ class MapboxTilesetSyncClient:
 
         # Monitor until error or success occurs
         while True:
-
             # Add delay between calls
             self._logger.info(
                 f"Sleeping for {str(delay)} second(s) before "
                 "fetching updated publishing job status."
             )
             time.sleep(delay)
-            
+
             # Fetch job status from API
             job = self._client.get_tileset_job(tileset_formal_name, job_id)
 
@@ -890,12 +885,12 @@ class MapboxTilesetSyncClient:
             elif job["stage"] == "success":
                 self._logger.info(f"Tileset successfully published. {str(job)}")
                 return
-            
+
             # Handle superseded status
             elif job["stage"] == "superseded":
                 self._logger.info("The job has been superseded by another.")
                 return
-            
+
             # Handle failure status
             elif job["stage"] == "failed":
                 raise RuntimeError(
@@ -903,46 +898,40 @@ class MapboxTilesetSyncClient:
                     f"{len(job['errors'])} errors. "
                     " ".join(e for e in job["errors"])
                 )
-            
+
             # Handle unknown status
             else:
-                 raise RuntimeError(
-                    "An unknown job status was encountered: "
-                    f"\"{job['stage']}\"."
+                raise RuntimeError(
+                    "An unknown job status was encountered: " f"\"{job['stage']}\"."
                 )
 
-    def _upsert_tileset(
-        self,
-        id: str,
-        name: str,
-        min_zoom: int,
-        max_zoom: int) -> None:
-        """Upserts a tileset using a tileset recipe 
+    def _upsert_tileset(self, id: str, name: str, min_zoom: int, max_zoom: int) -> None:
+        """Upserts a tileset using a tileset recipe
         and reference to a tileset source.
 
         Args:
             id (`str`): The tileset id. Limited to 32
-                characters and only allows '-' and '_' 
+                characters and only allows '-' and '_'
                 as special characters.
 
             name (`str`): The tileset (display) name.
                 Limited to 64 characters.
 
             min_zoom (`str`): The minimum zoom level.
-                Must be between 0 and 16, inclusive, and 
+                Must be between 0 and 16, inclusive, and
                 less than or equal to the maximum zoom.
 
             max_zoom (`str`): The maximum zoom level.
                 Must be between 0 and 16, inclusive, and
                 greater than or equal to the minimum zoom.
-        
+
         Returns:
             `None`
         """
         # If tileset already exists, attempt update
         if name in self._tileset_names:
             self._logger.info(
-                f"Updating existing tileset \"{name}\" using "
+                f'Updating existing tileset "{name}" using '
                 "new recipe created from tileset source."
             )
             self._client.update_tileset_recipe(
@@ -950,13 +939,13 @@ class MapboxTilesetSyncClient:
                 source_id=id,
                 layer_name=id,
                 min_zoom=min_zoom,
-                max_zoom=max_zoom
+                max_zoom=max_zoom,
             )
             return
-        
+
         # Otherwise, attempt insert
         self._logger.info(
-            f"Creating existing tileset \"{name}\" using "
+            f'Creating existing tileset "{name}" using '
             "new recipe created from tileset source."
         )
         self._client.create_tileset(
@@ -965,30 +954,31 @@ class MapboxTilesetSyncClient:
             source_id=id,
             layer_name=id,
             min_zoom=min_zoom,
-            max_zoom=max_zoom
+            max_zoom=max_zoom,
         )
-     
+
     def sync_tileset(
         self,
         formal_name: str,
         display_name: str,
         min_zoom: int,
         max_zoom: int,
-        files: List[str]) -> None:
+        files: List[str],
+    ) -> None:
         """Creates or updates a tileset with one or more data files
         and metadata (i.e., min and max zoom, name, and id).
 
         Args:
-            formal_name (`str`): The unique, formal name 
+            formal_name (`str`): The unique, formal name
                 of the tileset, used internally by Mapbox.
-                Limited to 32 characters and only allows 
+                Limited to 32 characters and only allows
                 '-' and '_' as special characters.
 
             formal_name (`str`): The tileset's user-friendly
                 display name. Limited to 64 characters.
 
             min_zoom (`str`): The minimum zoom level.
-                Must be between 0 and 16, inclusive, and 
+                Must be between 0 and 16, inclusive, and
                 less than or equal to the maximum zoom.
 
             max_zoom (`str`): The maximum zoom level.
@@ -1003,38 +993,37 @@ class MapboxTilesetSyncClient:
             `None`
         """
         # Log start of data sync
-        self._logger.info(f"Syncing tileset \"{display_name}\".")
+        self._logger.info(f'Syncing tileset "{display_name}".')
 
         # Upload tileset source files
-        self._logger.info(
-            f"Adding data files to tileset source \"{formal_name}\"."
-        )
+        self._logger.info(f'Adding data files to tileset source "{formal_name}".')
         for pth in files:
             try:
                 self._append_tileset_source_file(formal_name, pth)
             except Exception as e:
-                raise RuntimeError("Error appending files to "
-                                   f"tileset source. {e}") from None
+                raise RuntimeError(
+                    "Error appending files to " f"tileset source. {e}"
+                ) from None
 
         # Create new tileset (without publishing) or update tileset if exists
         try:
             self._upsert_tileset(formal_name, display_name, min_zoom, max_zoom)
         except Exception as e:
-                raise RuntimeError(f"Error upserting tileset. {e}") from None
-        
-         # Queue new job to publish tileset
+            raise RuntimeError(f"Error upserting tileset. {e}") from None
+
+        # Queue new job to publish tileset
         try:
             self._logger.info("Publishing tileset on Mapbox.")
             queued_job = self._client.publish_tileset(formal_name)
             job_id = queued_job["jobId"]
         except Exception as e:
-            raise RuntimeError("Failed to queue tileset publishing "
-                               f"job. {e}") from None
+            raise RuntimeError(
+                "Failed to queue tileset publishing " f"job. {e}"
+            ) from None
 
         # Monitor job until terminal state reached
         try:
-            self._logger.info(f"Publishing job queued with id \"{job_id}\".")
+            self._logger.info(f'Publishing job queued with id "{job_id}".')
             self._monitor_tileset_publishing_job(formal_name, job_id)
         except Exception as e:
             raise RuntimeError(f"Failed to publish tileset. {e}") from None
-        

@@ -118,7 +118,9 @@ class FileSystemHelper(ABC):
 
     @abstractmethod
     def list_contents(
-        self, root_dir: Union[Path, str] = settings.DATA_DIR, glob_pattern: str = "**"
+        self,
+        root_dir: Union[Path, str] = settings.DATA_DIR,
+        glob_pattern: str = "**/**?",
     ) -> List[str]:
         """Recursively lists absolute paths to all files
         under the given root directory, with the option of
@@ -137,9 +139,9 @@ class FileSystemHelper(ABC):
 
             glob_pattern (`str`): A relative path to search
                 for within the root directory. May contain
-                shell-like wildcards. Defaults to `**`, in
-                which case all files and directories
-                under the root are listed.
+                shell-like wildcards. Defaults to `**/**?`, in
+                which case all files under the root directory
+                and its nested subdirectories are listed.
 
         Returns:
             (`list` of `str`): The list of absolute file paths
@@ -186,12 +188,14 @@ class LocalFileSystemHelper(FileSystemHelper):
     """Concrete class for accessing local file systems."""
 
     def list_contents(
-        self, root_dir: Union[Path, str] = settings.DATA_DIR, glob_pattern: str = "**?"
+        self,
+        root_dir: Union[Path, str] = settings.DATA_DIR,
+        glob_pattern: str = "**/**?",
     ) -> List[str]:
         """Recursively lists relative paths to all files
         under the given root directory, with the option of
         filtering the paths using a glob pattern. Directories
-        are ignored.
+        are ignored regardless of the pattern.
 
         References:
         - [glob — Unix style pathname pattern expansion](https://docs.python.org/3.11/library/glob.html)
@@ -205,8 +209,9 @@ class LocalFileSystemHelper(FileSystemHelper):
 
             glob_pattern (`str`): A relative path to search
                 for within the root directory. May contain
-                shell-like wildcards. Defaults to `**?`, in
-                which case all files under the root are listed.
+                shell-like wildcards. Defaults to `**/**?`, in
+                which case all files under the root and any
+                of its nested subdirectories are listed.
 
         Returns:
             (`list` of `str`): The list of relative file paths
@@ -255,7 +260,7 @@ class LocalFileSystemHelper(FileSystemHelper):
         fpath = Path(root_dir) / file_name
 
         # Create file's parent directories if writing
-        if not fpath.exists:
+        if not fpath.exists():
             Path(fpath).parent.mkdir(parents=True, exist_ok=True)
 
         # Determine strategy necessary to yield file contents
@@ -288,7 +293,7 @@ class GoogleCloudStorageHelper(FileSystemHelper):
     def list_contents(
         self,
         root_dir: Union[Path, str] = settings.CLOUD_STORAGE_BUCKET,
-        glob_pattern: str = "**?",
+        glob_pattern: str = "**/**?",
     ) -> List[str]:
         """Lists relative paths to all blobs within the given
         bucket, with the option of filtering the blobs using
@@ -477,7 +482,7 @@ class IterativeDataReader(ABC):
         """
         raise NotImplementedError
 
-    def get_data_bucket_contents(self, glob_pattern: str = "**?") -> List[str]:
+    def get_data_bucket_contents(self, glob_pattern: str = "**/**?") -> List[str]:
         """Lists files and directories within
         the root data bucket defined in settings.
 
@@ -662,15 +667,16 @@ class DataLoader:
         self._root_dir = root_dir
         self._file_helper = FileSystemHelperFactory.get()
 
-    def list_directory_contents(self, glob_pattern: str = "**?") -> List[str]:
+    def list_directory_contents(self, glob_pattern: str = "**/**?") -> List[str]:
         """Recursively lists all files within the root directory.
 
         Args:
            glob_pattern (`str`): A relative path to search
                 for within the directory for the purpose of
                 filtering results. May contain shell-like
-                wildcards. Defaults to `**?`, in which case
-                all files under the directory are listed.
+                wildcards. Defaults to `**/**?`, in which case
+                all files under the directory and its nested
+                subdirectories are listed.
 
         Returns:
             (`list` of `str`): The list of file names matching
@@ -900,8 +906,9 @@ class DataWriter:
         parse_row = lambda r: (
             json.dumps(r).encode() if zip_file_path else json.dumps(r)
         )
+        obj_key = f"{settings.GEOJSONL_DIRECTORY}/{file_name}"
         with self._file_helper.open_file(
-            file_name, self._root_dir, mode, zip_file_path
+            obj_key, self._root_dir, mode, zip_file_path
         ) as f:
             for row in data.iterfeatures(drop_id=True):
                 f.write(parse_row(row))
@@ -937,7 +944,8 @@ class DataWriter:
             `None`
         """
         mode = "w" if zip_file_path else "wb"
+        obj_key = f"{settings.GEOPARQUET_DIRECTORY}/{file_name}"
         with self._file_helper.open_file(
-            file_name, self._root_dir, mode, zip_file_path
+            obj_key, self._root_dir, mode, zip_file_path
         ) as f:
             data.to_parquet(f, index=index)

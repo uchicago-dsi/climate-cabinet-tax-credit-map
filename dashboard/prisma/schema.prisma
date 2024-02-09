@@ -147,16 +147,19 @@ model tax_credit_geography {
   id                                                                                                    BigInt                          @id @default(autoincrement())
   name                                                                                                  String                          @db.VarChar(255)
   fips                                                                                                  String                          @db.VarChar(255)
+  fips_pattern                                                                                          String                          @db.VarChar
   geography_type                                                                                        String                          @db.VarChar
   as_of                                                                                                 DateTime                        @db.Date
   published_on                                                                                          DateTime?                       @db.Date
-  source                                                                                                String                          @db.VarChar(255)
+  source                                                                                                String
   geometry                                                                                              Unsupported("geometry")
+  name_vector                                                                                           Unsupported("tsvector")?        @default(dbgenerated("to_tsvector('english'::regconfig, (name)::text)"))
   tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography  tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography")
   tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography")
 
   @@unique([name, geography_type, fips], map: "unique_geography")
   @@index([geometry], map: "tax_credit_geography_geometry_a87c0c81_id", type: Gist)
+  @@index([name_vector], map: "name_vector_idx", type: Gin)
 }
 
 model tax_credit_program {
