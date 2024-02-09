@@ -1,12 +1,11 @@
 # Manually created
 
-from django.contrib.postgres.indexes import GinIndex
 from django.db import migrations
 
 
 class Migration(migrations.Migration):
 
-    initial = True
+    initial = False
 
     dependencies = [
         ("tax_credit", "0001_initial"),

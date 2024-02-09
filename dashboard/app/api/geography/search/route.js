@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function POST(request) {
   let { searchTerm, limit } = await request.json();
+  let formattedSearchTerm = searchTerm.replace(/\s+/g, ' & ');
   let data = await prisma.$queryRaw`
     SELECT * FROM
       (
@@ -33,20 +34,21 @@ export async function POST(request) {
           geography_type,
           ts_rank(
             name_vector, 
-            phraseto_tsquery('english', ${searchTerm})
-          ) as rank
+            to_tsquery('english', ${formattedSearchTerm})
+          ) as rank,
+          similarity(${searchTerm}, name) as sml
         FROM tax_credit_geography
         WHERE geography_type IN (
-          'county', 
+          'county',
           'municipal utility',
           'municipality',
           'rural cooperative',
           'state'
         )
-        ORDER BY rank DESC, name ASC
+        ORDER BY rank DESC, sml DESC, name ASC
         LIMIT ${limit}
       ) as results
-      WHERE rank > 1e-20
+      WHERE rank > 1e-20 OR sml > 0
     `;
   return NextResponse.json({ data });
 }
