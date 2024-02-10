@@ -101,7 +101,10 @@ function MapControlPanel() {
       </div>
 
       {/** MENU TOGGLE BUTTON */}
-      <div className="flex justify-center py-2">
+      {/* <div className="flex justify-center py-2"> */}
+      <div
+        className={`flex py-2 ${expanded ? "justify-center" : "justify-end"}`}
+      >
         <button
           className="btn btn-sm normal-case"
           onClick={() => setExpanded((e) => !e)}
