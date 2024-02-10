@@ -18,11 +18,11 @@ function ReportWidget({ programs }) {
   return (
     <div className="px-4">
       <div
-        className="grid grid-cols-1 md:grid-cols-8 m-0 min-h-[600px] pt-10"
+        className="grid grid-cols-1 md:grid-cols-8 m-0 min-h-[75vh]] pt-10"
         id="report-widget"
       >
         {/** MAP */}
-        <div className="md:col-span-6 col-span-1 border-8 m-0 min-h-[75vh] border-ccblue-dark">
+        <div className="md:col-span-6 col-span-1 border-8 m-0 min-h-[600px] max-h-[800px] border-ccblue-dark">
           <MapWidget />
         </div>
         {/** SUMMARY STATISTICS SIDEBAR */}
