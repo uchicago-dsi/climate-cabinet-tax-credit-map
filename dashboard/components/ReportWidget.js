@@ -18,7 +18,7 @@ function ReportWidget({ programs }) {
   return (
     <div className="px-4">
       <div
-        className="grid grid-cols-1 md:grid-cols-8 m-0 min-h-[75vh] pt-10"
+        className="grid grid-cols-1 md:grid-cols-8 m-0 min-h-[600px] pt-10"
         id="report-widget"
       >
         {/** MAP */}
@@ -27,7 +27,7 @@ function ReportWidget({ programs }) {
         </div>
         {/** SUMMARY STATISTICS SIDEBAR */}
         <div
-          className={`md:col-span-2 col-span-1 flex flex-col w-full h-full px-5 m-0 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar min-h-[50vh] ${
+          className={`md:col-span-2 col-span-1 flex flex-col w-full h-full px-5 m-0 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar min-h-[600px] ${
             !targetGeo ? "justify-center" : ""
           }`}
         >
