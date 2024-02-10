@@ -1141,7 +1141,12 @@ class MunicipalityWithinStateDataset(GeoDataset):
 
         # Apply name corrections
         name_replacement = corrections["unit_name"]["to_corrected_name"]
-        gdf["UNIT_NAME"] = gdf["UNIT_NAME"].apply(lambda n: name_replacement.get(n, n))
+        replace_name = lambda n: name_replacement.get(n.upper(), n)
+        gdf[["UNIT_NAME", "NAME"]] = gdf.apply(
+            lambda r: (replace_name(r["UNIT_NAME"]), replace_name(r["NAME"])),
+            axis=1,
+            result_type="expand",
+        )
 
         # Store reference to GeoDataFrame
         self.data = gdf
