@@ -7,7 +7,6 @@ import { MVTLayer } from "@deck.gl/geo-layers";
 import { useSetTooltipStore } from "./useTooltipStore";
 
 function useLayers(features, layerState) {
-  
   /**
    * Initializes data for hover events.
    */
@@ -17,26 +16,26 @@ function useLayers(features, layerState) {
    * Resets data state whenever new geographies are requested.
    */
   useMemo(() => {
-      Object.keys(layerState).forEach((id) => {
-        layerState[id].hasData = false;
-      });
-    }, 
-    [features]
-  );
+    Object.keys(layerState).forEach((id) => {
+      layerState[id].hasData = false;
+    });
+  }, [features]);
 
   /**
    * Groups GeoJSON features by geography type to form datasets.
    */
   const geoDatasets = useMemo(
-    () => 
-      features?.reduce((grp, geo) => {
-        let key = geo.properties.geography_type;
-        if (key === "state") return grp;
-        grp[key] = grp[key] ?? [];
-        grp[key].push(geo.properties.name);
-        return grp;
-      }, {"county": []})
-    ,
+    () =>
+      features?.reduce(
+        (grp, geo) => {
+          let key = geo.properties.geography_type;
+          if (key === "state") return grp;
+          grp[key] = grp[key] ?? [];
+          grp[key].push(geo.properties.name);
+          return grp;
+        },
+        { county: [] }
+      ),
     [features]
   );
 
@@ -73,6 +72,7 @@ function useLayers(features, layerState) {
         },
         getLineColor: getWhiteOrEmpty,
         getLineWidth: key === "county" ? 200 : 50,
+        getLineDashArray: key === "county" ? [6, 4] : [0, 0],
         pickable: active,
         visible: active,
         onHover: (layer) => {
