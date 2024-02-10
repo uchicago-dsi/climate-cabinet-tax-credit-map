@@ -217,8 +217,8 @@ class SummaryBuilder {
       "state", 
       "county", 
       "municipality", 
-      "municipal_util", 
-      "rural_coop"
+      "municipal utility", 
+      "rural cooperative"
     ]) {
       if (item in this.summaryStats) {
         return this.summaryStats[item].population.toLocaleString();

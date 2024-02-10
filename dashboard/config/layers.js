@@ -27,7 +27,7 @@ const layerConfig = [
     {
         externalId: "rural cooperative",
         id: "Rural Co-Ops",
-        mapboxTilesetName: "cc_rural_coops",
+        mapboxTilesetName: "cc_rural_cooperatives",
         fillColor: [209, 29, 84],
         opacity: 0.1,
         canToggle: false,
