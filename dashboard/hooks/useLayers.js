@@ -73,6 +73,7 @@ function useLayers(features, layerState) {
         getLineColor: getWhiteOrEmpty,
         getLineWidth: key === "county" ? 200 : 50,
         getLineDashArray: key === "county" ? [6, 4] : [0, 0],
+        lineDashJustified: true,
         pickable: active,
         visible: active,
         onHover: (layer) => {
