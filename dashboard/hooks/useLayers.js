@@ -71,6 +71,7 @@ function useLayers(features, layerState) {
           getFillColor: [layerState],
         },
         getLineColor: getWhiteOrEmpty,
+        // TODO: make dashed county lines actually work
         getLineWidth: key === "county" ? 200 : 50,
         getLineDashArray: key === "county" ? [6, 4] : [0, 0],
         lineDashJustified: true,

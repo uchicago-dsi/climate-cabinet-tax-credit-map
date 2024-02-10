@@ -27,7 +27,7 @@ function ReportWidget({ programs }) {
         </div>
         {/** SUMMARY STATISTICS SIDEBAR */}
         <div
-          className={`md:col-span-2 col-span-1 flex flex-col w-full h-full px-5 m-0 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar ${
+          className={`md:col-span-2 col-span-1 flex flex-col w-full h-full px-5 m-0 bg-white border-2 border-slate-100 text-xl overflow-y-auto scrollbar min-h-[50vh] ${
             !targetGeo ? "justify-center" : ""
           }`}
         >
