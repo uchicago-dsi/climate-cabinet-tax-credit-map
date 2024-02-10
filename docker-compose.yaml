@@ -39,8 +39,7 @@ services:
     depends_on:
       - climate-cabinet-postgis
     image: dpage/pgadmin4
-    # platform: linux/amd64
-    platform: linux/arm64
+    platform: ${DOCKER_PLATFORM}
     environment:
       - COMPOSE_HTTP_TIMEOUT=300
       - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com
