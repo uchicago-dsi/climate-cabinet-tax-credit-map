@@ -6,10 +6,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    initial = True
+    initial = False
 
-    dependencies = []
-
-    operations = [
-        TrigramExtension()
+    dependencies = [
+        ("tax_credit", "0002_install_indexed_search_fields"),
     ]
+
+    operations = [TrigramExtension()]

@@ -1,10 +1,13 @@
 """Cleans raw datasets.
 """
 
-from common.logger import LoggerFactory
-from common.storage import DataFrameReader, DataFrameWriter
+# Third-party imports
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
+
+# Application imports
+from common.logger import LoggerFactory
+from common.storage import DataLoader, DataWriter
 from tax_credit.datasets import DatasetFactory, GeoDataset
 
 
@@ -48,7 +51,8 @@ class Command(BaseCommand):
         - energy communities - fossil fuels
         - justice40 communities
         - low-income communities
-        - municipalities
+        - municipalities - states
+        - municipalities - territories
         - municipal utilities
         - rural cooperatives
         - states
@@ -74,12 +78,12 @@ class Command(BaseCommand):
         """
         # Initialize variables
         geos = options["geos"]
-        reader = DataFrameReader()
-        writer = DataFrameWriter()
+        reader = DataLoader()
+        writer = DataWriter()
+        num_processed = 0
 
         # Process each configured dataset
         for dataset_config in settings.RAW_DATASETS:
-            
             # Skip processing if indicated by command line options
             if geos and dataset_config["name"] not in geos:
                 continue
@@ -110,4 +114,11 @@ class Command(BaseCommand):
             logger.info("Writing processed data to new line delimited GeoJSON.")
             dataset.to_geojson_lines()
 
-        self._logger.info("Data cleaning job complete.")
+            # Update number of datasets processed
+            num_processed += 1
+
+        # Log completion of job
+        if not num_processed:
+            self._logger.info("No datasets found with given geography name(s).")
+        else:
+            self._logger.info("Data cleaning job complete.")

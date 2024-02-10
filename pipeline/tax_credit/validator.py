@@ -1,5 +1,5 @@
 from common.logger import LoggerFactory
-from common.storage import DataReader
+from common.storage import IterativeDataReader
 
 from .load_job import LoadJob
 
@@ -8,13 +8,13 @@ logger = LoggerFactory.get(__name__)
 
 class Validator:
     @staticmethod
-    def validate(load_job: LoadJob, data_reader: DataReader):
+    def validate(load_job: LoadJob, data_reader: IterativeDataReader):
         Validator.file_exists(load_job, data_reader)
         Validator.cols_exist(load_job, data_reader)
         Validator.required_tables_loaded(load_job)
 
     @staticmethod
-    def file_exists(load_job: LoadJob, data_reader: DataReader):
+    def file_exists(load_job: LoadJob, data_reader: IterativeDataReader):
         filename = load_job.filename
         bucket_contents = data_reader.get_data_bucket_contents()
         if not filename in bucket_contents:
@@ -23,7 +23,7 @@ class Validator:
             )
 
     @staticmethod
-    def cols_exist(load_job: LoadJob, data_reader: DataReader):
+    def cols_exist(load_job: LoadJob, data_reader: IterativeDataReader):
         missing_cols = []
         actual_cols = data_reader.col_names(
             load_job.filename, delimiter=load_job.delimiter

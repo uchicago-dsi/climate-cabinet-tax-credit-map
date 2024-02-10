@@ -198,3 +198,6 @@ cython_debug/
 
 # Data
 data/
+
+# Google Cloud Platform
+privatekey.json

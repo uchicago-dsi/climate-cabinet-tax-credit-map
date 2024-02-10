@@ -47,7 +47,7 @@ class BaseConfig(Configuration):
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {
                 "counties": "raw/census/counties/tl_2020_us_county.zip",
-                "state_fips": "raw/census/states/fips.csv",
+                "state_fips": "raw/census/fips/fips_states.csv",
             },
         },
         {
@@ -101,25 +101,41 @@ class BaseConfig(Configuration):
             "published_on": "2023-09-01",
             "source": "NMTC Program, Department of the Treasury",
             "files": {
-                "county_fips": "raw/census/counties/fips.csv",
-                "low_income_2011_2015": "raw/bonus/low_income/nmtc-2011-2015-lic-nov2-2017-4pm.xlsx",
-                "low_income_2016_2020": "raw/bonus/low_income/NMTC_2016-2020_ACS_LIC_Sept1_2023.xlsb",
-                "state_fips": "raw/census/states/fips.csv",
-                "tracts_2010": "raw/census/tracts/tl_2010_[6-7]*_tract10.zip",
+                "county_fips": "raw/census/fips/fips_counties.csv",
+                "low_income_territories": "raw/bonus/low_income/NMTC_LIC_Territory_2020_December_2023.xlsx",
+                "low_income_states": "raw/bonus/low_income/NMTC_2016-2020_ACS_LIC_Sept1_2023.xlsb",
+                "state_fips": "raw/census/fips/fips_states.csv",
                 "tracts_2020": "raw/census/tracts/tl_2020_**_tract.zip",
             },
         },
         {
-            "name": "municipalities",
+            "name": "municipalities - states",
             "as_of": "2020-01-01",
             "geography_type": "municipality",
             "epsg": 4269,
             "published_on": "2021-02-02",
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {
-                "county_fips": "raw/census/counties/fips.csv",
+                "corrections": "raw/census/government_units/gov_unit_corrections.json",
+                "county_fips": "raw/census/fips/fips_counties.csv",
                 "county_subdivisions": "raw/census/county_subdivisions/**.zip",
-                "state_fips": "raw/census/states/fips.csv",
+                "government_units": "raw/census/government_units/Govt_Units_2021_Final.xlsx",
+                "places": "raw/census/places/**.zip",
+                "state_fips": "raw/census/fips/fips_states.csv",
+            },
+        },
+        {
+            "name": "municipalities - territories",
+            "as_of": "2020-01-01",
+            "geography_type": "municipality",
+            "epsg": 4269,
+            "published_on": "2021-02-02",
+            "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
+            "files": {
+                "county_fips": "raw/census/fips/fips_counties.csv",
+                "county_subdivisions": "raw/census/county_subdivisions/**.zip",
+                "places": "raw/census/places/**.zip",
+                "state_fips": "raw/census/fips/fips_states.csv",
             },
         },
         {
@@ -130,9 +146,9 @@ class BaseConfig(Configuration):
             "published_on": None,
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
-                "corrected_names": "raw/bonus/retail/municipal_utility_name_matches.csv",
-                "hinton_iowa": "raw/bonus/retail/hinton_municipal_iowa.zip",
-                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip",
+                "corrected_names": "raw/retail/municipal_utility_name_matches.csv",
+                "hinton_iowa": "raw/retail/hinton_municipal_iowa.zip",
+                "utilities": "raw/retail/Electric_Retail_Service_Territories.zip",
             },
         },
         {
@@ -143,7 +159,7 @@ class BaseConfig(Configuration):
             "published_on": None,
             "source": "Geospatial Management Office, U.S. Department of Homeland Security",
             "files": {
-                "utilities": "raw/bonus/retail/Electric_Retail_Service_Territories.zip"
+                "utilities": "raw/retail/Electric_Retail_Service_Territories.zip"
             },
         },
         {
@@ -154,50 +170,26 @@ class BaseConfig(Configuration):
             "published_on": "2021-02-02",
             "source": "2020 TIGER/Line Shapefiles, U.S. Census Bureau",
             "files": {"states": "raw/census/states/tl_2020_us_state.zip"},
-        }
+        },
     ]
 
     # Clean datasets
-    CENSUS_BLOCK_FILE = (
-        "raw/block_groups/CenPop2020_Mean_BG.txt"
-    )
-    COAL_GEOGRAPHY_FILE = (
-        "clean/geoparquet/energy_communities___coal.geoparquet"
-    )
-    COUNTY_GEOGRAPHY_FILE = (
-        "clean/geoparquet/counties.geoparquet"
-    )
-    DCI_GEOGRAPHY_FILE = (
-        "clean/geoparquet/distressed_communities.geoparquet"
-    )
+    CENSUS_BLOCK_FILE = "raw/block_groups/CenPop2020_Mean_BG.txt"
+    COAL_GEOGRAPHY_FILE = "clean/geoparquet/energy_communities___coal.geoparquet"
+    COUNTY_GEOGRAPHY_FILE = "clean/geoparquet/counties.geoparquet"
+    DCI_GEOGRAPHY_FILE = "clean/geoparquet/distressed_communities.geoparquet"
     FOSSIL_FUEL_GEOGRAPHY_FILE = (
         "clean/geoparquet/energy_communities___fossil_fuels.geoparquet"
     )
-    J40_GEOGRAPHY_FILE = (
-        "clean/geoparquet/justice40_communities.geoparquet"
-    )
-    LOW_INCOME_GEOGRAPHY_FILE = (
-        "clean/geoparquet/low_income_communities.geoparquet"
-    )
-    MAPBOX_TILEJSON_METADATA_FILE = (
-        "clean/mapbox/mapbox_tilesets.json"
-    )
-    MUNICIPAL_UTIL_GEOGRAPHY_FILE = (
-        "clean/geoparquet/municipal_utilities.geoparquet"
-    )
-    MUNICIPALITY_GEOGRAPHY_FILE = (
-        "clean/geoparquet/municipalities.geoparquet"
-    )
-    PROGRAM_FILE = (
-        "clean/csv/program.csv"
-    )
-    RURAL_COOP_GEOGRAPHY_FILE = (
-        "clean/geoparquet/rural_cooperatives.geoparquet"
-    )
-    STATE_GEOGRAPHY_FILE = (
-        "clean/geoparquet/states.geoparquet"
-    )
-    
+    J40_GEOGRAPHY_FILE = "clean/geoparquet/justice40_communities.geoparquet"
+    LOW_INCOME_GEOGRAPHY_FILE = "clean/geoparquet/low_income_communities.geoparquet"
+    MAPBOX_TILEJSON_METADATA_FILE = "clean/mapbox/mapbox_tilesets.json"
+    MUNICIPAL_UTIL_GEOGRAPHY_FILE = "clean/geoparquet/municipal_utilities.geoparquet"
+    MUNICIPALITY_GEOGRAPHY_FILE = "clean/geoparquet/municipalities.geoparquet"
+    PROGRAM_FILE = "clean/csv/program.csv"
+    RURAL_COOP_GEOGRAPHY_FILE = "clean/geoparquet/rural_cooperatives.geoparquet"
+    STATE_GEOGRAPHY_FILE = "clean/geoparquet/states.geoparquet"
+
     # MAPBOX TILESETS
     MAPBOX_TILESET_PUBLISH_SECONDS_WAIT = 10
     MAPBOX_TILESET_SOURCE_BATCH_SIZE = 10000
@@ -223,8 +215,8 @@ class BaseConfig(Configuration):
             "max_zoom": 10,
             "files": [
                 "clean/geojsonl/energy_communities___coal.geojsonl",
-                "clean/geojsonl/energy_communities___fossil_fuels.geojsonl"
-            ]
+                "clean/geojsonl/energy_communities___fossil_fuels.geojsonl",
+            ],
         },
         {
             "formal_name": "cc_justice40",
@@ -245,7 +237,10 @@ class BaseConfig(Configuration):
             "display_name": "municipalities",
             "min_zoom": 1,
             "max_zoom": 10,
-            "files": ["clean/geojsonl/municipalities.geojsonl"],
+            "files": [
+                "clean/geojsonl/municipalities___states.geojsonl",
+                "clean/geojsonl/municipalities___territories.geojsonl",
+            ],
         },
         {
             "formal_name": "cc_municipal_utils",
@@ -372,7 +367,7 @@ class BaseConfig(Configuration):
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
-            "OPTIONS": {"sslmode": "require"}
+            "OPTIONS": {"sslmode": "require"},
         }
     }
 

@@ -14,15 +14,15 @@ function useGeoSearch(initialSearchQuery) {
     /**
      * A private function to search for a geography by name.
      * 
-     * @param {*} searchTerm - The search query.
+     * @param {*} searchPhrase - The search query.
      * @returns A list of the top search reseults.
      */
-    const _searchGeographiesByName = async (searchTerm) => {
-        if (!searchTerm) return []
+    const _searchGeographiesByName = async (searchPhrase) => {
+        if (!searchPhrase) return []
         const url = `${process.env.NEXT_PUBLIC_DASHBOARD_BASE_URL}/api/geography/search`;
-        const errMsg = `Geography search with query \"${searchTerm}\" failed.`;
+        const errMsg = `Geography search with query \"${searchPhrase}\" failed.`;
         let requestBody = {
-            searchTerm: searchTerm,
+            searchPhrase: searchPhrase,
             limit: parseInt(process.env.NEXT_PUBLIC_NUM_SEARCH_RESULTS)
         };
         return await post(url, requestBody, errMsg);

@@ -1,13 +1,14 @@
 """Defines models used to create database tables.
 """
 
+# Third-party packages
 from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db import models
 
 
 class Geography(models.Model):
-    """Represents a geography published by a data source.
-    """
+    """Represents a geography published by a data source."""
+
     class GeographyType(models.TextChoices):
         COUNTY = "county"
         DISTRESSED = "distressed"
@@ -19,38 +20,44 @@ class Geography(models.Model):
         RURAL_COOPERATIVE = "rural cooperative"
         STATE = "state"
 
+    class FipsPattern(models.TextChoices):
+        STATE = "STATE(2)"
+        STATE_COUNTY = "STATE(2) + COUNTY(3)"
+        STATE_COUNTY_COUNTY_SUBDIVISION = "STATE(2) + COUNTY(3) + COUNTY SUBDIVISION(5)"
+        STATE_COUNTY_TRACT = "STATE(2) + COUNTY(3) + TRACT(6)"
+        STATE_PLACE = "STATE(2) + PLACE(5)"
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     fips = models.CharField(max_length=255, blank=True, default="")
+    fips_pattern = models.CharField(choices=FipsPattern, blank=True, default="")
     geography_type = models.CharField(choices=GeographyType)
     as_of = models.DateField()
     published_on = models.DateField(null=True)
-    source = models.CharField(max_length=255)
+    source = models.TextField()
     geometry = MultiPolygonField()
 
     class Meta:
         db_table = "tax_credit_geography"
         constraints = [
             models.UniqueConstraint(
-                fields=("name", "geography_type", "fips"),
-                name="unique_geography"
+                fields=("name", "geography_type", "fips"), name="unique_geography"
             )
         ]
-    
+
     def __str__(self):
         attrs = {
             "id": self.id,
             "name": self.name,
             "fips": self.fips,
-            "geography_type": self.geography_type
+            "geography_type": self.geography_type,
         }
         return f"Geography({attrs})"
 
 
 class Program(models.Model):
-    """Represents a tax credit program.
-    """
+    """Represents a tax credit program."""
+
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     agency = models.CharField(max_length=255)
@@ -58,12 +65,11 @@ class Program(models.Model):
     base_benefit = models.TextField()
     bonus_amounts = models.JSONField()
 
+    class Meta:
+        db_table = "tax_credit_program"
+
     def __str__(self):
-        attrs = {
-            "id": self.id,
-            "name": self.name,
-            "agency": self.agency
-        }
+        attrs = {"id": self.id, "name": self.name, "agency": self.agency}
         return f"Program({attrs})"
 
 
@@ -72,6 +78,7 @@ class TargetBonusAssoc(models.Model):
     of interest to a governmental representative and a (tax
     credit) bonus geography that spatially intersects with it.
     """
+
     target_geography = models.ForeignKey(
         Geography, related_name="target_geo_set", on_delete=models.CASCADE
     )
@@ -84,7 +91,7 @@ class TargetBonusAssoc(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["target_geography", "bonus_geography"],
-                name="unique_target_bonus_geography_association"
+                name="unique_target_bonus_geography_association",
             )
         ]
 
@@ -95,14 +102,14 @@ class TargetBonusAssoc(models.Model):
         }
         bonus_attrs = {
             "name": self.bonus_geography.name,
-            "type": self.bonus_geography.geography_type
+            "type": self.bonus_geography.geography_type,
         }
         return f"Target({target_attrs}) <-> Bonus({bonus_attrs})"
 
 
 class CensusBlockGroup(models.Model):
-    """Represents a U.S. census block group defined for a given year.
-    """
+    """Represents a U.S. census block group defined for a given year."""
+
     id = models.BigAutoField(primary_key=True)
     fips = models.CharField(max_length=255)
     centroid = PointField()
@@ -113,15 +120,10 @@ class CensusBlockGroup(models.Model):
         db_table = "tax_credit_census_block_group"
         constraints = [
             models.UniqueConstraint(
-                fields=["fips", "year"],
-                name="unique_census_block_group"
+                fields=["fips", "year"], name="unique_census_block_group"
             )
         ]
 
     def __str__(self):
-        attrs = {
-            "fips": self.fips,
-            "year": self.year,
-            "population": self.population
-        }
+        attrs = {"fips": self.fips, "year": self.year, "population": self.population}
         return f"CensusBlockGroup({attrs})"
