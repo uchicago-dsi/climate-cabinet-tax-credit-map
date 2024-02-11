@@ -77,7 +77,7 @@ export default function SearchPage() {
         </div>
       </div>
       {/** REPORT WIDGET */}
-      <div>
+      <div className="min-h-[800px]">
         <ReportWidget programs={programs} />
       </div>
       {/* <div className="flex flex-col items-center">
