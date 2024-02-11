@@ -13,8 +13,7 @@ function DropdownOption({ index, onClick, item }) {
       className="border-b border-b-base-content/10 w-full text-lg"
     >
       <button value={item} onClick={onClick}>
-        {/* {item.name.toUpperCase()} */}
-        `${item.name.toUpperCase()} (${item.geography_type.toUpperCase()})`
+        {`${item.name.toUpperCase()} (${item.geography_type.toUpperCase()})`}
       </button>
     </li>
   );
