@@ -22,7 +22,7 @@ function ReportWidget({ programs }) {
         id="report-widget"
       >
         {/** MAP */}
-        <div className="md:col-span-6 col-span-1 border-8 m-0 min-h-[600px] max-h-[800px] border-ccblue-dark">
+        <div className="md:col-span-6 col-span-1 border-8 m-0 min-h-[600px] lg:min-h-[800px] max-h-[800px] border-ccblue-dark">
           <MapWidget />
         </div>
         {/** SUMMARY STATISTICS SIDEBAR */}
