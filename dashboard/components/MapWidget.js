@@ -65,6 +65,7 @@ function MapWidget() {
         initialViewState={viewportStore.current}
         controller={true}
         ref={mapRef}
+        dragRotate={false}
       >
         <FullscreenControl position="top-left" containerId="report-widget" />
         <DeckGLOverlay layers={layers} interleaved={true} />
