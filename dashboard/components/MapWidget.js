@@ -72,7 +72,7 @@ function MapWidget() {
       </Map>
       {/* TODO: add a picking radius here to layers?*/}
       <Tooltip />
-      <div className="absolute right-4 top-4 bg-white p-2">
+      <div className="absolute right-4 top-4 p-2">
         <MapControlPanel
           baseMapSnap={baseMapSnap}
           reportSnap={reportSnap.report}

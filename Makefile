@@ -17,8 +17,9 @@ run-pipeline:
 	docker compose --profile pipeline up --build
 
 run-dashboard:
-	cd $(current_abs_path)
-	docker compose --profile dashboard up --build
+	cd $(current_abs_path) && \
+	. ./set_arch.sh && \
+	docker compose --profile dashboard up --build && \
 	docker compose up
 
 test-pipeline:

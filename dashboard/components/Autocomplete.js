@@ -50,7 +50,7 @@ function Autocomplete() {
         "dropdown-open": open,
       })}
     >
-      <div>
+      <div className="bg-white">
         <span className="absolute inset-y-0 left-0 flex items-center pl-2">
           <button className="p-1 focus:outline-none focus:shadow-outline bg-white border-white">
             <svg
@@ -71,7 +71,7 @@ function Autocomplete() {
           value={innerValue}
           className="input input-bordered w-full pl-10"
           onChange={handleTextInput}
-          placeholder="Type something..."
+          placeholder="Enter a state, county, or municipal utility..."
           tabIndex={0}
         />
       </div>
