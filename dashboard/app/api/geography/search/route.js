@@ -39,6 +39,10 @@ export async function POST(request) {
           id::varchar(255), 
           name,
           geography_type,
+          CASE
+            WHEN geography_type = 'state' THEN 1
+            ELSE 0
+          END AS geography_rank,
           ts_rank(
             name_vector, 
             to_tsquery('english', ${tsquerySearchPhrase})
@@ -52,10 +56,10 @@ export async function POST(request) {
           'rural cooperative',
           'state'
         )
-        ORDER BY rank DESC, sml DESC, name ASC
+        ORDER BY sml DESC, rank DESC, geography_rank DESC, name ASC
         LIMIT ${limit}
       ) AS results
-      WHERE rank > 1e-20 OR sml > 0
+      WHERE rank > 1e-20 OR sml > 0;
     `;
   return NextResponse.json({ data });
 }
