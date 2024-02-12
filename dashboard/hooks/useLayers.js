@@ -77,11 +77,14 @@ function useLayers(features, layerState) {
         renderSubLayers:
           key == "county"
             ? (props) => {
-                return new PathLayer({
-                  ...props,
-                  getDashArray: [6, 4], // Dash pattern [dashLength, gapLength]
-                  dashJustified: true,
-                });
+                return [
+                  new GeoJsonLayer(props),
+                  new PathLayer({
+                    ...props,
+                    getDashArray: [6, 4], // Dash pattern [dashLength, gapLength]
+                    dashJustified: true,
+                  }),
+                ];
               }
             : undefined,
         pickable: active,
