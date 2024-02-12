@@ -74,19 +74,19 @@ function useLayers(features, layerState) {
         getLineColor: getWhiteOrEmpty,
         getLineWidth: key === "county" ? 200 : 50,
         // Make county lines dashed
-        renderSubLayers:
-          key == "county"
-            ? (props) => {
-                return [
-                  new GeoJsonLayer(props),
-                  new PathLayer({
-                    ...props,
-                    getDashArray: [6, 4], // Dash pattern [dashLength, gapLength]
-                    dashJustified: true,
-                  }),
-                ];
-              }
-            : undefined,
+        // renderSubLayers:
+        //   key == "county"
+        //     ? (props) => {
+        //         return [
+        //           new GeoJsonLayer(props),
+        //           new PathLayer({
+        //             ...props,
+        //             getDashArray: [6, 4], // Dash pattern [dashLength, gapLength]
+        //             dashJustified: true,
+        //           }),
+        //         ];
+        //       }
+        //     : undefined,
         pickable: active,
         visible: active,
         onHover: (layer) => {
