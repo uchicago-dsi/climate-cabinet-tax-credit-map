@@ -2,9 +2,7 @@
     "redirects": [
       {
         "source": "/*",
-        "destination": "https://climatecabineteducation.org/tax-credit-bonuses-map/",
-        "permanent": true
+        "destination": "https://climatecabineteducation.org/tax-credit-bonuses-map/"
       }
     ]
-  }
-  
+}
