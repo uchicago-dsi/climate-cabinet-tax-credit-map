@@ -1,267 +1,56 @@
+"use client";
+
 /**
  * Summarizes population and tax credit program data for a geography.
  */
 
-"use client";
-
 import { reportStore } from "@/states/search";
 import { useSnapshot } from "valtio";
-import { layerConfig } from "@/config/layers";
-import { layerStore } from "@/states/search";
-import intersection from "lodash/intersection";
-import some from "lodash/some";
+import { layerConfig, statsConfig } from "@/config/layers";
 
 class SummaryBuilder {
-  #target;
-  #bonusGrps;
-  #programGrps;
+  constructor(report) {
+    // Set target geography fields
+    let targetProps = report.target.properties;
+    this.target = {
+      name: targetProps.name,
+      geoType: targetProps.geography_type,
+      population: targetProps.population.toLocaleString(),
+      style: this.#getStyle(targetProps.geography_type),
+    };
 
-  constructor(report, programs) {
-    let geos = report.geographies;
-    this.summaryStats = {};
-
-    JSON.parse(report.summaryStats).forEach((item) => {
-      let key = item.type;
-      this.summaryStats[key] = {
-        ...this.summaryStats[key],
-        population: parseInt(item.population, 10),
+    // Set bonus geography fields
+    this.bonuses = report.summaryStats.map((stat) => {
+      let roundedPop = Math.round((stat.population || 0) / 1000) * 1000;
+      let config = statsConfig[stat.geography_type];
+      return {
+        entity: stat.count === 1 ? config.single : config.plural,
+        count: stat.count.toLocaleString(),
+        population: roundedPop.toLocaleString(),
+        style: this.#getStyle(stat.geography_type),
       };
     });
 
-    this.#target = geos.find((g) => g.properties.is_target).properties;
-    this.#bonusGrps = this.#groupBonusTerritories(geos);
-    this.#programGrps = this.#groupPrograms(geos, programs);
+    // Set program fields
+    this.programs = report.programs;
+  }
 
-    // TODO: this is kind of a hack
-    this.programDict = {
-      "distressed": {
-        singular: "Distressed Community",
-        plural: "Distressed Communities",
-      },
-      "energy": {
-        singular: "Energy Community",
-        plural: "Energy Communities",
-      },
-      "justice40": {
-        singular: "Justice40 Community",
-        plural: "Justice40 Communities",
-      },
-      "low-income": {
-        singular: "Low Income Census Tract",
-        plural: "Low Income Census Tracts",
-      },
+  #getStyle(geoType) {
+    return {
+      background: `rgb(${layerConfig[geoType].fillColor
+        .slice(0, 3)
+        .join(",")},0.3)`,
+      color: ["county", "municipality"].includes(targetProps.geography_type)
+        ? "white"
+        : "black",
     };
-    // Fill in any missing geography types
-    Object.keys(this.programDict).forEach((prog) => {
-      if (!this.summaryStats.hasOwnProperty(prog)) {
-        this.summaryStats[prog] = {
-          count: 0,
-          population: 0,
-        };
-      } else {
-        this.summaryStats[prog] = {
-          ...this.summaryStats[prog],
-          count: this.bonusDetails?.[prog]?.length ?? 0,
-        };
-      }
-    });
-  }
-
-  // TODO: should probably remove these extra functions
-  #formatNum(num) {
-    let under10 = [
-      "zero",
-      "one",
-      "two",
-      "three",
-      "four",
-      "five",
-      "six",
-      "seven",
-      "eight",
-      "nine",
-    ];
-    if (num < 10) return under10[num];
-    return num.toLocaleString("en-US");
-  }
-
-  #getFormalGeoType(rawType) {
-    switch (rawType) {
-      case "state":
-        return {
-          single: "state",
-          plural: "states",
-        };
-      case "county":
-        return {
-          single: "county",
-          plural: "counties",
-        };
-      case "rural cooperative":
-        return {
-          single: "rural co-op",
-          plural: "rural co-ops",
-        };
-      case "municipality":
-          return {
-            single: "municipality",
-            plural: "municipalities",
-          };
-      case "municipal utility":
-        return {
-          single: "municipal utility",
-          plural: "municipal utilities",
-        };
-      case "distressed":
-        return {
-          single: "distressed zip code",
-          plural: "distressed zip codes",
-        };
-      case "energy":
-        return {
-          single: "energy community",
-          plural: "energy communities",
-        };
-      case "justice40":
-        return {
-          single: "Justice40 census tract",
-          plural: "Justice40 census tracts",
-        };
-      case "low-income":
-        return {
-          single: "low income census tract",
-          plural: "low income census tracts",
-        };
-
-      default:
-        throw Error(`Received unexpected geography type ${rawType}.`);
-    }
-  }
-
-  #groupBonusTerritories(geos) {
-    let targetTypes = [
-      "municipality", 
-      "municipal utility", 
-      "rural cooperative", 
-      "county", 
-      "state"
-    ];
-    return geos.reduce((grp, geo) => {
-      let key = geo.properties.geography_type;
-      if (targetTypes.includes(key)) return grp;
-      grp[key] = grp[key] ?? [];
-      grp[key].push(geo.properties);
-      return grp;
-    }, {});
-  }
-
-  #groupPrograms(geos, programs) {
-    let geoTypes = geos.map((g, _) => g.properties.geography_type);
-    return programs
-      .filter(p => {
-        let programGeoTypes = Object.keys(p.bonus_amounts);
-        return some(intersection(geoTypes, programGeoTypes));
-      })
-      .toSorted((a, b) => (a.name < b.name ? -1 : 1))
-      .reduce((grp, prog) => {
-        let key = prog.name;
-        let initial = {
-          name: key,
-          agency: prog.agency === "nan" ? "N/A" : prog.agency,
-          description: prog.description,
-          baseBenefit: prog.base_benefit,
-          geoBenefits: [],
-        };
-        grp[key] = grp[key] ?? initial;        
-        Object.entries(prog.bonus_amounts).forEach((kvp, _) => {
-          let [bonusGeoName, bonusGeoDescription] = kvp;
-          grp[key].geoBenefits.push({
-            geoType: this.#getFormalGeoType(bonusGeoName).single,
-            additionalAmount: bonusGeoDescription
-          })
-        })
-        
-        return grp;
-      }, {});
-  }
-
-  #describeBonusDems(bonusGeos, singleType, pluralType) {
-    if (bonusGeos.length === 0) return "";
-    let typeName = bonusGeos.length === 1 ? singleType : pluralType;
-    let numGeos = bonusGeos.length.toLocaleString("en-US");
-    let totalPop = bonusGeos.reduce((acc, li) => acc + li.total_population, 0);
-    return (
-      `${this.#formatNum(numGeos)} ${typeName} with a ` +
-      `total population of ${this.#formatNum(totalPop)}`
-    );
-  }
-
-  get bonusGroups() {
-    return this.#bonusGrps;
-  }
-
-  get targetGeoType() {
-    return this.#getFormalGeoType(this.#target.geography_type).single;
-  }
-
-  get targetGeoTypeRaw() {
-    return this.#target.geography_type;
-  }
-
-  get targetFullName() {
-    return `${this.#target.name}`;
-  }
-
-  get targetPop() {
-    for (const item of [
-      "state", 
-      "county", 
-      "municipality", 
-      "municipal utility", 
-      "rural cooperative"
-    ]) {
-      if (item in this.summaryStats) {
-        return this.summaryStats[item].population.toLocaleString();
-      }
-    }
-    return "Unknown";
-  }
-
-  get bonusDescription() {
-    let clauses = Object.entries(this.#bonusGrps).map((entry) => {
-      let [key, grp] = entry;
-      let { single, plural } = this.#getFormalGeoType(key);
-      return this.#describeBonusDems(grp, single, plural);
-    });
-
-    if (!clauses.length) {
-      return "";
-    } else if (clauses.length === 1) {
-      return `It intersects with ${clauses[0]}.`;
-    } else if (clauses.length === 2) {
-      return `It intersects with ${clauses[0]} and ${clauses[1]}.`;
-    } else {
-      return (
-        "It intersects with " +
-        clauses.slice(0, clauses.length - 1).join("; ") +
-        `; and ${clauses[clauses.length - 1]}.`
-      );
-    }
-  }
-
-  get bonusDetails() {
-    return this.#bonusGrps;
-  }
-
-  get programDetails() {
-    return this.#programGrps;
   }
 }
 
-function SummaryStats({ programs }) {
+function SummaryStats() {
   const reportSnap = useSnapshot(reportStore);
 
-  if (!reportSnap.report?.geographies) {
+  if (reportSnap.report === null) {
     return (
       <div className="text-slate-400 font-medium text-center">
         <svg
@@ -288,55 +77,28 @@ function SummaryStats({ programs }) {
     );
   }
 
-  const builder = new SummaryBuilder(reportSnap.report, programs);
-
-  const layerConfigObject = {};
-
-  layerConfig.forEach((layer) => {
-    layerConfigObject[layer.externalId] = layer;
-  });
-
-  const layerType = builder.targetGeoTypeRaw;
-  const sideBarOpacity = 0.3;
-
-  // TODO: Not sure that this is the right spot to do this but setting default county visibility here
-  // const countySelected = builder.targetGeoType === "county";
-
-  // if (countySelected) {
-  //   layerStore["Counties"].visible = true;
-  // } else {
-  //   layerStore["Counties"].visible = false;
-  // }
+  const summary = new SummaryBuilder(reportSnap.report);
 
   return (
     <div>
       <div>
         <div className="pt-5 pb-1">
           <h5 className="font-bold m-0 p-0 line-height[1]">
-            {builder.targetFullName}{" "}
+            {summary.target.name}{" "}
           </h5>
           <div>
             <span
               className="shadow-md no-underline rounded-full text-xs font-semibold p-2 uppercase m-0"
-              style={{
-                background: `rgb(${layerConfigObject[layerType].fillColor
-                  .slice(0, 3)
-                  .join(",")},${sideBarOpacity})`,
-                color: ["rural_coop", "state", "municipal_util"].includes(
-                  layerType
-                )
-                  ? "black"
-                  : "white",
-              }}
+              style={summary.target.style}
             >
-              {builder.targetGeoType.replace("_", " ")}
+              {summary.target.geoType}
             </span>
           </div>
         </div>
         <h6 className="pb-1">
           <b>Total Population (2020)</b>
           <br />
-          {builder.targetPop}
+          {summary.target.population}
           <br />
         </h6>
         <div>
@@ -350,30 +112,15 @@ function SummaryStats({ programs }) {
           </h6>
           <span>
             <ol className="text-sm">
-              {Object.entries(builder.programDict).map(([key, _]) => (
-                <li key={key} className="flex items-center">
+              {summary.bonuses.map((bonus, idx) => (
+                <li key={idx} className="flex items-center">
                   <div
                     className="swatch"
-                    style={{
-                      background: `rgb(${layerConfigObject[key].fillColor
-                        .slice(0, 3)
-                        .join(",")},${sideBarOpacity})`,
-                    }}
+                    style={{ background: bonus.style.background }}
                   ></div>
                   <div>
-                    <b className="mr-.5">
-                      {builder.bonusGroups[key]?.length?.toLocaleString() ?? 0}
-                    </b>{" "}
-                    {(builder.bonusGroups[key]?.length ?? 0) === 1
-                      ? builder.programDict[key].singular
-                      : builder.programDict[key].plural}{" "}
-                    with{" "}
-                    {(
-                      Math.round(
-                        (builder.summaryStats[key]?.population || 0) / 1000
-                      ) * 1000
-                    ).toLocaleString()}{" "}
-                    people
+                    <b className="mr-.5">{bonus.count}</b>{" "}
+                    {`${bonus.entity} with ${bonus.population} people.`}
                   </div>
                   <br />
                 </li>
@@ -387,9 +134,8 @@ function SummaryStats({ programs }) {
           </h6>
           <span>
             <ol className="list-disc text-sm">
-              {Object.entries(builder.programDetails).map((entry, idx) => {
-                let [_, prog] = entry;
-                return <li key={idx}>{prog.name}</li>;
+              {summary.programs.map((program, idx) => {
+                return <li key={idx}>{program.name}</li>;
               })}
             </ol>
           </span>

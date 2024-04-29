@@ -9,20 +9,18 @@
 "server only";
 
 import prisma from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Fetches a report for a given geography based on id. The
  * report consists of the geography's name, type,
- * bounding box, total population, and eligible tax credit 
+ * bounding box, total population, and eligible tax credit
  * programs, along with the names, types, and populations of
  * the tax credit bonus territories that the geography intersects.
  *
  *  @param {NextRequest} - The HTTP request. Contains a geography id.
  */
 export async function GET(request, { params }) {
-
   // Query DB for overlapping geographies with metadata
   let { slug } = params;
   let geographyId = parseInt(slug);
@@ -33,6 +31,7 @@ export async function GET(request, { params }) {
                 geo.id,
                 geo.name,
                 geo.geography_type,
+                geo.population,
                 CASE
                     WHEN geo.id = ${geographyId} THEN TRUE
                     ELSE FALSE
@@ -43,56 +42,67 @@ export async function GET(request, { params }) {
                 END AS bbox
             FROM tax_credit_geography AS geo
             WHERE geo.id IN (${geographyId}) OR geo.id IN (
-                SELECT bonus_geography_id
-                FROM tax_credit_target_bonus_assoc
-                WHERE target_geography_id = ${geographyId}
+                SELECT bonus_id
+                FROM tax_credit_target_bonus_overlap
+                WHERE target_id = ${geographyId}
             )
+            ORDER BY geo.geography_type
         ) AS t
     `;
-  let geographies = rawGeos.map((r) => JSON.parse(r.data));
 
-  // Aggregate population counts in entire target 
-  // geography and any overlapping bonus areas
-  let geoIds = geographies.map((g) => g.properties.id);
+  // Parse geographies
+  let target = null;
+  let bonuses = [];
+  for (let i = 0; i < rawGeos.length; i++) {
+    let parsed = JSON.parse(rawGeos[i]["data"]);
+    let is_target = parsed["properties"]["is_target"];
+    delete parsed["properties"]["is_target"];
+    if (is_target) {
+      target = parsed;
+    } else {
+      bonuses.push(parsed["properties"]);
+    }
+  }
+
+  // Return 404 if no target geography was found
+  if (target == null) {
+    return new NextResponse(`Geography ${geographyId} not found.`, {
+      status: 404,
+    });
+  }
+
+  // Fetch population counts within target-bonus geography overlaps
   let summaryStats = await prisma.$queryRaw`
-        WITH block_groups AS (
-            SELECT DISTINCT ON (bg.id, geo.geography_type)
-                bg.id AS block_group_id,
-                bg.year,
-                population,
-                geo.id AS geo_id,
-                geo.name,
-                geo.geography_type AS type
-            FROM tax_credit_census_block_group AS bg
-            JOIN tax_credit_geography AS geo
-                ON ST_Within(bg.centroid, geo.geometry)
-            WHERE geo.id IN (${Prisma.join(geoIds)}) AND year = 2020
-        ),
-        target_block_groups AS (
-            SELECT block_group_id
-            FROM block_groups
-            WHERE geo_id = ${geographyId} AND year = 2020
-        )
         SELECT
-            bg.type,
-            SUM(bg.population) AS population
-        FROM block_groups AS bg
-        JOIN target_block_groups AS tbg
-            ON bg.block_group_id = tbg.block_group_id
-        GROUP BY bg.type;
+            geo.geography_type AS geography_type,
+            SUM(overlap.population)::INTEGER AS population,
+            COUNT(*)::INTEGER AS count,
+            geo.programs
+        FROM tax_credit_geography AS geo
+        JOIN tax_credit_target_bonus_overlap AS overlap
+            ON geo.id = overlap.bonus_id
+        WHERE overlap.target_id = ${geographyId}
+        GROUP BY geo.geography_type, geo.programs;
       `;
 
-  // Handle BigInt values
-  const bigIntHandler = (_, value) =>
-    typeof value === "bigint"
-      ? value.toString()
-      : value;
+  // Parse stats
+  let bonusStats = [];
+  let programs = new Set();
+  for (let i = 0; i < summaryStats.length; i++) {
+    let stat = summaryStats[i];
+    let statPrograms = stat["programs"];
+    statPrograms.forEach((prog) => programs.add(prog));
+    delete stat["programs"];
+    bonusStats.push(stat);
+  }
 
   // Compose final response payload
   let payload = {
-    geographies: geographies,
-    summaryStats: JSON.stringify(summaryStats, bigIntHandler),
+    target: target,
+    bonuses: bonuses,
+    stats: bonusStats,
+    programs: Array.from(programs).toSorted(),
   };
 
-  return NextResponse.json(payload, bigIntHandler);
+  return NextResponse.json(payload);
 }

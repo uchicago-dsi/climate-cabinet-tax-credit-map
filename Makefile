@@ -14,13 +14,13 @@ build-pipeline:
 
 run-pipeline:
 	cd $(current_abs_path)
+	. ./set_arch.sh && \
 	docker compose --profile pipeline up --build
 
 run-dashboard:
-	cd $(current_abs_path) && \
+	cd $(current_abs_path)
 	. ./set_arch.sh && \
-	docker compose --profile dashboard up --build && \
-	docker compose up
+	docker compose --profile dashboard up --build
 
 test-pipeline:
 	docker compose -f tests/docker-compose.unittest.yml up -d

@@ -1,6 +1,4 @@
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Climate Cabinet - Inflation Reduction Act (IRA) Credits",
@@ -16,15 +14,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="h-full">
         <div className="flex justify-center max-w-screen-xl mx-auto">
-          <main className="w-screen">
-            {/* <div className="max-w-7xl mx-auto py-5">
-              <Header />
-            </div> */}
-            {children}
-            {/* <div className="w-full py-5">
-              <Footer />
-            </div> */}
-          </main>
+          <main className="w-screen">{children}</main>
         </div>
       </body>
     </html>

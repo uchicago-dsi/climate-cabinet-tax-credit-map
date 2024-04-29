@@ -1,11 +1,10 @@
+"use client";
+
 /**
  * A dropdown item.
  */
 
-"use client";
-
 function DropdownOption({ index, onClick, item }) {
-  console.log(item);
   return (
     <li
       key={index}

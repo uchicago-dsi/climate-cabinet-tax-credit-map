@@ -1,19 +1,17 @@
+"use client";
+
 /***
  * A parent container for a DeckGL map and legend.
  */
-
-"use client";
 
 import MapWidget from "@/components/MapWidget";
 import SummaryStats from "@/components/SummaryStats";
 import { reportStore } from "@/states/search";
 import { useSnapshot } from "valtio";
 
-function ReportWidget({ programs }) {
+function ReportWidget() {
   const reportSnapshot = useSnapshot(reportStore);
-  const targetGeo = reportSnapshot?.report?.geographies?.find(
-    (m) => m.properties.is_target
-  );
+  const targetGeo = reportSnapshot?.report?.target;
 
   return (
     <div className="px-4">
@@ -31,7 +29,7 @@ function ReportWidget({ programs }) {
             !targetGeo ? "justify-center" : ""
           }`}
         >
-          <SummaryStats programs={programs} />
+          <SummaryStats />
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
+"use client";
+
 /**
  * A map control panel for GeoJSON data layers and base tilesets.
  */
-
-"use client";
 
 import Checkbox from "@/components/Checkbox";
 import RadioButton from "@/components/RadioButton";
@@ -12,10 +12,14 @@ import { useLayers } from "@/hooks/useLayers";
 import { baseMapStore, reportStore, layerStore } from "@/states/search";
 
 function MapControlPanel() {
+  const reportSnap = useSnapshot(reportStore);
+  let data = reportSnap?.report
+    ? [reportSnap.report.target.properties, ...reportSnap.report.bonuses]
+    : [];
+
   const baseMapSnap = useSnapshot(baseMapStore);
   const layerSnap = useSnapshot(layerStore);
-  const reportSnap = useSnapshot(reportStore);
-  const layerActions = useLayers(reportStore.report?.geographies, layerStore);
+  const layerActions = useLayers(data, layerStore);
 
   // Intialize panel visiblity
   const [expanded, setExpanded] = useState(true);

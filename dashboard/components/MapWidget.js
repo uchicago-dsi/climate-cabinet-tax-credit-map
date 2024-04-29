@@ -1,12 +1,11 @@
+"use client";
+
 /***
  * A parent container for a DeckGL map and control panel.
  */
 
-"use client";
-
 import "mapbox-gl/dist/mapbox-gl.css";
 import Banner from "@/components/Banner";
-import DeckGL from "@deck.gl/react";
 import MapControlPanel from "@/components/MapControlPanel";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import Tooltip from "@/components/Tooltip";
@@ -21,11 +20,21 @@ import {
 } from "@/states/search";
 import { useLayers } from "@/hooks/useLayers";
 
+function DeckGLOverlay(props) {
+  const overlay = useControl(() => new MapboxOverlay(props));
+  overlay.setProps(props);
+  return null;
+}
+
 function MapWidget() {
   const reportSnap = useSnapshot(reportStore);
+  let data = reportSnap?.report
+    ? [reportSnap.report.target.properties, ...reportSnap.report.bonuses]
+    : [];
+
   const baseMapSnap = useSnapshot(baseMapStore);
   const layerSnap = useSnapshot(layerStore);
-  const layerClient = useLayers(reportSnap.report?.geographies, layerStore);
+  const layerClient = useLayers(data, layerStore);
   const mapRef = useRef(null);
 
   const layers = Object.entries(layerSnap).reduce((layers, [id, state]) => {
@@ -70,7 +79,6 @@ function MapWidget() {
         <FullscreenControl position="top-left" containerId="report-widget" />
         <DeckGLOverlay layers={layers} interleaved={true} />
       </Map>
-      {/* TODO: add a picking radius here to layers?*/}
       <Tooltip />
       <div className="absolute right-4 top-4 p-2">
         <MapControlPanel
@@ -87,12 +95,6 @@ function MapWidget() {
       ) : null}
     </div>
   );
-}
-
-function DeckGLOverlay(props) {
-  const overlay = useControl(() => new MapboxOverlay(props));
-  overlay.setProps(props);
-  return null;
 }
 
 export default MapWidget;

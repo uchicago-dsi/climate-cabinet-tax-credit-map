@@ -1,8 +1,8 @@
+"use client";
+
 /**
  * An autocomplete search bar.
  */
-
-"use client";
 
 import Dropdown from "@/components/Dropdown";
 import classNames from "classnames";
