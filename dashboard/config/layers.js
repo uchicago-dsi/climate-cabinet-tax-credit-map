@@ -20,7 +20,7 @@ const layerConfig = [
     id: "Counties",
     mapboxTilesetName: "cc_counties",
     fillColor: [0, 0, 0],
-    opacity: 0.1,
+    opacity: 0.05,
     canToggle: true,
     initialVisibility: true,
   },

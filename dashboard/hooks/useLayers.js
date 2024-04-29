@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { layerConfig } from "@/config/layers";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { useSetTooltipStore } from "./useTooltipStore";
+import { PathLayer } from "deck.gl";
 
 function useLayers(data, layerState) {
   /**
@@ -71,10 +72,7 @@ function useLayers(data, layerState) {
           getFillColor: [layerState],
         },
         getLineColor: getWhiteOrEmpty,
-        // TODO: make dashed county lines actually work
         getLineWidth: key === "county" ? 200 : 50,
-        getLineDashArray: key === "county" ? [6, 4] : [0, 0],
-        lineDashJustified: true,
         pickable: active,
         visible: active,
         onHover: (layer) => {
