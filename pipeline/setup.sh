@@ -14,15 +14,19 @@ trap '[ $? -eq 1 ] && echo "Pipeline failed."' EXIT
 
 # Parse command line arguments
 migrate=false
-load_base_tables=false
-load_dependent_tables=false
-load_assoc_table=false
+clean_data=false
+load_geos=false
+load_associations=false
+sync_mapbox=false
+run_server=false
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --migrate) migrate=true; shift ;;
-        --load-base-tables) load_base_tables=true; shift ;;
-        --load-dependent-tables) load_dependent_tables=true; shift ;;
-        --load-assoc-table) load_assoc_table=true; shift ;;
+        --clean-data) clean_data=true; shift ;;
+        --load-geos) load_base_tables=true; shift ;;
+        --load-associations) load_associations=true; shift ;;
+        --sync-mapbox) sync_mapbox=true; shift ;;
+        --run-server) run_server=true; shift ;;
         *) echo "Unknown command line parameter received: $1"; exit 1 ;;
     esac
 done
@@ -40,20 +44,35 @@ if $migrate ; then
     yes | ./manage.py migrate
 fi
 
-if $load_base_tables ; then
-    echo "Loading base tables into database."
-    ./manage.py load_base_tables
+# Generate cleaned datasets if indicated
+if $clean_data ; then
+    echo "Generating geography datasets from raw data files."
+    ./manage.py clean_data
 fi
 
-if $load_dependent_tables ; then
-    echo "Loading dependent tables into database."
-    ./manage.py load_dependent_tables
+# Load cleaned geographies into database if indicated
+if $load_geos ; then
+    echo "Loading geographies into database."
+    ./manage.py load_geos
 fi
 
-if $load_assoc_table ; then
+# Compute and load associations between target and bonus geographies if indicated
+if $load_associations ; then
     echo "Loading association table into database."
-    ./manage.py load_assoc_table
+    ./manage.py load_associations
 fi
 
-# Log successful end of setup
+# Log successful end of database setup
 echo "Database setup completed successfully."
+
+# Update Mapbox tilesets to match cleaned geographies if indicated
+if $sync_mapbox ; then
+    echo "Syncing remote Mapbox tilesets with lastest cleaned geographies."
+    ./manage.py sync_tilesets
+fi
+
+# Run development server if indicated.
+if $run_server ; then
+    echo "Running default development server."
+    ./manage.py runserver 0.0.0.0:8080
+fi

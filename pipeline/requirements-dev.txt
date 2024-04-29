@@ -1,13 +1,16 @@
-
+# Formatting
 isort
 black
 flake8
-mypy
-coverage
 docformatter
-pytest
-pytest-django
 
+# Type checking
+mypy
 pandas-stubs
 types-google-cloud-ndb
 django-stubs
+
+# Testing
+coverage
+pytest
+pytest-django

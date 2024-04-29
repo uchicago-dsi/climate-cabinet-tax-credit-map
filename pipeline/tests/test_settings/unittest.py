@@ -10,9 +10,8 @@ class UnittestConfig(Configuration):
 
     # Paths
     BASE_DIR = Path(__file__).parents[3]
-    PROJECT_DIR = BASE_DIR / const.PIPELINE
-    CONFIG_FILE = BASE_DIR / "tests" / "test_configs" / "pipeline.yml"
-    DATA_DIR = PROJECT_DIR / "tests" / "test_data"
+    PROJECT_DIR = BASE_DIR / "pipeline"
+    DATA_DIR = BASE_DIR / "data"
 
     LOAD_BATCH_SIZE = 1_000
     READ_CHUNK_SIZE = 1_000

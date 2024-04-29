@@ -20,6 +20,7 @@ from shapely.geometry.polygon import Polygon
 from common.storage import DataLoader, DataWriter
 from tax_credit.constants import STATE_ABBREVIATIONS
 from tax_credit.models import Geography
+from tax_credit.population import PopulationService
 
 
 @dataclass
@@ -27,7 +28,7 @@ class GeoDataset(ABC):
     """Abstract representation of a dataset with metadata."""
 
     name: str
-    """Informal name for the dataset.
+    """The informal name of the dataset.
     """
 
     as_of: str
@@ -35,13 +36,11 @@ class GeoDataset(ABC):
     """
 
     geography_type: str
-    """The geography type (e.g., state, county)
-    represented by the dataset.
+    """The geography type (e.g., state, county) represented by the dataset.
     """
 
     epsg: int
-    """The coordinate reference system (CRS) of the dataset
-    in terms of the standard EPSG code.
+    """The coordinate reference system (CRS) of the dataset as the standard EPSG code.
     """
 
     published_on: str
@@ -57,11 +56,15 @@ class GeoDataset(ABC):
     """
 
     reader: DataLoader
-    """Client for reading input files from a local or cloud data store.
+    """A client for reading input files from a local or cloud data store.
     """
 
     writer: DataWriter
-    """Client for writing data to local or cloud store.
+    """A client for writing data to local or cloud store.
+    """
+
+    population_service: PopulationService
+    """A client for computing population totals at different geography levels.
     """
 
     data: Optional[gpd.GeoDataFrame] = None
@@ -80,7 +83,7 @@ class GeoDataset(ABC):
         reference that `GeoDataFrame`.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -92,7 +95,7 @@ class GeoDataset(ABC):
         """Updates the data with a formatted name column.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -105,7 +108,20 @@ class GeoDataset(ABC):
         geography FIPS Codes.
 
         Args:
-            None
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -118,7 +134,7 @@ class GeoDataset(ABC):
         for database load) and setting the CRS to EPSG:4326.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -143,7 +159,7 @@ class GeoDataset(ABC):
         be overridden by subclasses.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -155,7 +171,7 @@ class GeoDataset(ABC):
         columns and rows of the dataset.
 
         Args:
-            None
+            `None`
 
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
@@ -170,6 +186,8 @@ class GeoDataset(ABC):
                 "fips",
                 "fips_pattern",
                 "geography_type",
+                "population",
+                "population_strategy",
                 "as_of",
                 "published_on",
                 "source",
@@ -217,6 +235,10 @@ class GeoDataset(ABC):
         self.logger.info("Building FIPS Code columns.")
         self._build_fips()
 
+        # Create population columns
+        self.logger.info("Building population columns.")
+        self._build_population(**kwargs)
+
         # Correct geometry column
         self.logger.info("Correcting geometries and reprojecting CRS.")
         self._correct_geometry()
@@ -263,7 +285,8 @@ class GeoDataset(ABC):
 
         # Write to file
         fname = "_".join(self.name.replace("-", "_").split(" ")) + ".geoparquet"
-        self.writer.write_geoparquet(fname, copy, index=index)
+        fpath = f"{settings.GEOPARQUET_DIRECTORY}/{fname}"
+        self.writer.write_geoparquet(fpath, copy, index=index)
 
     def to_geojson_lines(self, index: bool = False) -> None:
         """Writes the dataset to a newline-delimited GeoJSON file.
@@ -286,7 +309,8 @@ class GeoDataset(ABC):
 
         # Write to file
         fname = "_".join(self.name.replace("-", "_").split(" ")) + ".geojsonl"
-        self.writer.write_geojsonl(fname, self.data, index=index)
+        fpath = f"{settings.GEOJSONL_DIRECTORY}/{fname}"
+        self.writer.write_geojsonl(fpath, self.data, index=index)
 
 
 class CoalDataset(GeoDataset):
@@ -334,7 +358,8 @@ class CoalDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot construct name.")
         self.data["name"] = (
-            self.data["CensusTrac"].str.upper()
+            "COAL CLOSURE "
+            + self.data["CensusTrac"].str.upper()
             + ", "
             + self.data["County_Nam"].str.upper()
             + ", "
@@ -356,6 +381,30 @@ class CoalDataset(GeoDataset):
             raise RuntimeError("Dataset is empty. Cannot construct FIPS Codes.")
         self.data["fips"] = self.data["geoid_trac"]
         self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY_TRACT
+        return self.data.copy()
+
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.centroids_fips_join(
+            self.data,
+            state_col="fipstate_2",
+            county_col="fipcounty_",
+            tract_col="fiptract_2",
+        )
+
         return self.data.copy()
 
 
@@ -436,12 +485,37 @@ class CountyDataset(GeoDataset):
         self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.centroids_fips_join(
+            self.data,
+            state_col="STATEFP",
+            county_col="COUNTYFP",
+        )
+
+        return self.data.copy()
+
 
 class DistressedDataset(GeoDataset):
     """Represents a dataset of distressed zip codes
     parsed from U.S. Census Bureau Tiger/Line Shapefiles
     merged with the Distressed Community Index (DCI)
     scores published by the Economic Innovation Group.
+    Only the 50 U.S. States and District of Columbia
+    are represented.
     """
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
@@ -475,6 +549,9 @@ class DistressedDataset(GeoDataset):
         )
 
         # Merge datasets
+        scores["Zipcode"] = scores["Zipcode"].str.pad(
+            width=5, side="left", fillchar="0"
+        )
         self.data = zctas.merge(
             right=scores[["Zipcode", "Quintile (5=Distressed)"]],
             how="left",
@@ -526,6 +603,28 @@ class DistressedDataset(GeoDataset):
         if self.is_null:
             raise RuntimeError("Dataset is empty. Cannot filter records.")
         self.data = self.data.query("`Quintile (5=Distressed)` == '5'")
+        return self.data.copy()
+
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a population column. Populations
+        are currently pulled from the 2020 census.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.zcta_join(
+            self.data,
+            zcta_col="ZCTA5CE20",
+        )
+
         return self.data.copy()
 
 
@@ -593,12 +692,12 @@ class FossilFuelDataset(GeoDataset):
                 (`str`): The name.
             """
             if row["msa_qual"] == "Non_MSA":
-                prefix = "Non-Metropolitan Area"
+                prefix = "Fossil Fuel Employment Qualifying Non-MSA"
                 locale_name_end = row["MSA_area_n"].index("nonmetropolitan") - 1
                 locale_name = row["MSA_area_n"][:locale_name_end]
                 return f"{prefix} {locale_name}".upper()
             else:
-                prefix = "Metropolitan Statistical Area"
+                prefix = "Fossil Fuel Employment Qualifying MSA"
                 locale_name, state_abbrev = row["MSA_area_n"].split(", ")
                 state_names = "-".join(
                     STATE_ABBREVIATIONS[a] for a in state_abbrev.split("-")
@@ -640,6 +739,55 @@ class FossilFuelDataset(GeoDataset):
         self.data = self.data.query("EC_qual_st == 'Yes'")
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Parse input file paths
+        try:
+            fossil_fuel_fpath = kwargs["fossil_fuel_communities"]
+        except KeyError as e:
+            raise RuntimeError(
+                f'Missing file path. Expected to find key "{e}" '
+                'under "files" in configuration settings.'
+            ) from None
+
+        # Load fossil fuel employment candidates (counties comprising MSAs, non-MSAs)
+        zip_file_path = (
+            "MSA_NMSA_FEE_EC_Status_2023v2/MSA_NMSA_FEE_EC_Status_SHP_2023v2"
+        )
+        ffe_gdf = self.reader.read_shapefile(fossil_fuel_fpath, zip_file_path)
+
+        # Merge population counts with fossil fuel employment counties on FIPS code
+        ffe_gdf = self.population_service.centroids_fips_join(
+            ffe_gdf,
+            state_col="fipstate_2",
+            county_col="fipscty_20",
+        )
+
+        # Group counties by MSA/non-MSA identifier and aggregate population counts
+        msa_nonmsa_gdf = (
+            ffe_gdf.loc[:, ["MSA_area_n", "population", "population_strategy"]]
+            .groupby(by="MSA_area_n")
+            .sum()
+            .reset_index()
+        )
+
+        # Merge MSA/non-MSA population counts with larger GeoDataFrame
+        self.data = self.data.merge(msa_nonmsa_gdf, how="left", on="MSA_area_n")
+
+        return self.data.copy()
+
 
 class Justice40Dataset(GeoDataset):
     """Represents a dataset of Justice40 census tracts parsed
@@ -672,6 +820,10 @@ class Justice40Dataset(GeoDataset):
 
         # Replace NaN values
         self.data = self.data.replace({np.nan: None})
+
+        # Restore CRS (lost after previous operation)
+        self.data = self.data.set_crs(self.epsg)
+
         return self.data.copy()
 
     def _build_name(self) -> gpd.GeoDataFrame:
@@ -750,6 +902,28 @@ class Justice40Dataset(GeoDataset):
         self.data = self.data[has_geom & is_disadv]
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for 2010 census tracts
+        self.data = self.population_service.centroids_sjoin(
+            self.data,
+            id_col="GEOID10",
+        )
+
+        return self.data.copy()
+
 
 class LowIncomeDataset(GeoDataset):
     """Represents a dataset of low-income census tracts
@@ -761,10 +935,7 @@ class LowIncomeDataset(GeoDataset):
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
         to build a `GeoDataFrame`. Then updates the data to
-        reference that `GeoDataFrame`. NOTE: It is necessary to
-        load both 2020 and 2010 census data because data from
-        the U.S. territories (apart from Puerto Rico), has not
-        yet been released.
+        reference that `GeoDataFrame`.
 
         Args:
             `None`
@@ -898,6 +1069,30 @@ class LowIncomeDataset(GeoDataset):
         self.data["fips_pattern"] = Geography.FipsPattern.STATE_COUNTY_TRACT
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.centroids_fips_join(
+            self.data,
+            state_col="STATEFP",
+            county_col="COUNTYFP",
+            tract_col="TRACTCE",
+        )
+
+        return self.data.copy()
+
 
 class MunicipalUtilityDataset(GeoDataset):
     """Represents a dataset of municipal utilities."""
@@ -905,7 +1100,8 @@ class MunicipalUtilityDataset(GeoDataset):
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
         to build a `GeoDataFrame`. Then updates the data to
-        reference that `GeoDataFrame`.
+        reference that `GeoDataFrame`. NOTE: Only the U.S. and
+        Canada are present in the raw input files.
 
         Args:
             `None`
@@ -1002,15 +1198,38 @@ class MunicipalUtilityDataset(GeoDataset):
         )
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for 2010 census tracts
+        self.data = self.population_service.centroids_sjoin(
+            self.data,
+            id_col="OBJECTID",
+        )
+
+        return self.data.copy()
+
 
 class MunicipalityWithinStateDataset(GeoDataset):
     """Represents a dataset of all 35,731 municipalities (e.g., cities,
     towns, villages, townships, and boroughs) recognized by the U.S.
     Census Bureau within the 50 U.S. states and the District of Columbia.
     Aggregated from the U.S. Census Bureau's master address file for
-    governments and 2020 TIGER/Line Shapefiles. A cross-walk between FIPS
-    codes in the master address file and 2020 U.S. census was applied to
-    ensure correct joins.
+    governments and 2020 TIGER/Line Shapefiles for places and county
+    subdivisions (from which incorporated places and minor civil divisions
+    are extracted, respectively). A cross-walk between FIPS codes in the
+    master address file and 2020 U.S. census was applied to ensure correct joins.
 
     NOTE: The Census Bureau distinguishes between municipalities and
     townships, but here we collapse the definitions together in accordance
@@ -1293,18 +1512,42 @@ class MunicipalityWithinStateDataset(GeoDataset):
 
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a population column. Populations
+        are currently pulled from the 2020 census.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.municipalities_join(
+            self.data,
+            dataset_col="DATASET",
+            place_col="GEOID_PLACE",
+            cousub_col="GEOID_SUBDIV",
+        )
+
+        return self.data.copy()
+
 
 class MunicipalityWithinTerritoryDataset(GeoDataset):
     """Represents a dataset of municipalities within U.S. territories.
 
-    NOTE: Here, only American Samoan villages and counties (the latter
-    classifed as "minor civil divisions") and Guamanian municipalities
-    are considered municipal equivalents because they have elected
-    officials. For the Commonwealth of the Northern Mariana Islands
-    and Puerto Rico, municipalities are considered county-equivalents
-    and therefore processed through the `CountyDataset` instead. The
-    U.S. Virgin Islands has no municipalities; the only government is
-    for the territory as a whole.
+    NOTE: Here, only American Samoan villages and counties ("places"
+    and "minor civil divisions", respectively) and Guamanian municipalities
+    ("minor civil divisions") are considered municipal equivalents because
+    they have elected officials. For the Commonwealth of the Northern
+    Mariana Islands and Puerto Rico, municipalities are considered
+    county-equivalents and therefore processed through the `CountyDataset`
+    instead. The U.S. Virgin Islands has no municipalities; the only
+    government is for the territory as a whole.
     """
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
@@ -1474,14 +1717,42 @@ class MunicipalityWithinTerritoryDataset(GeoDataset):
 
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a population column. Populations
+        are currently pulled from the 2020 census.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.municipalities_join(
+            self.data,
+            dataset_col="DATASET",
+            place_col="GEOID",
+            cousub_col="GEOID",
+        )
+
+        return self.data.copy()
+
 
 class RuralCoopDataset(GeoDataset):
-    """Represents a dataset of rural electric cooperatives."""
+    """Represents a dataset of rural electric cooperatives.
+
+    NOTE: Only the U.S. and Canada are present in the raw dataset.
+    """
 
     def _load_and_aggregate(self, **kwargs) -> gpd.GeoDataFrame:
         """Loads and aggregates one or more input data files
         to build a `GeoDataFrame`. Then updates the data to
-        reference that `GeoDataFrame`.
+        reference that `GeoDataFrame`. NOTE: Only the U.S. and
+        Canada are present in the raw input files.
 
         Args:
             `None`
@@ -1516,8 +1787,7 @@ class RuralCoopDataset(GeoDataset):
             raise RuntimeError("Dataset is empty. Cannot construct names.")
         map_state = lambda s: STATE_ABBREVIATIONS[s]
         self.data["name"] = (
-            "RURAL COOPERATIVE "
-            + self.data["NAME"].str.upper()
+            self.data["NAME"].str.upper()
             + ", "
             + self.data["STATE"].apply(map_state).str.upper()
         )
@@ -1553,6 +1823,28 @@ class RuralCoopDataset(GeoDataset):
         self.data = self.data.query("TYPE == 'COOPERATIVE'")
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for 2010 census tracts
+        self.data = self.population_service.centroids_sjoin(
+            self.data,
+            id_col="OBJECTID",
+        )
+
+        return self.data.copy()
+
 
 class StateDataset(GeoDataset):
     """Represents a dataset of states parsed from
@@ -1570,14 +1862,13 @@ class StateDataset(GeoDataset):
         Returns:
             (`GeoDataFrame`): A snapshot of the current data.
         """
-        # Parse input file path
+        # Parse input file paths
         try:
             states_fpath = kwargs["states"]
         except KeyError as e:
             raise RuntimeError(
-                "Missing file path to states shapefile. "
-                f'Expected to find key "{e}" under '
-                '"files" in configuration settings.'
+                f'Missing file path. Expected to find key "{e}" '
+                'under "files" in configuration settings.'
             ) from None
 
         # Load shapefile of state boundaries and metadata
@@ -1619,6 +1910,28 @@ class StateDataset(GeoDataset):
         self.data["fips_pattern"] = Geography.FipsPattern.STATE
         return self.data.copy()
 
+    def _build_population(self, **kwargs) -> gpd.GeoDataFrame:
+        """Updates the data with a total population count column
+        and a column indicating the strategy used to derive the count.
+
+        Args:
+            `None`
+
+        Returns:
+            (`GeoDataFrame`): A snapshot of the current data.
+        """
+        # Raise error if data not available
+        if self.is_null:
+            raise RuntimeError("Dataset is empty. Cannot construct population.")
+
+        # Add populations for census tracts
+        self.data = self.population_service.centroids_fips_join(
+            self.data,
+            state_col="STATEFP",
+        )
+
+        return self.data.copy()
+
 
 class DatasetFactory:
     """Factory for selecting datasets by name."""
@@ -1648,6 +1961,7 @@ class DatasetFactory:
         logger: logging.Logger,
         reader: DataLoader,
         writer: DataWriter,
+        population_service: PopulationService,
     ) -> GeoDataset:
         """Static method for creating a `GeoDataset` subclass.
 
@@ -1675,6 +1989,9 @@ class DatasetFactory:
             writer (`common.storage.DataFrameWriter`): Client for
                 writing data to a local or cloud store.
 
+            population_service (`tax_credit.PopulationService`): Client for
+                computing population totals at different geography levels.
+
         Returns:
             (`GeoDataset`): The initialized dataset.
         """
@@ -1694,4 +2011,5 @@ class DatasetFactory:
             logger,
             reader,
             writer,
+            population_service,
         )

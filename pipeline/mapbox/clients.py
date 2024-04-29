@@ -1,6 +1,7 @@
 """Clients for operations against the Mapbox API service.
 """
 
+# Standard library imports
 import io
 import json
 import os
@@ -11,9 +12,12 @@ from types import TracebackType
 from typing import Dict, List, Optional
 from typing_extensions import Self, Type
 
+# Third-party imports
+from django.conf import settings
+
+# Application imports
 from common.logger import logging
 from common.storage import FileSystemHelperFactory
-from django.conf import settings
 from mapbox.fieldsets import *
 
 

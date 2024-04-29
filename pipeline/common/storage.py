@@ -709,7 +709,7 @@ class DataLoader:
         Returns:
             (`pd.DataFrame`): The `DataFrame`.
         """
-        mode = "r" if zip_file_path else "rb"
+        mode = "r"
         with self._file_helper.open_file(
             file_name, self._root_dir, mode, zip_file_path
         ) as f:
@@ -889,7 +889,7 @@ class DataWriter:
 
             data (`gpd.GeoDataFrame`): The data.
 
-            zip_file_path (`str`|`None`): The path to the shapefile
+            zip_file_path (`str`|`None`): The path to the file
                 within a zip folder, if applicable. Defaults
                 to `None`.
 
@@ -906,9 +906,8 @@ class DataWriter:
         parse_row = lambda r: (
             json.dumps(r).encode() if zip_file_path else json.dumps(r)
         )
-        obj_key = f"{settings.GEOJSONL_DIRECTORY}/{file_name}"
         with self._file_helper.open_file(
-            obj_key, self._root_dir, mode, zip_file_path
+            file_name, self._root_dir, mode, zip_file_path
         ) as f:
             for row in data.iterfeatures(drop_id=True):
                 f.write(parse_row(row))
@@ -932,7 +931,7 @@ class DataWriter:
 
             data (`gpd.GeoDataFrame`): The data.
 
-            zip_file_path (`str`|`None`): The path to the Shapefile
+            zip_file_path (`str`|`None`): The path to the file
                 within a zip folder, if applicable. Defaults
                 to `None`.
 
@@ -944,8 +943,7 @@ class DataWriter:
             `None`
         """
         mode = "w" if zip_file_path else "wb"
-        obj_key = f"{settings.GEOPARQUET_DIRECTORY}/{file_name}"
         with self._file_helper.open_file(
-            obj_key, self._root_dir, mode, zip_file_path
+            file_name, self._root_dir, mode, zip_file_path
         ) as f:
             data.to_parquet(f, index=index)

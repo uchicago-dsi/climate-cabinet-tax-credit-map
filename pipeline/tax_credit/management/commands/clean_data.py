@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from common.logger import LoggerFactory
 from common.storage import DataLoader, DataWriter
 from tax_credit.datasets import DatasetFactory, GeoDataset
+from tax_credit.population import PopulationService
 
 
 class Command(BaseCommand):
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser: CommandParser) -> None:
-        """Provides an option, "geos", to clean and load only
+        """Provides an option, "geos", to clean only
         select geography types. Valid choices include:
 
         - counties
@@ -78,12 +79,16 @@ class Command(BaseCommand):
         """
         # Initialize variables
         geos = options["geos"]
+        num_processed = 0
         reader = DataLoader()
         writer = DataWriter()
-        num_processed = 0
+        population_service = PopulationService.initialize(
+            reader, writer, *settings.POPULATION_SERVICE.values(), self._logger
+        )
 
         # Process each configured dataset
         for dataset_config in settings.RAW_DATASETS:
+
             # Skip processing if indicated by command line options
             if geos and dataset_config["name"] not in geos:
                 continue
@@ -99,7 +104,11 @@ class Command(BaseCommand):
             )
             fpaths = dataset_config.pop("files")
             dataset: GeoDataset = DatasetFactory.create(
-                **dataset_config, logger=logger, reader=reader, writer=writer
+                **dataset_config,
+                logger=logger,
+                reader=reader,
+                writer=writer,
+                population_service=population_service,
             )
 
             # Load and clean dataset

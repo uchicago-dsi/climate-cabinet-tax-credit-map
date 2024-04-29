@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the pipeline
-CMD ["bash", "setup.sh", "--migrate", "--load-base-tables", "--load-dependent-tables", "--load-assoc-table"]
+CMD ["bash", "setup.sh", "--migrate", "--run-server"]
