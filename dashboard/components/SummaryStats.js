@@ -20,7 +20,7 @@ class SummaryBuilder {
     };
 
     // Set bonus geography fields
-    this.bonuses = report.summaryStats.map((stat) => {
+    this.bonuses = report.stats.map((stat) => {
       let roundedPop = Math.round((stat.population || 0) / 1000) * 1000;
       let config = statsConfig[stat.geography_type];
       return {
@@ -36,20 +36,16 @@ class SummaryBuilder {
   }
 
   #getStyle(geoType) {
+    let layer = layerConfig.find((c) => c.externalId === geoType);
     return {
-      background: `rgb(${layerConfig[geoType].fillColor
-        .slice(0, 3)
-        .join(",")},0.3)`,
-      color: ["county", "municipality"].includes(targetProps.geography_type)
-        ? "white"
-        : "black",
+      background: `rgb(${layer.fillColor.slice(0, 3).join(",")},0.3)`,
+      color: ["county", "municipality"].includes(geoType) ? "white" : "black",
     };
   }
 }
 
 function SummaryStats() {
   const reportSnap = useSnapshot(reportStore);
-
   if (reportSnap.report === null) {
     return (
       <div className="text-slate-400 font-medium text-center">
@@ -135,7 +131,7 @@ function SummaryStats() {
           <span>
             <ol className="list-disc text-sm">
               {summary.programs.map((program, idx) => {
-                return <li key={idx}>{program.name}</li>;
+                return <li key={idx}>{program}</li>;
               })}
             </ol>
           </span>

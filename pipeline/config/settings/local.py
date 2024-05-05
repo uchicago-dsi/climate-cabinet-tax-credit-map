@@ -1,14 +1,12 @@
 """Settings to use when running the Django project locally.
 """
 
+# Standard library imports
 import os
 from pathlib import Path
 
+# Application imports
 from .base import BaseConfig
-
-SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_DIR = os.path.dirname(SETTINGS_DIR)
-PROJECT_DIR = os.path.dirname(CONFIG_DIR)
 
 
 class LocalConfig(BaseConfig):
@@ -44,6 +42,5 @@ class LocalConfig(BaseConfig):
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
-            # 'OPTIONS': {'sslmode': 'require'}
         }
     }

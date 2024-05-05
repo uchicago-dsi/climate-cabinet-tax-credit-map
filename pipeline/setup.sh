@@ -23,7 +23,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --migrate) migrate=true; shift ;;
         --clean-data) clean_data=true; shift ;;
-        --load-geos) load_base_tables=true; shift ;;
+        --load-geos) load_geos=true; shift ;;
         --load-associations) load_associations=true; shift ;;
         --sync-mapbox) sync_mapbox=true; shift ;;
         --run-server) run_server=true; shift ;;
@@ -71,7 +71,7 @@ if $sync_mapbox ; then
     ./manage.py sync_tilesets
 fi
 
-# Run development server if indicated.
+# Run development server if indicated
 if $run_server ; then
     echo "Running default development server."
     ./manage.py runserver 0.0.0.0:8080

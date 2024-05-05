@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { layerConfig } from "@/config/layers";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { useSetTooltipStore } from "./useTooltipStore";
-import { PathLayer } from "deck.gl";
 
 function useLayers(data, layerState) {
   /**
@@ -25,20 +24,22 @@ function useLayers(data, layerState) {
   /**
    * Groups GeoJSON features by geography type to form datasets.
    */
-  const geoDatasets = useMemo(
-    () =>
-      data?.reduce(
-        (grp, geo) => {
-          let key = geo.geography_type;
-          if (key === "state") return grp;
-          grp[key] = grp[key] ?? [];
-          grp[key].push(geo.name);
-          return grp;
-        },
-        { county: [] }
-      ),
-    [data]
-  );
+  const geoDatasets = useMemo(() => {
+    let props = data?.target
+      ? [data?.target?.properties, ...data?.bonuses]
+      : [];
+    let result = props?.reduce(
+      (grp, geo) => {
+        let key = geo.geography_type;
+        if (key === "state") return grp;
+        grp[key] = grp[key] ?? [];
+        grp[key].push(geo.name);
+        return grp;
+      },
+      { county: [] }
+    );
+    return result;
+  }, [data]);
 
   /**
    * A constant reference to all the GeoJSON layers currently holding data.
@@ -48,13 +49,13 @@ function useLayers(data, layerState) {
       let config = layerConfig.find((c) => c.externalId === key);
       let active = layerState?.[config.id]?.visible || true;
       const getLayerColorOrEmpty = (geo) => {
-        if (active && dataset.includes(geo.name)) {
+        if (active && dataset.includes(geo.properties.name)) {
           return config.fillColor;
         }
         return [0, 0, 0, 0];
       };
       const getWhiteOrEmpty = (geo) => {
-        if (active && dataset.includes(geo.name)) {
+        if (active && dataset.includes(geo.properties.name)) {
           return [255, 255, 255];
         }
         return key === "county" ? config.fillColor : [0, 0, 0, 0];

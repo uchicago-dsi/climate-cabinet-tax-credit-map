@@ -4,7 +4,7 @@
 # Standard library imports
 import logging
 import math
-from typing import Optional, Union
+from typing import Optional
 
 # Third-party imports
 import geopandas as gpd

@@ -13,13 +13,9 @@ import { baseMapStore, reportStore, layerStore } from "@/states/search";
 
 function MapControlPanel() {
   const reportSnap = useSnapshot(reportStore);
-  let data = reportSnap?.report
-    ? [reportSnap.report.target.properties, ...reportSnap.report.bonuses]
-    : [];
-
   const baseMapSnap = useSnapshot(baseMapStore);
   const layerSnap = useSnapshot(layerStore);
-  const layerActions = useLayers(data, layerStore);
+  const layerActions = useLayers(reportSnap?.report, layerStore);
 
   // Intialize panel visiblity
   const [expanded, setExpanded] = useState(true);
@@ -66,7 +62,7 @@ function MapControlPanel() {
               option={option}
               checked={layerSnap[option].visible}
               disabled={!layerSnap[option].hasData}
-              onClick={(e) => layerActions.toggleLayer(e)}
+              onChange={(e) => layerActions.toggleLayer(e)}
             />
           );
         })}

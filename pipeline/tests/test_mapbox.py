@@ -7,7 +7,7 @@ import string
 import time
 import unittest
 
-# Third part imports
+# Third-party imports
 from django.conf import settings
 
 # Application imports
@@ -227,7 +227,7 @@ class TestTilesetSources(unittest.TestCase):
     def setUpClass(cls):
         """Sets up the class before tests run."""
         cls._client = MapboxTilingApiClient()
-        cls._test_data_fpath = f"{settings.TEST_DIR}/test_data/test.geojsonl"
+        cls._test_data_fpath = f"{settings.DATA_DIR}/test/test.geojsonl"
         cls._source_id = "test"
 
     @classmethod
@@ -300,7 +300,7 @@ class TestTilesets(unittest.TestCase):
         TestTilesets._reset_environment()
 
         # Create test tileset source
-        source_fpath = f"{settings.TEST_DIR}/test_data/test.geojsonl"
+        source_fpath = f"{settings.DATA_DIR}/test/test.geojsonl"
         with open(source_fpath) as f:
             client.create_or_append_tileset_source(source_id, f)
 

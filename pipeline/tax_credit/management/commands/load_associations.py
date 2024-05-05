@@ -84,8 +84,20 @@ class Command(BaseCommand):
         parser.add_argument(
             "--target",
             nargs="+",
-            default=["county", "municipality", "rural cooperative", "state"],
-            choices=["county", "municipality", "rural cooperative", "state"],
+            default=[
+                "county",
+                "municipality",
+                "municipal utility",
+                "rural cooperative",
+                "state",
+            ],
+            choices=[
+                "county",
+                "municipality",
+                "municipal utility",
+                "rural cooperative",
+                "state",
+            ],
             help="Restricts the targets that will be used for associations.",
         )
         parser.add_argument(

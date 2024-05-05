@@ -1,7 +1,11 @@
+/***
+ * Defines the root layout inherited by other pages in the application.
+ */
+
 import "./globals.css";
 
 export const metadata = {
-  title: "Climate Cabinet - Inflation Reduction Act (IRA) Credits",
+  title: "Climate Cabinet Tax Credit Bonus Map Widget",
   description:
     "Interactive map showing tax credit areas from the Inflation Reduction Act",
 };

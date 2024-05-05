@@ -18,9 +18,9 @@ export default function SearchPage() {
         </div>
       </div>
       {/** REPORT WIDGET */}
-      {/* <div className="min-h-[800px]">
+      <div className="min-h-[800px]">
         <ReportWidget />
-      </div> */}
+      </div>
     </div>
   );
 }

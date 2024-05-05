@@ -155,18 +155,19 @@ class Command(BaseCommand):
                 self._logger.error(f'Failed to load dataset "{dataset_name}". {e}')
                 exit(1)
 
-            # If conducting smoke test, take random sample of loaded geographies
+            # If conducting smoke test, take random sample of geographies
             if options["smoke_test"]:
                 self._logger.info(
                     "Taking random sample of mapped geographies for smoke test."
                 )
                 random.seed(random_seed)
-                geo_indices = list(range(len(mapped_geos)))
-                sample_size = min(len(mapped_geos), dataset_max_size)
-                new_mapped_geos = []
-                for idx in random.sample(geo_indices, sample_size):
-                    new_mapped_geos.append(mapped_geos[idx])
-                mapped_geos = new_mapped_geos
+                num_geos = sum(1 for _ in reader.iterate(dataset_config["file"]))
+                geo_indices = list(range(num_geos))
+                sample_size = min(num_geos, dataset_max_size)
+                sample_indices = random.sample(geo_indices, sample_size)
+                mapped_geos = (
+                    geo for idx, geo in enumerate(mapped_geos) if idx in sample_indices
+                )
 
             # Bulk insert mapped geographies to table in batches
             try:

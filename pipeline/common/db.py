@@ -10,9 +10,8 @@ from typing import Generator
 
 # Third-party imports
 from django.conf import settings
-from django.db import connection
 from django.db import models
-from django.db.utils import ProgrammingError
+from django.db.utils import ProgrammingError, IntegrityError
 
 
 def dynamic_bulk_insert(
@@ -89,10 +88,7 @@ def dynamic_bulk_insert(
             logger.debug(f"{batch_name} - Operation completed in {processing_time}.")
 
             # Calibrate proper size of next batch based on latest processing time
-            logger.info(
-                f"{batch_name} - Calculating best size for next "
-                "batch based on exponential smoothing algorithm."
-            )
+            logger.info(f"{batch_name} - Calculating best size for next batch.")
             avg_record_proc_time = (
                 (1 - smoothing_factor) * avg_record_proc_time
                 + smoothing_factor * processing_time / batch_size
@@ -108,7 +104,7 @@ def dynamic_bulk_insert(
             # Iterate batch count
             batch_ct += 1
 
-    except ProgrammingError:
+    except (ProgrammingError, IntegrityError):
         logger.error("Database insert failed.")
         raise
 

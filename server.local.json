@@ -5,7 +5,7 @@
             "Group": "Servers",
             "Port": 5432,
             "Username": "postgres",
-            "Host": "climate-cabinet-postgis",
+            "Host": "postgis",
             "SSLMode": "prefer",
             "MaintenanceDB": "postgres"
         }

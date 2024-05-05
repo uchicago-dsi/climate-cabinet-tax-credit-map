@@ -91,40 +91,40 @@ const layerConfig = [
 
 const statsConfig = {
   county: {
-    single: "county",
-    plural: "counties",
+    single: "County",
+    plural: "Counties",
   },
   distressed: {
-    single: "distressed zip code",
-    plural: "distressed zip codes",
+    single: "Distressed Community",
+    plural: "Distressed Communities",
   },
   energy: {
-    single: "energy community",
-    plural: "energy communities",
+    single: "Energy Community",
+    plural: "Energy Communities",
   },
   justice40: {
-    single: "Justice40 census tract",
-    plural: "Justice40 census tracts",
+    single: "Justice40 Communities",
+    plural: "Justice40 Communities",
   },
   "low-income": {
-    single: "state",
-    plural: "states",
+    single: "Low Income Census Tract",
+    plural: "Low Income Census Tracts",
   },
   municipality: {
-    single: "municipality",
-    plural: "municipalities",
+    single: "Municipality",
+    plural: "Municipalities",
   },
   "municipal utility": {
-    single: "municipal utility",
-    plural: "municipal utilities",
+    single: "Municipal Utility",
+    plural: "Municipal Utilities",
   },
   "rural cooperative": {
-    single: "rural co-op",
-    plural: "rural co-ops",
+    single: "Rural Co-op",
+    plural: "Rural Co-ops",
   },
   state: {
-    single: "state",
-    plural: "states",
+    single: "State",
+    plural: "States",
   },
 };
 

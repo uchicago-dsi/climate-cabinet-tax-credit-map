@@ -1,7 +1,9 @@
 version: "3.4"
+
 services:
+
   # POSTGIS
-  climate-cabinet-postgis:
+  postgis:
     image: postgis/postgis:13-3.3
     environment:
       - POSTGRES_PASSWORD=postgres
@@ -10,34 +12,47 @@ services:
     ports:
       - "5432:5432"
 
-  # PIPELINE
-  climate-cabinet-pipeline:
+  # PIPELINE - DEVELOPMENT SERVER
+  pipeline-interactive:
+    command:
+      - "bash"
+      - "setup.sh"
+      - "--run-server"
     restart: "no"
-    environment:
-      - DJANGO_SECRET_KEY=local
-      - ENV=DEV
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=climate-cabinet-postgis
-      - CLOUD_STORAGE_BUCKET=ira-map-data
-      - GOOGLE_APPLICATION_CREDENTIALS=/pipeline/config/climate-cabinet-398217-7a8f5e2ec425.json
-      - POSTGRES_CHECK_TIMEOUT=120
+    env_file:
+      - ./pipeline/.env.dev
     build:
       context: pipeline
+    ports:
+      - "8080:8080"
     volumes:
       - ./pipeline:/pipeline
       - ./data:/data
     depends_on:
-      - climate-cabinet-postgis
-      - climate-cabinet-pgadmin
+      - postgis
+      - pgadmin
     profiles:
-      - pipeline
+      - pipeline-interactive
+
+  # PIPELINE - FULL EXECUTION
+  pipeline-execution:
+    extends:
+      service: pipeline-interactive
+    command:
+      - "bash"
+      - "setup.sh"
+      - "--migrate"
+      - "--clean-data"
+      - "--load-geos"
+      - "--load-associations"
+      - "--sync-mapbox"
+    profiles:
+      - pipeline-execution
 
   # PGADMIN DATABASE GUI
-  climate-cabinet-pgadmin:
+  pgadmin:
     depends_on:
-      - climate-cabinet-postgis
+      - postgis
     image: dpage/pgadmin4
     platform: ${DOCKER_PLATFORM}
     environment:
@@ -54,11 +69,11 @@ services:
       - ./data:/data
 
   # DASHBOARD
-  climate-cabinet-dashboard:
+  dashboard:
     build:
       context: dashboard
     depends_on:
-      - climate-cabinet-postgis
+      - postgis
     restart: always
     ports:
       - 3000:3000

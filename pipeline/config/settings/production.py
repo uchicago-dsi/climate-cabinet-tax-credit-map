@@ -1,10 +1,13 @@
 """Settings to use when running the Django project in production.
 """
 
+# Standard library imports
 import os
 
+# Third-party imports
 from corsheaders.defaults import default_headers
 
+# Application imports
 from .base import BaseConfig
 
 
@@ -35,8 +38,10 @@ class ProductionConfig(BaseConfig):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = False
 
-    # If the flag has been set, configure to use proxy
+    # Google Cloud
     # https://cloud.google.com/python/django/run
+    DATA_DIR = os.getenv("CLOUD_STORAGE_BUCKET", "")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
     if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
         BaseConfig.DATABASES["default"]["HOST"] = "127.0.0.1"
         BaseConfig.DATABASES["default"]["PORT"] = 5432

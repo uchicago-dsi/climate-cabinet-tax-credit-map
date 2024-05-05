@@ -118,7 +118,7 @@ class TestLocalFileSystemHelper(unittest.TestCase, FileSystemHelperTestMixins):
     """Tests I/O operations using a `LocalFileSystemHelper` instance."""
 
     _CLIENT = LocalFileSystemHelper()
-    _ROOT_DIR = Path(settings.TEST_DIR) / "test_data" / "temp-cc-bucket"
+    _ROOT_DIR = Path(settings.DATA_DIR) / "test" / "temp-cc-bucket"
     _EMPTY_DIR = "empty"
     _POPULATED_DIR = "populated"
     _NUM_FILES_POPULATED_DIR = 3
@@ -158,7 +158,7 @@ class TestLocalFileSystemHelper(unittest.TestCase, FileSystemHelperTestMixins):
     @classmethod
     def tearDownClass(cls) -> None:
         """Destroys resources after all tests run."""
-        shutil.rmtree(Path(settings.TEST_DIR) / "test_data" / cls._ROOT_DIR)
+        shutil.rmtree(TestLocalFileSystemHelper._ROOT_DIR)
 
 
 class TestGoogleCloudStorageHelper(unittest.TestCase, FileSystemHelperTestMixins):
@@ -227,7 +227,7 @@ class TestCsvDataReader(unittest.TestCase, IterativeDataReaderTestMixins):
 
         # Write CSV files
         file_name = cls._TEST_FILE_NAME
-        root_dir = Path(settings.TEST_DIR) / "test_data"
+        root_dir = Path(settings.DATA_DIR) / "test"
         with FileSystemHelperFactory.get().open_file(
             file_name, root_dir, mode="w"
         ) as f:
@@ -256,7 +256,7 @@ class TestParquetDataReader(unittest.TestCase, IterativeDataReaderTestMixins):
 
         # Write CSV files
         file_name = cls._TEST_FILE_NAME
-        root_dir = Path(settings.TEST_DIR) / "test_data"
+        root_dir = Path(settings.DATA_DIR) / "test"
         with FileSystemHelperFactory.get().open_file(
             file_name, root_dir, mode="wb"
         ) as f:
@@ -285,7 +285,7 @@ class TestDataLoader(unittest.TestCase):
             "parquet-zipped": "test.parquet.zip",
             "shp-zipped": "test.shp.zip",
         }
-        root_dir = Path(settings.TEST_DIR) / "test_data"
+        root_dir = Path(settings.DATA_DIR) / "test"
 
         # Arrange data
         data = {"name": "city", "latitude": 30, "longitude": 60}
@@ -398,7 +398,7 @@ class TestDataWriter(unittest.TestCase):
         df = pd.DataFrame([{"name": "city", "latitude": 30, "longitude": 60}])
 
         # Set class variables
-        root_dir = f"{settings.TEST_DIR}/test_data"
+        root_dir = Path(settings.DATA_DIR) / "test"
         cls._DATA = gpd.GeoDataFrame(
             df, geometry=gpd.points_from_xy(x=df.longitude, y=df.latitude)
         )

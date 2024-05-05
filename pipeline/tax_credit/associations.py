@@ -24,14 +24,14 @@ class AssociationsService:
         (Geography.GeographyType.STATE, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.STATE, Geography.GeographyType.LOW_INCOME),
     ]
-    """Geography types that can be joined by state FIPS code."""
+    """Target-bonus geography pairs that can be joined by state FIPS code."""
 
     COUNTY_FIPS_MATCH_OPTIONS = [
         (Geography.GeographyType.COUNTY, Geography.GeographyType.ENERGY),
         (Geography.GeographyType.COUNTY, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.COUNTY, Geography.GeographyType.LOW_INCOME),
     ]
-    """Geography types that can be joined by county FIPS code."""
+    """Target-bonus geography pairs that can be joined by county FIPS code."""
 
     SPATIAL_OVERLAP_MATCH_OPTIONS = [
         (Geography.GeographyType.STATE, Geography.GeographyType.DISTRESSED),
@@ -49,7 +49,7 @@ class AssociationsService:
         (Geography.GeographyType.RURAL_COOPERATIVE, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.RURAL_COOPERATIVE, Geography.GeographyType.LOW_INCOME),
     ]
-    """Geography types that can only be joined by a spatial intersection."""
+    """Target-bonus geography pairs that can only be joined by spatial intersection."""
 
     def __init__(self, population_service: PopulationService) -> None:
         """Initializes a new instance of an `AssociationsService`.
@@ -78,13 +78,13 @@ class AssociationsService:
         lookup_key = (target_type, bonus_type)
 
         if lookup_key in self.STATE_FIPS_MATCH_OPTIONS:
-            return self.within_state(bonus_type)
+            return self.find_within_states(bonus_type)
 
         elif lookup_key in self.COUNTY_FIPS_MATCH_OPTIONS:
-            return self.within_county(bonus_type)
+            return self.find_within_counties(bonus_type)
 
         elif lookup_key in self.SPATIAL_OVERLAP_MATCH_OPTIONS:
-            return self.within_spatial_overlap(target_type, bonus_type)
+            return self.find_within_spatial_intersection(target_type, bonus_type)
 
         else:
             all_options = [
@@ -101,7 +101,7 @@ class AssociationsService:
                 f"Expected one of the following instead: {'; '.join(all_options)}."
             )
 
-    def within_county(self, bonus_type: str) -> List[Dict]:
+    def find_within_counties(self, bonus_type: str) -> List[Dict]:
         """Finds intersections between counties and records of
         the bonus type using an attribute join (i.e., shared
         county FIPS code). The bonus geography is assumed to
@@ -136,7 +136,9 @@ class AssociationsService:
             )
             return cursor.fetchall()
 
-    def within_spatial_overlap(self, target_type: str, bonus_type: str) -> List[Dict]:
+    def find_within_spatial_intersection(
+        self, target_type: str, bonus_type: str
+    ) -> List[Dict]:
         """Finds spatial intersections between geographies
         of the target type and geographies of the bonus type
         while excluding cases where the borders touch or
@@ -166,10 +168,13 @@ class AssociationsService:
                     target.geography_type = %s AND
                     bonus.geography_type = %s AND
                     ST_INTERSECTS(target.geometry, bonus.geometry) AND
-                    ST_AREA(ST_INTERSECTION(target.geometry, bonus.geometry)) > %s	
+                    (
+                        ST_AREA(ST_INTERSECTION(target.geometry, bonus.geometry)) / 
+                        LEAST(ST_AREA(target.geometry), ST_AREA(bonus.geometry)) > %s
+                    )
                 );
                 """,
-                [target_type, bonus_type, settings.INTERSECTION_AREA_THRESHOLD],
+                [target_type, bonus_type, settings.INTERSECTION_AREA_THRESHOLD_DEG],
             )
             matches = cursor.fetchall()
 
@@ -210,7 +215,7 @@ class AssociationsService:
         # Return as records
         return list(merged_gdf.itertuples(index=False, name=None))
 
-    def within_state(self, bonus_type: str) -> List[Dict]:
+    def find_within_states(self, bonus_type: str) -> List[Dict]:
         """Finds intersections between states and records of
         the bonus type using an attribute join (i.e., shared
         state FIPS code). The bonus geography is assumed to

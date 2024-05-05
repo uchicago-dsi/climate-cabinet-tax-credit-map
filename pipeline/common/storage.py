@@ -292,7 +292,7 @@ class GoogleCloudStorageHelper(FileSystemHelper):
 
     def list_contents(
         self,
-        root_dir: Union[Path, str] = settings.CLOUD_STORAGE_BUCKET,
+        root_dir: Union[Path, str] = settings.DATA_DIR,
         glob_pattern: str = "**/**?",
     ) -> List[str]:
         """Lists relative paths to all blobs within the given
@@ -414,7 +414,7 @@ class FileSystemHelperFactory:
         """
         if not FileSystemHelperFactory._helper:
             env = os.environ.get("ENV", "DEV")
-            if env == "DEV":
+            if env in ("DEV", "TEST"):
                 FileSystemHelperFactory._helper = LocalFileSystemHelper()
             elif env == "PROD":
                 FileSystemHelperFactory._helper = GoogleCloudStorageHelper()
