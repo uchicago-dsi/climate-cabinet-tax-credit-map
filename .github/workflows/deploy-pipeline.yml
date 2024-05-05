@@ -4,12 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   build-and-push:
-    # environment is created and variables are stored in GitHub settings for the repo
-    # access variables with syntax: ${{ vars.VARIABLE_NAME }}
+    # Reference previously-created GitHub environment containing variables for workflow
     environment: "Climate Cabinet"
     runs-on: ubuntu-latest
 
@@ -19,9 +18,10 @@ jobs:
       id-token: write
 
     steps:
-      # Needs to be run before "auth" action
+      # Check out repository under $GITHUB_WORKSPACE so workflow can access it
       - uses: actions/checkout@v3
 
+      # Display metadata
       - name: About
         run: |
           echo "Ref : ${{ github.ref }}"
@@ -42,12 +42,12 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
+      # Build, tag, and push Docker image to Google Artifact Registry
       - id: "docker-push-tagged"
         name: "Tag Docker image and push to Google Artifact Registry"
         uses: docker/build-push-action@v5
         with:
           push: true
-          # TODO: should we put context stuff in config?
           context: ./pipeline
           file: ./pipeline/Dockerfile
           tags: ${{ vars.CLOUD_REGION }}/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest

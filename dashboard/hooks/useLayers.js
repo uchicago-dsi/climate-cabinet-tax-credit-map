@@ -6,8 +6,7 @@ import { layerConfig } from "@/config/layers";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { useSetTooltipStore } from "./useTooltipStore";
 
-function useLayers(features, layerState) {
-  
+function useLayers(data, layerState) {
   /**
    * Initializes data for hover events.
    */
@@ -17,28 +16,30 @@ function useLayers(features, layerState) {
    * Resets data state whenever new geographies are requested.
    */
   useMemo(() => {
-      Object.keys(layerState).forEach((id) => {
-        layerState[id].hasData = false;
-      });
-    }, 
-    [features]
-  );
+    Object.keys(layerState).forEach((id) => {
+      layerState[id].hasData = false;
+    });
+  }, [data]);
 
   /**
    * Groups GeoJSON features by geography type to form datasets.
    */
-  const geoDatasets = useMemo(
-    () => 
-      features?.reduce((grp, geo) => {
-        let key = geo.properties.geography_type;
+  const geoDatasets = useMemo(() => {
+    let props = data?.target
+      ? [data?.target?.properties, ...data?.bonuses]
+      : [];
+    let result = props?.reduce(
+      (grp, geo) => {
+        let key = geo.geography_type;
         if (key === "state") return grp;
         grp[key] = grp[key] ?? [];
-        grp[key].push(geo.properties.name);
+        grp[key].push(geo.name);
         return grp;
-      }, {"county": []})
-    ,
-    [features]
-  );
+      },
+      { county: [] }
+    );
+    return result;
+  }, [data]);
 
   /**
    * A constant reference to all the GeoJSON layers currently holding data.
@@ -47,14 +48,14 @@ function useLayers(features, layerState) {
     ([key, dataset], _) => {
       let config = layerConfig.find((c) => c.externalId === key);
       let active = layerState?.[config.id]?.visible || true;
-      const getLayerColorOrEmpty = (feature) => {
-        if (active && dataset.includes(feature.properties.name)) {
+      const getLayerColorOrEmpty = (geo) => {
+        if (active && dataset.includes(geo.properties.name)) {
           return config.fillColor;
         }
         return [0, 0, 0, 0];
       };
-      const getWhiteOrEmpty = (feature) => {
-        if (active && dataset.includes(feature.properties.name)) {
+      const getWhiteOrEmpty = (geo) => {
+        if (active && dataset.includes(geo.properties.name)) {
           return [255, 255, 255];
         }
         return key === "county" ? config.fillColor : [0, 0, 0, 0];

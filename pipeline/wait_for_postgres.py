@@ -1,11 +1,14 @@
 """Waits for a PostgreSQL database server to start up and allow conncections.
 """
 
+# Standard library imports
 import logging
 import os
 from time import sleep, time
 
+# Third-party imports
 import psycopg2
+
 
 # Configure logger
 logger = logging.getLogger()

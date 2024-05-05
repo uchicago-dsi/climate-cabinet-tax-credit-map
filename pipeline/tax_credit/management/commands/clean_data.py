@@ -1,11 +1,15 @@
 """Cleans raw datasets.
 """
 
-from common.logger import LoggerFactory
-from common.storage import DataFrameReader, DataFrameWriter
+# Third-party imports
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandParser
+
+# Application imports
+from common.logger import LoggerFactory
+from common.storage import DataLoader, DataWriter
 from tax_credit.datasets import DatasetFactory, GeoDataset
+from tax_credit.population import PopulationService
 
 
 class Command(BaseCommand):
@@ -39,7 +43,7 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser: CommandParser) -> None:
-        """Provides an option, "geos", to clean and load only
+        """Provides an option, "geos", to clean only
         select geography types. Valid choices include:
 
         - counties
@@ -48,7 +52,8 @@ class Command(BaseCommand):
         - energy communities - fossil fuels
         - justice40 communities
         - low-income communities
-        - municipalities
+        - municipalities - states
+        - municipalities - territories
         - municipal utilities
         - rural cooperatives
         - states
@@ -74,12 +79,16 @@ class Command(BaseCommand):
         """
         # Initialize variables
         geos = options["geos"]
-        reader = DataFrameReader()
-        writer = DataFrameWriter()
+        num_processed = 0
+        reader = DataLoader()
+        writer = DataWriter()
+        population_service = PopulationService.initialize(
+            reader, writer, *settings.POPULATION_SERVICE.values(), self._logger
+        )
 
         # Process each configured dataset
         for dataset_config in settings.RAW_DATASETS:
-            
+
             # Skip processing if indicated by command line options
             if geos and dataset_config["name"] not in geos:
                 continue
@@ -95,7 +104,11 @@ class Command(BaseCommand):
             )
             fpaths = dataset_config.pop("files")
             dataset: GeoDataset = DatasetFactory.create(
-                **dataset_config, logger=logger, reader=reader, writer=writer
+                **dataset_config,
+                logger=logger,
+                reader=reader,
+                writer=writer,
+                population_service=population_service,
             )
 
             # Load and clean dataset
@@ -110,4 +123,11 @@ class Command(BaseCommand):
             logger.info("Writing processed data to new line delimited GeoJSON.")
             dataset.to_geojson_lines()
 
-        self._logger.info("Data cleaning job complete.")
+            # Update number of datasets processed
+            num_processed += 1
+
+        # Log completion of job
+        if not num_processed:
+            self._logger.info("No datasets found with given geography name(s).")
+        else:
+            self._logger.info("Data cleaning job complete.")

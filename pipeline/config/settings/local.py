@@ -1,14 +1,12 @@
 """Settings to use when running the Django project locally.
 """
 
+# Standard library imports
 import os
 from pathlib import Path
 
+# Application imports
 from .base import BaseConfig
-
-SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_DIR = os.path.dirname(SETTINGS_DIR)
-PROJECT_DIR = os.path.dirname(CONFIG_DIR)
 
 
 class LocalConfig(BaseConfig):
@@ -36,8 +34,7 @@ class LocalConfig(BaseConfig):
 
     DATABASES = {
         "default": {
-            # "ENGINE": "django.contrib.gis.db.backends.postgis",
-            "ENGINE": "tax_credit.logging_db_backend",
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
             "NAME": os.getenv("POSTGRES_DB", "postgres"),
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
@@ -45,6 +42,5 @@ class LocalConfig(BaseConfig):
             "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
-            # 'OPTIONS': {'sslmode': 'require'}
         }
     }

@@ -1,6 +1,7 @@
 """Provides loggers for use across the application.
 """
 
+# Standard library imports
 import logging
 
 
@@ -9,8 +10,8 @@ class LoggerFactory:
 
     @staticmethod
     def get(name: str, level: int = logging.INFO) -> logging.Logger:
-        """Creates a new logger with the given name and level and then attaches
-        a stream handler.
+        """Creates a new logger with the given name and
+        level and then attaches a stream handler.
 
         Args:
             name (str): The logger name.

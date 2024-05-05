@@ -1,3 +1,6 @@
+# Custom
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -122,6 +125,7 @@ celerybeat.pid
 .env
 .env.dev
 .env.prod
+.env.test
 .venv
 env/
 venv/
@@ -198,3 +202,6 @@ cython_debug/
 
 # Data
 data/
+
+# Google Cloud Platform
+privatekey.json

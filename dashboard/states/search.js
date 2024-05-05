@@ -1,8 +1,8 @@
+"server only";
+
 /**
  * Maintains global state for the tax credit bonus territory search page.
  */
-
-"server only"
 
 import { layerConfig } from "@/config/layers";
 import { proxy } from "valtio";
@@ -20,11 +20,11 @@ const viewportStore = useViewportStore();
 
 // Initialize deck.gl layer visiblity store
 let isVisible = layerConfig.reduce((acc, config) => {
-    acc[config.id] = { 
-        visible: config.initialVisibility, 
-        hasData: false
-    };
-    return acc;
+  acc[config.id] = {
+    visible: config.initialVisibility,
+    hasData: false,
+  };
+  return acc;
 }, {});
 const layerStore = proxy(isVisible);
 
@@ -33,32 +33,29 @@ const [searchStore] = useGeoSearch("");
 
 // Initialize report store
 const reportStore = proxy({
-    report: null,
-    status: null,
-    setReport: (value) => reportStore.report = value,
+  report: null,
+  status: null,
+  setReport: (value) => (reportStore.report = value),
 });
 
 // Subscribe to search store to update reports and map viewport
 derive({
-    fetchReports: (get) => {
-        let geoId = get(searchStore).selected?.id;
-        const status = reportStore.status;
-        if (geoId && status !== `${geoId} loading` && status !== `${geoId} success`){
-            reportStore.status = `${geoId} loading`;
-            (getGeoReport(geoId)
-                .then(r => {
-                    reportStore.setReport(r);
-                    viewportStore.zoomToGeography(r.geographies);
-                    reportStore.status = `${geoId} success`;
-                }))
-        }
+  fetchReports: (get) => {
+    let geoId = get(searchStore).selected?.id;
+    const status = reportStore.status;
+    if (
+      geoId &&
+      status !== `${geoId} loading` &&
+      status !== `${geoId} success`
+    ) {
+      reportStore.status = `${geoId} loading`;
+      getGeoReport(geoId).then((r) => {
+        reportStore.setReport(r);
+        viewportStore.zoomToGeography(r?.target?.geometry);
+        reportStore.status = `${geoId} success`;
+      });
     }
+  },
 });
 
-export {
-    searchStore,
-    reportStore,
-    baseMapStore,
-    viewportStore,
-    layerStore
-}
+export { searchStore, reportStore, baseMapStore, viewportStore, layerStore };

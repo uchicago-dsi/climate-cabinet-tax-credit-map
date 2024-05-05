@@ -1,7 +1,0 @@
-.nav-menu a {
-    @apply transition duration-500 px-3 py-3 
-}
-
-.nav-menu a:hover {
-    @apply hover:border-b-2 hover:border-ccblue-dark transition duration-300 ease-in-out
-}
