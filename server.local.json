@@ -1,11 +1,20 @@
 {
     "Servers": {
         "1": {
-            "Name": "postgreSQL-server",
+            "Name": "postgis-large",
             "Group": "Servers",
             "Port": 5432,
             "Username": "postgres",
-            "Host": "postgis",
+            "Host": "postgis-large",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "postgres"
+        },
+        "2": {
+            "Name": "postgis-small",
+            "Group": "Servers",
+            "Port": 5433,
+            "Username": "postgres",
+            "Host": "postgis-small",
             "SSLMode": "prefer",
             "MaintenanceDB": "postgres"
         }

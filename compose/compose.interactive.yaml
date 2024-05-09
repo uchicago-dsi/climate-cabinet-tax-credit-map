@@ -1,0 +1,7 @@
+services:
+
+  pipeline:
+    command:
+      - "bash"
+      - "setup.sh"
+      - "--run-server"

@@ -134,13 +134,13 @@ The application design is implemented differently across development environment
 
 ### Development
 
-![A diagram of Docker Compose infrastructure](/assets/local_infrastructure.svg)
+![A diagram of Docker Compose infrastructure](/docs/docs/assets/local_infrastructure.svg)
 
 To "deploy" the app locally, a staff member manually builds and runs a Docker Compose application with the pipeline/Django project, PostgreSQL database, and web app as networked services. To ease the development process, pgAdmin is also provided as a sevice to quickly run commands against the database and view records in a GUI. All data files are read from and written to the local file system, which is mounted as a volume in the pipeline container.
 
 ### Production
 
-![A diagram of production infrastructure](/assets/prod_infrastructure.svg)
+![A diagram of production infrastructure](/docs/docs/assets/prod_infrastructure.svg)
 
 To deploy the app in production, a staff member ensures that the `main` branch on GitHub is up-to-date by merging in the latest code. A GitHub Action triggered by the push builds and tags a new Docker image of the project's `pipeline` and then pushes that image to the Google Cloud Project's Artifact Registry.
 

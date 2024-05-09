@@ -21,21 +21,21 @@ class AssociationsService:
 
     STATE_FIPS_MATCH_OPTIONS = [
         (Geography.GeographyType.STATE, Geography.GeographyType.ENERGY),
-        (Geography.GeographyType.STATE, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.STATE, Geography.GeographyType.LOW_INCOME),
     ]
     """Target-bonus geography pairs that can be joined by state FIPS code."""
 
     COUNTY_FIPS_MATCH_OPTIONS = [
         (Geography.GeographyType.COUNTY, Geography.GeographyType.ENERGY),
-        (Geography.GeographyType.COUNTY, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.COUNTY, Geography.GeographyType.LOW_INCOME),
     ]
     """Target-bonus geography pairs that can be joined by county FIPS code."""
 
     SPATIAL_OVERLAP_MATCH_OPTIONS = [
         (Geography.GeographyType.STATE, Geography.GeographyType.DISTRESSED),
+        (Geography.GeographyType.STATE, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.COUNTY, Geography.GeographyType.DISTRESSED),
+        (Geography.GeographyType.COUNTY, Geography.GeographyType.JUSTICE40),
         (Geography.GeographyType.MUNICIPAL_UTILITY, Geography.GeographyType.DISTRESSED),
         (Geography.GeographyType.MUNICIPAL_UTILITY, Geography.GeographyType.ENERGY),
         (Geography.GeographyType.MUNICIPAL_UTILITY, Geography.GeographyType.JUSTICE40),

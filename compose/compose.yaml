@@ -1,0 +1,107 @@
+services:
+
+  postgis-small:
+    container_name: postgis-small
+    image: postgis/postgis:13-3.3
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ../pgdata_small:/var/lib/postgresql/data
+    expose:
+      - "5433"
+    ports:
+      - "5433:5433"
+    command: -p 5433
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-small -p 5433 -U postgres'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  postgis-large:
+    container_name: postgis-large
+    image: postgis/postgis:13-3.3
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ../pgdata_large:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-large -p 5432 -U postgres'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    platform: ${DOCKER_PLATFORM}
+    environment:
+      - COMPOSE_HTTP_TIMEOUT=300
+      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com
+      - PGADMIN_DEFAULT_PASSWORD=p@sssw0rd!123
+      - PGADMIN_LISTEN_PORT=443
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    ports:
+      - "443:443"
+    volumes:
+      - ../server.local.json:/pgadmin4/servers.json
+      - ../data:/data
+    depends_on:
+      - postgis-small
+      - postgis-large
+
+  dashboard:
+    container_name: dashboard
+    build:
+      context: ../dashboard
+    depends_on:
+      - postgis-small
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../dashboard:/app
+      - /app/node_modules
+      - /app/.next
+    profiles:
+      - dashboard
+
+  pipeline:
+    container_name: pipeline
+    command:
+      - "bash"
+      - "setup.sh"
+      - "--migrate"
+      - "--clean-data"
+      - "--load-geos"
+      - "--load-associations"
+      # - "--sync-mapbox"
+      - "--replicate-database"
+    restart: "no"
+    env_file:
+      - ../pipeline/.env.dev
+    build:
+      context: ../pipeline
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../pipeline:/pipeline
+      - ../data:/data
+    depends_on:
+      postgis-large:
+        condition: service_healthy
+      postgis-small:
+        condition: service_healthy
+      pgadmin:
+        condition: service_started
+    profiles:
+      - pipeline

@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-push:
     # Reference previously-created GitHub environment containing variables for workflow
-    environment: "Climate Cabinet"
+    environment: "Test"
     runs-on: ubuntu-latest
 
     # Add "id-token" with the intended permissions. Used for OIDC connection with GitHub
@@ -50,4 +50,4 @@ jobs:
           push: true
           context: ./pipeline
           file: ./pipeline/Dockerfile
-          tags: ${{ vars.CLOUD_REGION }}/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest
+          tags: ${{ vars.CLOUD_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.ARTIFACT_REPOSITORY }}/${{ vars.IMAGE_TAG }}:latest

@@ -1,4 +1,4 @@
-# Census Bureau
+# Census Geographies
 
 All Shapefiles referenced below are available for download through the U.S. Census Bureau's **[web tool](https://www.census.gov/cgi-bin/geo/shapefiles/index.php)** or **[FTP server](https://www2.census.gov/geo/tiger/TIGER2020/)** and have a coordinate reference system of EPSG:4269, the standard for federal agencies.
 
@@ -21,6 +21,8 @@ All Shapefiles referenced below are available for download through the U.S. Cens
 **Government_Units_List_Documentation_2021.pdf.** Describes the layout and columns of the Excel file listed below.
 
 **Govt_Units_2021_Final.xlsx.**  A snapshot view of the Census Bureau's master address file for governments. Includes all independent government units and dependent school districts that were active as of fiscal year ending June 30, 2021. The units were extracted from the Governments Master Address File (GMAF) on September 24, 2021. Available for download within a **[zipped file](https://www2.census.gov/programs-surveys/gus/datasets/2021/govt_units_2021.ZIP)** that also contains the above documentation.
+
+**gov_unit_corrections.json.** Corrections to apply to the U.S. Census Bureau Excel file `Govt_Units_2021_Final.xlsx` during the data-cleaning process (i.e., records to drop, outdated FIPS codes to update, and friendlier names to substitute). Created by University of Chicago Data Science Institute staff members.
 
 ## Places
 

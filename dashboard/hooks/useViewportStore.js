@@ -22,11 +22,13 @@ class ViewportStore {
     if (!geometry) return;
 
     // Extract coordinates from target's geographic bounding box
-    let bbox = geometry.coordinates[0];
+    let bbox = geometry.coordinates[0][0];
     const boundingBoxCoords = [bbox[2], bbox[4]];
 
     // Create viewport and fit to new bounding box
+    console.log(boundingBoxCoords);
     const fittedViewport = new WebMercatorViewport(this.current);
+    console.log(fittedViewport);
     const currentLatLonZoom = fittedViewport.fitBounds(boundingBoxCoords);
 
     // Update map configuration

@@ -17,6 +17,7 @@ migrate=false
 clean_data=false
 load_geos=false
 load_associations=false
+replicate_database=false
 sync_mapbox=false
 run_server=false
 while [[ "$#" -gt 0 ]]; do
@@ -25,6 +26,7 @@ while [[ "$#" -gt 0 ]]; do
         --clean-data) clean_data=true; shift ;;
         --load-geos) load_geos=true; shift ;;
         --load-associations) load_associations=true; shift ;;
+        --replicate-database) replicate_database=true; shift ;;
         --sync-mapbox) sync_mapbox=true; shift ;;
         --run-server) run_server=true; shift ;;
         *) echo "Unknown command line parameter received: $1"; exit 1 ;;
@@ -32,7 +34,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Wait for database server to accept connections
-python wait_for_postgres.py
+# python wait_for_postgres.py
 
 # Perform model migrations if indicated 
 # (WARNING: Defaults to "yes" for all questions)
@@ -60,6 +62,15 @@ fi
 if $load_associations ; then
     echo "Loading association table into database."
     ./manage.py load_associations
+fi
+
+# Replicate
+if $replicate_database; then    
+    echo "Applying migrations to production database used for web app."
+    yes | ./manage.py migrate --database=resized
+
+    echo "Replicating tables in current database to production database."
+    yes | ./manage.py replicate_database
 fi
 
 # Log successful end of database setup

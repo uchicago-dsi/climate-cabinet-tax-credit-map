@@ -1,13 +1,10 @@
-version: "3.4"
-
 services:
 
-  # POSTGIS
   db:
     image: postgis/postgis:13-3.3
-    container_name: test-db
+    container_name: test-postgis
     env_file:
-      - .env.test
+      - ../pipeline/.env.test
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -q -d postgres_db -U postgres_user && echo 'select 1' | psql -d postgres_db -U postgres_user"]
       interval: 2s
@@ -15,14 +12,13 @@ services:
       retries: 5
       start_period: 15s
 
-  # PIPELINE
   app:
     build:
-      context: .
+      context: ../pipeline/
       dockerfile: unittest.Dockerfile
-    container_name: test-app
+    container_name: test-pipeline
     env_file:
-      - .env.test
+      - ../pipeline/.env.test
     volumes:
       - ../pipeline:/pipeline
       - /pipeline/tax_credit/migrations

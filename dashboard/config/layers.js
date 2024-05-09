@@ -71,7 +71,7 @@ const layerConfig = [
   },
   {
     externalId: "justice40",
-    id: "Justice 40 Communities",
+    id: "Justice40 Communities",
     mapboxTilesetName: "cc_justice40",
     fillColor: [174, 209, 29],
     opacity: 0.1,
@@ -103,7 +103,7 @@ const statsConfig = {
     plural: "Energy Communities",
   },
   justice40: {
-    single: "Justice40 Communities",
+    single: "Justice40 Community",
     plural: "Justice40 Communities",
   },
   "low-income": {

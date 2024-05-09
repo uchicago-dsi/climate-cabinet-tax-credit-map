@@ -193,7 +193,7 @@ privatekey.json
 .vscode/
 
 # pgAdmin
-*pgdata/
+*pgdata*/
 
 # Local directories
 data/

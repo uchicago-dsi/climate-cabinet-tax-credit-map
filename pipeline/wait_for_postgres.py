@@ -23,6 +23,7 @@ settings = {
     "user": os.getenv("POSTGRES_USER"),
     "password": os.getenv("POSTGRES_PASSWORD"),
     "host": os.getenv("POSTGRES_HOST"),
+    "port": os.getenv(),
 }
 
 # Attempt database connection until success or timeout

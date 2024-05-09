@@ -15,7 +15,7 @@ class SummaryBuilder {
     this.target = {
       name: targetProps.name,
       geoType: targetProps.geography_type,
-      population: targetProps.population.toLocaleString(),
+      population: targetProps.population?.toLocaleString() ?? "Unknown",
       style: this.#getStyle(targetProps.geography_type),
     };
 

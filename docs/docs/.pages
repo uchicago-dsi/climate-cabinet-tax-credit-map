@@ -1,4 +1,6 @@
 nav:
-    - Raw Dataset Providers: raw-datasets
-    - Data Cleaning: data-cleaning.md
-    - Data Loading: data-schema.md
+- Overview: index.md
+- Getting Started: getting-started.md
+- Datasets: datasets
+- Architecture: architecture.md
+- Infrastructure: infrastructure.md

@@ -444,7 +444,7 @@ class PopulationService:
         logger.info(f"{len(blk_grp_centers_gdf):,} record(s) after merge.")
 
         # Drop null records
-        logger.info("Dropping records without null populations.")
+        logger.info("Dropping records with null populations.")
         blk_grp_centers_gdf = blk_grp_centers_gdf.query("POPULATION == POPULATION")
         logger.info(
             f"{len(blk_grp_centers_gdf):,} record(s) in final Island Area dataset."
@@ -461,6 +461,7 @@ class PopulationService:
                 "POPULATION",
                 "LATITUDE",
                 "LONGITUDE",
+                "geometry",
             ]
         ]
 

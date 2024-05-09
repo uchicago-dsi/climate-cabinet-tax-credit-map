@@ -33,13 +33,15 @@ export async function GET(request, { params }) {
                 geo.geography_type,
                 geo.population,
                 CASE
-                    WHEN geo.id = ${geographyId} THEN TRUE
+                    WHEN geo.id = ${geographyId}
+                      THEN TRUE
                     ELSE FALSE
                 END AS is_target,
                 CASE
-                    WHEN geo.id = ${geographyId} THEN ST_ENVELOPE(geo.geometry)
+                    WHEN geo.id = ${geographyId}
+                      THEN ST_ForcePolygonCCW(geo.geometry)
                     ELSE null
-                END AS bbox
+                END AS geometry
             FROM tax_credit_geography AS geo
             WHERE geo.id IN (${geographyId}) OR geo.id IN (
                 SELECT bonus_id

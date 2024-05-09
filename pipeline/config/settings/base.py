@@ -25,6 +25,7 @@ class BaseConfig(Configuration):
 
     # Define default settings for batching and bulk operations
     PQ_CHUNK_SIZE = 1_000
+    DB_REPLICATION_CHUNK_SIZE = 10_000
     EXPONENTIAL_SMOOTHING_FACTOR = 0.1
     TARGET_SECONDS_PER_BATCH = 5
     SLOW_LOAD_THRESHOLD_IN_MINUTES = 1
@@ -359,6 +360,9 @@ class BaseConfig(Configuration):
     # https://docs.djangoproject.com/en/dev/ref/settings/#debug
     DEBUG = strtobool(os.getenv("DJANGO_DEBUG", "no"))
 
+    # Secret Key (Warning - Do not use in production!)
+    SECRET_KEY = "w^8y-35j5&yn99*80j6f@6dys-2a_jfh2-+lo4-2ohu(ov7ios"
+
     # Password Validation
     # https://docs.djangoproject.com/en/2.0/topics/auth/passwords/#module-django.contrib.auth.password_validation
     AUTH_PASSWORD_VALIDATORS = [
@@ -402,12 +406,25 @@ class BaseConfig(Configuration):
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
             "HOST": os.getenv("POSTGRES_HOST", "postgres"),
-            "PORT": int(os.getenv("POSTGRES_PORT", 5432)),
+            "PORT": int(os.getenv("POSTGRES_PORT", 5433)),
             "CONN_MAX_AGE": int(os.getenv("POSTGRES_CONN_MAX_AGE", 0)),
             "DISABLE_SERVER_SIDE_CURSORS": False,
-            "OPTIONS": {"sslmode": "require"},
+            "OPTIONS": {"sslmode": "prefer"},
         }
     }
+
+    if strtobool(os.getenv("RESIZE_DB", "no")):
+        DATABASES["resized"] = {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": os.getenv("RESIZED_POSTGRES_DB", "postgres"),
+            "USER": os.getenv("RESIZED_POSTGRES_USER", "postgres"),
+            "PASSWORD": os.getenv("RESIZED_POSTGRES_PASSWORD", ""),
+            "HOST": os.getenv("RESIZED_POSTGRES_HOST", "postgres"),
+            "PORT": int(os.getenv("RESIZED_POSTGRES_PORT", 5432)),
+            "CONN_MAX_AGE": int(os.getenv("RESIZED_POSTGRES_CONN_MAX_AGE", 0)),
+            "DISABLE_SERVER_SIDE_CURSORS": False,
+            "OPTIONS": {"sslmode": "prefer"},
+        }
 
     # Logging
     LOGGING = {

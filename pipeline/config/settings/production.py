@@ -15,11 +15,11 @@ class ProductionConfig(BaseConfig):
     """Defines configuration settings for production environments."""
 
     # General
+    DEBUG = False
     INSTALLED_APPS = BaseConfig.INSTALLED_APPS
-    WSGI_APPLICATION = "config.wsgi.application"
 
-    # Server
-    INSTALLED_APPS += ("gunicorn",)
+    # Secret key
+    SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
     # Cross-origin requests
     # https://github.com/adamchainz/django-cors-headers
