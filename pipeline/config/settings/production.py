@@ -41,7 +41,6 @@ class ProductionConfig(BaseConfig):
     # Google Cloud
     # https://cloud.google.com/python/django/run
     DATA_DIR = os.getenv("CLOUD_STORAGE_BUCKET", "")
-    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
     if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
         BaseConfig.DATABASES["default"]["HOST"] = "127.0.0.1"
         BaseConfig.DATABASES["default"]["PORT"] = 5432

@@ -18,6 +18,8 @@ from zipfile import BadZipFile, ZipFile
 import geopandas as gpd
 import pandas as pd
 from django.conf import settings
+from google.api_core.exceptions import NotFound
+from google.cloud import storage
 from pyarrow import parquet as pq
 
 
@@ -286,8 +288,6 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         Returns:
             `None`
         """
-        from google.cloud import storage
-
         self.storage_client = storage.Client()
 
     def list_contents(
@@ -379,9 +379,12 @@ class GoogleCloudStorageHelper(FileSystemHelper):
         # Open temporary file on disk
         tf = tempfile.NamedTemporaryFile(delete=False)
 
-        # Download contents if reading
+        # Download contents to disk if reading
         if mode.startswith("r"):
-            blob.download_to_filename(tf.name)
+            try:
+                blob.download_to_filename(tf.name)
+            except NotFound:
+                raise FileNotFoundError
 
         # Execute file strategy
         try:
