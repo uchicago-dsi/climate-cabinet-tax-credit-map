@@ -20,7 +20,7 @@ Pipeline outputs are stored under `data/clean` in the data store. `geojsonl/` ho
         "created_by_client": "mts",
         "filesize": 28541591,
         "format": "pbf",
-        "id": "username.cc_states",
+        "id": "<username>.cc_states",
         "mapbox_logo": true,
         "maxzoom": 5,
         "minzoom": 1,
@@ -31,8 +31,8 @@ Pipeline outputs are stored under `data/clean` in the data store. `geojsonl/` ho
         "scheme": "xyz",
         "tilejson": "2.2.0",
         "tiles": [
-            "http://a.tiles.mapbox.com/v4/username.cc_states/{z}/{x}/{y}.vector.pbf?access_token=sk.eyJ1IjoibGF1bmEtZ3JlZXIiLCJhIjoiY2xuNHUzb2poMDJlZTJrb2RmbjY4bXdnNiJ9.t01RX-DQAvaP7zpCopPxuA",
-            "http://b.tiles.mapbox.com/v4/username.cc_states/{z}/{x}/{y}.vector.pbf?access_token=sk.eyJ1IjoibGF1bmEtZ3JlZXIiLCJhIjoiY2xuNHUzb2poMDJlZTJrb2RmbjY4bXdnNiJ9.t01RX-DQAvaP7zpCopPxuA"
+            "http://a.tiles.mapbox.com/v4/<username>.cc_states/{z}/{x}/{y}.vector.pbf?access_token=<secret_token>",
+            "http://b.tiles.mapbox.com/v4/<username>.cc_states/{z}/{x}/{y}.vector.pbf?access_token=<secret_token>"
         ],
         "vector_layers": [
             {
@@ -50,11 +50,11 @@ Pipeline outputs are stored under `data/clean` in the data store. `geojsonl/` ho
                 "id": "cc_states",
                 "maxzoom": 22,
                 "minzoom": 1,
-                "source": "username.cc_states",
+                "source": "<username>.cc_states",
                 "source_name": "states"
             }
         ],
-        "webpage": "https://studio.mapbox.com/tilesets/username.cc_states"
+        "webpage": "https://studio.mapbox.com/tilesets/<username>.cc_states"
     }
 ]
 ```
