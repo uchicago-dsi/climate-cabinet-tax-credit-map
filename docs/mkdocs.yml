@@ -1,0 +1,11 @@
+site_name: Climate Cabinet - Tax Credit Bonus Map Widget
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.footer
+    - navigation.expand
+plugins:
+    - search
+    - awesome-pages

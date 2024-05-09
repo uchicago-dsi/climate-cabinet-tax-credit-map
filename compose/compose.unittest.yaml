@@ -1,0 +1,31 @@
+services:
+
+  db:
+    image: postgis/postgis:13-3.3
+    container_name: test-postgis
+    env_file:
+      - ../pipeline/.env.test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d postgres_db -U postgres_user && echo 'select 1' | psql -d postgres_db -U postgres_user"]
+      interval: 2s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  app:
+    build:
+      context: ../pipeline/
+      dockerfile: unittest.Dockerfile
+    container_name: test-pipeline
+    env_file:
+      - ../pipeline/.env.test
+    volumes:
+      - ../pipeline:/pipeline
+      - /pipeline/tax_credit/migrations
+      - ../data:/data
+    command: ["tail", "-f", "/dev/null"]
+    depends_on:
+      db:
+        condition: service_healthy
+  
+

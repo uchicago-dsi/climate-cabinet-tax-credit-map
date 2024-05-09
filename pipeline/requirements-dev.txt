@@ -1,0 +1,16 @@
+# Formatting
+isort
+black
+flake8
+docformatter
+
+# Type checking
+mypy
+pandas-stubs
+types-google-cloud-ndb
+django-stubs
+
+# Testing
+coverage
+pytest
+pytest-django

@@ -1,3 +1,6 @@
+# Custom
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,7 +17,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ we need this for next.js
 lib64/
 parts/
 sdist/
@@ -43,7 +46,6 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
-nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
@@ -121,6 +123,10 @@ celerybeat.pid
 
 # Environments
 .env
+.env.local
+.env.dev
+.env.prod
+.env.test
 .venv
 env/
 venv/
@@ -159,5 +165,35 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-#Custom
-/data
+# testing
+*/coverage
+
+# Node debugging
+*npm-debug.log*
+*yarn-debug.log*
+*yarn-error.log*
+
+# Node dependencies
+*/node_modules
+*/.pnp
+*.pnp.js
+
+# Next.js
+*/.next/
+*/out/
+*/build
+
+# Vercel
+*.vercel
+
+# Google Cloud
+privatekey.json
+
+# Visual Studio Code
+.vscode/
+
+# pgAdmin
+*pgdata*/
+
+# Local directories
+data/

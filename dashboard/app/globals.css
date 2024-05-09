@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  html {
+    font-family: Arial, "Noto Sans", sans-serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    background-color:rgba(0, 0, 0, 0.295);
+    border-radius: 5px;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #363781;
+    border-radius: 5px;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+h1 {
+  @apply text-3xl uppercase text-ccblack-dark
+}
+
+h2 {
+  @apply text-2xl uppercase text-ccblack-dark
+}
+
+h3{
+  @apply text-xl uppercase text-ccblack-dark
+}
+
+h4 {
+  @apply text-xl text-ccblack-dark
+}
+
+h5 {
+  @apply text-lg text-ccblack-dark uppercase
+}
+
+h6 {
+  @apply text-base text-ccblack-dark
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply py-2.5
+}
+
+p {
+  @apply text-base text-ccgray-dark py-2.5
+}
+
+span {
+  @apply text-base text-ccgray-dark
+}
+
+.tooltip {
+  @apply bg-ccgray-light z-10 absolute
+}
+
+.tooltip p {
+  @apply text-xs p-2
+}
+
+.swatch{
+  @apply w-4 h-4 mr-2
+}
+
