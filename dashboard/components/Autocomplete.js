@@ -71,7 +71,7 @@ function Autocomplete() {
           value={innerValue}
           className="input input-bordered w-full pl-10"
           onChange={handleTextInput}
-          placeholder="Enter a state, county, or municipal utility..."
+          placeholder="Enter a state, county, municipality, municipal utility, or rural cooperative..."
           tabIndex={0}
         />
       </div>

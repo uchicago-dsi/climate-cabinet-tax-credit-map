@@ -102,25 +102,30 @@ function SummaryStats() {
             <b>Bonus Territories</b>
             <p className="text-sm p-0">
               Populations are estimated in the overlap of your search area
-              (state, county, municipal utility, or rural co-op) and the bonus
-              territories and then rounded to the nearest thousand.
+              (state, county, municipality, municipal utility, or rural co-op)
+              and the bonus territories and then rounded to the nearest
+              thousand.
             </p>
           </h6>
           <span>
-            <ol className="text-sm">
-              {summary.bonuses.map((bonus, idx) => (
-                <li key={idx} className="flex items-center">
-                  <div
-                    className="swatch"
-                    style={{ background: bonus.style.background }}
-                  ></div>
-                  <div>
-                    <b className="mr-.5">{bonus.count}</b>{" "}
-                    {`${bonus.entity} with ${bonus.population} people.`}
-                  </div>
-                  <br />
-                </li>
-              ))}
+            <ol className="text-sm pt-2">
+              {summary.bonuses.length === 0 ? (
+                <div>---</div>
+              ) : (
+                summary.bonuses.map((bonus, idx) => (
+                  <li key={idx} className="flex items-left pb-0.5">
+                    <div
+                      className="swatch"
+                      style={{ background: bonus.style.background }}
+                    ></div>
+                    <div>
+                      <b>{bonus.count.trim()}</b>{" "}
+                      {`${bonus.entity} with ${bonus.population} people.`}
+                    </div>
+                    <br />
+                  </li>
+                ))
+              )}
             </ol>
           </span>
         </div>
@@ -130,9 +135,13 @@ function SummaryStats() {
           </h6>
           <span>
             <ol className="list-disc text-sm">
-              {summary.programs.map((program, idx) => {
-                return <li key={idx}>{program}</li>;
-              })}
+              {summary.programs.length === 0 ? (
+                <div>No eligible programs were found.</div>
+              ) : (
+                summary.programs.map((program, idx) => {
+                  return <li key={idx}>{program}</li>;
+                })
+              )}
             </ol>
           </span>
         </div>

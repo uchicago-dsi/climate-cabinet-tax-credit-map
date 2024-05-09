@@ -9,13 +9,10 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ../pgdata_small:/var/lib/postgresql/data
-    expose:
-      - "5433"
     ports:
-      - "5433:5433"
-    command: -p 5433
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-small -p 5433 -U postgres'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-small -p 5432 -U postgres'"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -30,10 +27,13 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ../pgdata_large:/var/lib/postgresql/data
+    expose:
+      - "5433"
     ports:
-      - "5432:5432"
+      - "5433:5433"
+    command: -p 5433
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-large -p 5432 -U postgres'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -h postgis-large -p 5433 -U postgres'"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -84,7 +84,7 @@ services:
       - "--clean-data"
       - "--load-geos"
       - "--load-associations"
-      # - "--sync-mapbox"
+      - "--sync-mapbox"
       - "--replicate-database"
     restart: "no"
     env_file:

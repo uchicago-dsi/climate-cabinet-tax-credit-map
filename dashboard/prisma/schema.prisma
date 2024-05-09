@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -142,57 +141,39 @@ model spatial_ref_sys {
   proj4text String? @db.VarChar(2048)
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
 model tax_credit_geography {
-  id                                                                                                    BigInt                          @id @default(autoincrement())
-  name                                                                                                  String                          @db.VarChar(255)
-  fips                                                                                                  String                          @db.VarChar(255)
-  fips_pattern                                                                                          String                          @db.VarChar
-  geography_type                                                                                        String                          @db.VarChar
-  as_of                                                                                                 DateTime                        @db.Date
-  published_on                                                                                          DateTime?                       @db.Date
-  source                                                                                                String
-  geometry                                                                                              Unsupported("geometry")
-  name_vector                                                                                           Unsupported("tsvector")?        @default(dbgenerated("to_tsvector('english'::regconfig, (name)::text)"))
-  tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography  tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography")
-  tax_credit_target_bonus_assoc_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_target_bonus_assoc[] @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography")
+  id                                                                                              BigInt                            @id @default(autoincrement())
+  name                                                                                            String                            @db.VarChar(255)
+  fips                                                                                            String                            @db.VarChar(255)
+  fips_pattern                                                                                    String                            @db.VarChar
+  geography_type                                                                                  String                            @db.VarChar
+  population                                                                                      Int?
+  population_strategy                                                                             String                            @db.VarChar
+  as_of                                                                                           DateTime                          @db.Date
+  published_on                                                                                    DateTime?                         @db.Date
+  source                                                                                          String
+  programs                                                                                        Json?                             @default(dbgenerated("(\nCASE\n    WHEN ((geography_type)::text = 'distressed'::text) THEN '[\"Neighborhood Access & Equity Grant\", \"Solar For All\"]'::text\n    WHEN ((geography_type)::text = 'energy'::text) THEN '[\"Direct Pay Clean Energy Investment Tax Credits\", \"Direct Pay Clean Energy Production Tax Credits\"]'::text\n    WHEN ((geography_type)::text = 'justice40'::text) THEN '[\"Solar For All\"]'::text\n    WHEN ((geography_type)::text = 'low-income'::text) THEN '[\"Alternative Fuel Refueling Property Credit\", \"Direct Pay Clean Energy Investment Tax Credits\", \"Direct Pay Clean Energy Production Tax Credits\", \"Solar For All\"]'::text\n    ELSE '[]'::text\nEND)::jsonb"))
+  geometry                                                                                        Unsupported("geometry")
+  name_vector                                                                                     Unsupported("tsvector")?          @default(dbgenerated("to_tsvector('english'::regconfig, (name)::text)"))
+  tax_credit_target_bonus_overlap_tax_credit_target_bonus_overlap_bonus_idTotax_credit_geography  tax_credit_target_bonus_overlap[] @relation("tax_credit_target_bonus_overlap_bonus_idTotax_credit_geography")
+  tax_credit_target_bonus_overlap_tax_credit_target_bonus_overlap_target_idTotax_credit_geography tax_credit_target_bonus_overlap[] @relation("tax_credit_target_bonus_overlap_target_idTotax_credit_geography")
 
-  @@unique([name, geography_type, fips], map: "unique_geography")
-  @@index([geometry], map: "tax_credit_geography_geometry_a87c0c81_id", type: Gist)
+  @@unique([name, fips, geography_type], map: "unique_geography")
   @@index([name_vector], map: "name_vector_idx", type: Gin)
-}
-
-model tax_credit_program {
-  id            Int    @id
-  name          String @unique @db.VarChar(255)
-  agency        String @db.VarChar(255)
-  description   String
-  base_benefit  String
-  bonus_amounts Json
-
-  @@index([name], map: "tax_credit_program_name_7cc8c339_like")
+  @@index([geometry], map: "tax_credit_geography_geometry_a87c0c81_id", type: Gist)
 }
 
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model tax_credit_target_bonus_assoc {
-  id                                                                                           Int                  @id @default(autoincrement())
-  bonus_geography_id                                                                           BigInt
-  target_geography_id                                                                          BigInt
-  tax_credit_geography_tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography  tax_credit_geography @relation("tax_credit_target_bonus_assoc_bonus_geography_idTotax_credit_geography", fields: [bonus_geography_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_bonus_geography_id_dd2660aa_fk_tax_credi")
-  tax_credit_geography_tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography tax_credit_geography @relation("tax_credit_target_bonus_assoc_target_geography_idTotax_credit_geography", fields: [target_geography_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_target_geography_id_dd8cf942_fk_tax_credi")
+model tax_credit_target_bonus_overlap {
+  id                                                                                   Int                  @id @default(autoincrement())
+  population                                                                           Int
+  population_strategy                                                                  String               @db.VarChar
+  bonus_id                                                                             BigInt
+  target_id                                                                            BigInt
+  tax_credit_geography_tax_credit_target_bonus_overlap_bonus_idTotax_credit_geography  tax_credit_geography @relation("tax_credit_target_bonus_overlap_bonus_idTotax_credit_geography", fields: [bonus_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_bonus_id_d8c39188_fk_tax_credi")
+  tax_credit_geography_tax_credit_target_bonus_overlap_target_idTotax_credit_geography tax_credit_geography @relation("tax_credit_target_bonus_overlap_target_idTotax_credit_geography", fields: [target_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tax_credit_target_bo_target_id_21c43c1c_fk_tax_credi")
 
-  @@unique([target_geography_id, bonus_geography_id], map: "unique_target_bonus_geography_association")
-  @@index([bonus_geography_id], map: "tax_credit_target_bonus_assoc_bonus_geography_id_dd2660aa")
-  @@index([target_geography_id], map: "tax_credit_target_bonus_assoc_target_geography_id_dd8cf942")
-}
-
-model tax_credit_census_block_group {
-  id         BigInt                  @id @default(autoincrement())
-  fips       String                  @db.VarChar(255)
-  centroid   Unsupported("geometry")
-  population Int
-  year       Int
-
-  @@unique([fips, year], map: "unique_census_block_group")
-  @@index([centroid], map: "tax_credit_census_block_group_centroid_25aa68b6_id", type: Gist)
+  @@unique([target_id, bonus_id], map: "unique_target_bonus_overlap")
+  @@index([bonus_id], map: "tax_credit_target_bonus_overlap_bonus_id_d8c39188")
+  @@index([target_id], map: "tax_credit_target_bonus_overlap_target_id_21c43c1c")
 }
