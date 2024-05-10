@@ -103,7 +103,7 @@ export async function GET(request, { params }) {
     target: target,
     bonuses: bonuses,
     stats: bonusStats,
-    programs: Array.from(programs).toSorted(),
+    programs: Array.from(programs).sort(),
   };
 
   return NextResponse.json(payload);
