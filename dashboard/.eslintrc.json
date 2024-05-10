@@ -2,5 +2,5 @@
     "extends": [
         "plugin:valtio/recommended"
     ],
-    "parserOptions": { "sourceType": "module" }
+    "parserOptions": { "sourceType": "module", "ecmaVersion": "latest" }
 }
