@@ -1,6 +1,7 @@
 {
-    "extends": [
-        "plugin:valtio/recommended"
-    ],
-    "parserOptions": { "sourceType": "module", "ecmaVersion": "latest" }
+  "extends": [
+    "next/core-web-vitals",
+    "prettier",
+    "plugin:valtio/recommended"
+  ]
 }
