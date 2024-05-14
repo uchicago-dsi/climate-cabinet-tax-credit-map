@@ -8,7 +8,7 @@ At the time of writing, the app's featured tax credit programs include the Alter
 
 ## Use Case
 
-The application is not intended to be a standalone website, but a "widget" embedded as an HTML iframe in Climate Cabinet Education's main WordPress site. During the development proces, decoupling the widget from the site permitted more safety and flexibility. Because the widget's logic and configuration could be updated independently, software engineers external to Climate Cabinet never required elevated permissions or access to the organization's core code bases. In addition, engineers were able to take advantage of popular, tried-and-tested JavaScript libraries when designing the front-end rather than work within the system of WordPress plugins.
+The application is not intended to be a standalone website, but a "widget" embedded as an HTML iframe in Climate Cabinet Education's main WordPress site. During the development proces, decoupling the widget from the site permitted more safety and flexibility. Because the widget's logic and configuration could be updated independently, software engineers external to Climate Cabinet never required elevated permissions or access to the organization's core code bases. In addition, engineers were able to take advantage of popular JavaScript libraries when designing the front-end rather than work within the system of WordPress plugins.
 
 ## Features
 
@@ -28,4 +28,6 @@ Users can currently:
 
 ## Future Improvements
 
-Federally Recognized Tribal Lands, including Alaska Native Villages, are not yet included in the application, but those areas are eligible for IRA tax credits on the basis of qualifying as low-income and Justice40 communities.
+- Federally Recognized Tribal Lands, including Alaska Native Villages, are not yet included in the application, but those areas are eligible for IRA tax credits on the basis of qualifying as low-income and Justice40 communities.
+
+- Data dictionaries have not yet been completed for all datasets listed in the documentation.

@@ -4,7 +4,7 @@ The application has five main components:
 
 ## File Storage
 
-A file system used to store raw, cleaned, and test datasets; tileset metadata; etc. It uses the following directory structure:
+A file system used to store raw, cleaned, and test datasets as well as Mapbox tileset metadata. It uses the following directory structure:
 
 ```
 ├── clean/
@@ -31,13 +31,13 @@ A file system used to store raw, cleaned, and test datasets; tileset metadata; e
 └── test/
 ```
 
-Detailed descriptions of each directory's contents can be found in the documentation.
+Detailed descriptions of each directory's contents can be found in the **[Datasets section](/datasets)**.
 
-## Database
+## Databases
 
-A PostgreSQL database. PostgreSQL was chosen as the database engine because it is free and open source with a large and active community of contributors. In addition, it is easy to run both locally as a Docker container and as a service on a cloud platform. The application installs PostgreSQL's PostGIS extension to store multipolygon geometries and run spatial queries and its trigram extension to calculate the relevance of search results.
+Two PostgreSQL database instances—a temporary, "large" database for caching geospatial data during pipeline processing and a "small", less expensive database to serve the final website. PostgreSQL was chosen as the database engine because it is free and open source with a large and active community of contributors. In addition, it is easy to run both locally as a Docker container and as a service on a cloud platform. The application installs PostgreSQL's PostGIS extension to store multipolygon geometries and run spatial queries and its trigram extension to calculate the relevance of search results.
 
-Two tables are defined:
+Two tables are defined in the larger database, populated with data, and then replicated to the smaller database after all geometries have been simplified to their final form. The table schemas are as follows:
 
 **`public.tax_credit_geography`**
 
@@ -45,19 +45,19 @@ A table storing geographies available for user search and/or reporting. A unique
 
 | Name | Type | Description | Ever Blank or Null? | Example |
 |---|---|---|---|---|
-| id | bigint | The primary key. | NO | 1760 |
-| name | character varying | The geography name. | NO | "LORAIN COUNTY, OHIO" |
-| fips | character varying | The FIPS code assigned to the geography, if applicable. | YES, BLANK | 39093 |
-| fips_pattern | character varying | Explains how to interpret the FIPS code. | YES, BLANK | "STATE(2) + COUNTY(3)" |
-| geography_type | character varying | The type of geography, from a limited set of choices. | NO | "county" |
+| id | bigint | The primary key. | NO | `1760` |
+| name | character varying | The geography name. | NO | `"LORAIN COUNTY, OHIO"` |
+| fips | character varying | The FIPS code assigned to the geography, if applicable. | YES, BLANK | `39093` |
+| fips_pattern | character varying | Explains how to interpret the FIPS code. | YES, BLANK | `"STATE(2) + COUNTY(3)"` |
+| geography_type | character varying | The type of geography, from a limited set of choices. | NO | `"county"` |
 | population | integer | The estimated population for the geography. | YES, NULL | 312964 |
-| population_strategy | character varying | The method used to derive the population estimate. | YES, BLANK | "FIPS Code Match" |
-| as_of | date | The date on which the geography's data source became current. | NO | 2020-01-01 |
-| published_on | date | The publication date of the geography's data source. | YES, NULL | 2021-02-02 |
-| source | text | A citation for the geography's data source. | NO | "2020 TIGER/Line Shapefiles, U.S. Census Bureau" |
-| programs | jsonb | A generated field consisting of the tax credit programs the geography qualifies for based on type. Only relevant for bonus geographies. | NO | [] |
-| geometry | geometry | The geography boundary as a hex string.  | NO | 01060000206.... |
-| name_vector | tsvector | A sorted list of lexemes parsed from the name field. Used to optimize text search. | NO | 'counti':2 'lorain':1 'ohio':3 |
+| population_strategy | character varying | The method used to derive the population estimate. | YES, BLANK | `"FIPS Code Match"` |
+| as_of | date | The date on which the geography's data source became current. | NO | `2020-01-01` |
+| published_on | date | The publication date of the geography's data source. | YES, NULL | `2021-02-02` |
+| source | text | A citation for the geography's data source. | NO | `"2020 TIGER/Line Shapefiles, U.S. Census Bureau"` |
+| programs | jsonb | A generated field consisting of the tax credit programs the geography qualifies for based on type. Only relevant for bonus geographies. | NO | `[]` |
+| geometry | geometry | The geography boundary as a hex string. In the large database, the geometry's exterior. In the smaller database, its bounding box.  | NO | `01060000206....` |
+| name_vector | tsvector | A sorted list of lexemes parsed from the name field. Used to optimize text search. | NO | `'counti':2 'lorain':1 'ohio':3` |
 
 **`public.tax_credit_target_bonus_overlap`**
 
@@ -65,15 +65,15 @@ An association table relating "target" geographies—again, states, counties, mu
 
 | Name | Field | Description | Ever Blank or Null? | Example |
 |---|---|---|---|---|
-| id | integer | The primary key. | NO | 4013 |
-| target_id | bigint | Foreign key reference to a "target" geography. | NO | 1760 |
-| bonus_id | bigint | Foreign key reference to a "bonus" geography (e.g., distressed, low-income, Justice 40, energy communities, etc.). | NO | 5727 |
-| population | integer | The number of people estimated to live in the intersection between the target and bonus geographies. | NO | 61390 |
-| population_strategy | character varying | The method used to derive the population estimate. | NO | "Population-Weighted Block Group Centroid Spatial Join" |
+| id | integer | The primary key. | NO | `4013` |
+| target_id | bigint | Foreign key reference to a "target" geography. | NO | `1760` |
+| bonus_id | bigint | Foreign key reference to a "bonus" geography (e.g., distressed, low-income, Justice 40, energy communities, etc.). | NO | `5727` |
+| population | integer | The number of people estimated to live in the intersection between the target and bonus geographies. | NO | `61390` |
+| population_strategy | character varying | The method used to derive the population estimate. | NO | `"Population-Weighted Block Group Centroid Spatial Join"` |
 
 ## Pipeline
 
-The pipeline is a Django application that consists of several standard and custom **[Django management commands](https://docs.djangoproject.com/en/5.0/howto/custom-management-commands/)**. When triggered, a bash script in the pipeline—
+A Django application that consists of several standard and custom **[Django management commands](https://docs.djangoproject.com/en/5.0/howto/custom-management-commands/)**. When triggered, a bash script in the pipeline—
 
 1. **Connects to the PostgreSQL Database.** The pipeline attempts to connect to the database. If it fails, it retries on an interval until a maximum number of seconds has elapsed—at which point it throws an error.
 

@@ -2,96 +2,18 @@
 
 All Shapefiles referenced below are available for download through the U.S. Census Bureau's **[web tool](https://www.census.gov/cgi-bin/geo/shapefiles/index.php)** or **[FTP server](https://www2.census.gov/geo/tiger/TIGER2020/)** and have a coordinate reference system of EPSG:4269, the standard for federal agencies.
 
-## Counties
+## Block Groups
 
-**tl_2020_us_county.zip.** A TIGER/Line Shapefile (2020) containing geographic boundaries and metadata for the 3,234 U.S. counties and county equivalents (e.g., Louisiana parishes, organized boroughs of Alaska, independent cities, the District of Columbia, Puerto Rican municipalities). Relevant fields include the state and county FIPS codes, `STATEFP` and `COUNTYFP`, which are combined together in the `GEOID` column; the geographic area name, `NAME`; and the name + legal/statistical area description ("LSAD") column, `NAMELSAD` (e.g., "Atlanta city").
-
-## County Subdivisions
-
-**tl_2020_\*\*_cousub.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for the 36,639 U.S. county subdivisions across the 50 U.S. states, American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, Puerto Rico, and the U.S. Virgin Islands. Relevant fields include the state, county, and county subdivision FIPS codes (`STATEFP`, `COUNTYFP`, and `COUSUBFP`, respectively), which are combined into the `GEOID` column, as well as `NAME` and `NAMELSAD`.
-
-## FIPS Codes
-
-**fips_counties.csv.** Associates geography names and FIPS codes (2020) for counties and county-equivalents. Available for download [here](https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt).
-
-**fips_states.csv.** Associates geography names and FIPS codes (2020) for states and state-equivalents. Available for download [here](https://www2.census.gov/geo/docs/reference/state.txt).
-
-## Government Units
-
-**Government_Units_List_Documentation_2021.pdf.** Describes the layout and columns of the Excel file listed below.
-
-**Govt_Units_2021_Final.xlsx.**  A snapshot view of the Census Bureau's master address file for governments. Includes all independent government units and dependent school districts that were active as of fiscal year ending June 30, 2021. The units were extracted from the Governments Master Address File (GMAF) on September 24, 2021. Available for download within a **[zipped file](https://www2.census.gov/programs-surveys/gus/datasets/2021/govt_units_2021.ZIP)** that also contains the above documentation.
-
-**gov_unit_corrections.json.** Corrections to apply to the U.S. Census Bureau Excel file `Govt_Units_2021_Final.xlsx` during the data-cleaning process (i.e., records to drop, outdated FIPS codes to update, and friendlier names to substitute). Created by University of Chicago Data Science Institute staff members.
-
-## Places
-
-**tl_2020_\*\*_place.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for the 32,188 Census Bureau places across the 50 U.S. states, American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, Puerto Rico, and the U.S. Virgin Islands. Relevant fields include the state and place FIPS codes (`STATEFP` and `PLACEFP`, respectively), which are combined into the `GEOID` column, as well as `NAME` and `NAMELSAD`.
-
-## Population
-
-### American Samoa
-
-A CSV file (`"american-samoa-phc-table01.csv"`) containing population counts at the national, county, district, and island level from the 2010 and 2020 censuses of American Samoa. 
+**CenPop2020_Mean_BG.txt**. A CSV-formatted text file containing population-weighted centroids for 2020 census block groups.
 
 **Metadata**
 
 |  |  |
 |---|---|
-| Geographic Coverage | American Samoa |
-| Coordinate Reference System | EPSG 4269 |
-| Publisher | U.S. Census Bureau |
-| Availability | May be downloaded from the Census Bureau's website **[here](https://www.census.gov/data/tables/2020/dec/2020-american-samoa.html#pophousingcounts)**. |
-
-**Fields**
-
-| Field | Data Type | Non-Null Count | Description | Example |
-|---|---|---|---|---|
-| Geographic area | string | 20 | The name of the state-equivalent, district, county, or island. | `"Eastern District"` |
-| 2010 | string | 20 | The estimated population for the 2010 census. Formatted as a string with commas. | `"23,030"` |
-| 2020 | string | 20 | The estimated population for the 2020 census. Formatted as a string with commas. | `"17,059"` |
-| Number | string | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"-5,809"` |
-| Percent | float | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `-10.5` |
-
-
-### Block Group Centers of Population
-
-A CSV-formatted text file (`"CenPop2020_Mean_BG.txt"`) containing population-weighted centroids for 2020 census block groups. |
-| Geographic Coverage | 50 U.S. states, the District of Columbia, and Puerto Rico.
-
-**Metadata**
-
-|  |  |
-|---|---|
+| Geographic Coverage | 50 U.S. states, the District of Columbia, and Puerto Rico. |
 | Coordinate Reference System | EPSG 4269 |
 | Publisher | U.S. Census Bureau |
 | Availability | May be downloaded from the Census Bureau's website **[here](https://www.census.gov/geographies/reference-files/time-series/geo/centers-population.2020.html)** by expanding the option "Centers of Population by Block Group" and then searching for and selecting "United States" as an option. |
-
-**Fields**
-
-| Field      	| Data Type 	| Non-Null Count 	| Description                                                                                                 	| Example       	|
-|------------	|-----------	|----------------	|-------------------------------------------------------------------------------------------------------------	|---------------	|
-| STATEFP    	| string    	| 242,335        	| The two-digit, zero-padded state FIPS code.                                                                 	| `"01"`          	|
-| COUNTYFP   	| string    	| 242,335        	| The three-digit, zero-padded county FIPS code.                                                              	| `"001"`         	|
-| TRACTCE    	| string    	| 242,335        	| The six-digit, zero-padded census tract code.                                                               	| `"020100"`      	|
-| BLKGRPCE   	| string    	| 242,335        	| The one-digit census block group code.                                                                      	| `"1"`           	|
-| POPULATION 	| integer   	| 242,335        	| The 2020 Census population tabulated for the census tract.                                                  	| `575`           	|
-| LATITUDE   	| string    	| 242,335        	| The latitude coordinate for the center of population for the block group. Prefixed with a "+" or "-" sign.  	| `"+32.464466"`  	|
-| LONGITUDE  	| string    	| 242,335        	| The longitude coordinate for the center of population for the block group. Prefixed with a "+" or "-" sign. 	| `"-086.486302"` 	|
-
-### Commonwealth of the Northern Mariana Islands
-
-A CSV file (`"commonwealth-northern-mariana-islands-phc-table01.csv"`) containing population counts at the national, district, municipality, and offshore water areas from the 2010 and 2020 censuses of the Commonwealth of the Northern Mariana Islands.
-
-**Metadata**
-
-|  |  |
-|---|---|
-| Geographic Coverage | Commonwealth of the Northern Mariana Islands |
-| Coordinate Reference System | EPSG 4269 |
-| Publisher | U.S. Census Bureau |
-| Availability | May be downloaded from the Census Bureau's website **[here](https://www.census.gov/data/tables/2020/dec/2020-commonwealth-northern-mariana-islands.html)**. |
-
 
 **Fields**
 
@@ -103,58 +25,54 @@ A CSV file (`"commonwealth-northern-mariana-islands-phc-table01.csv"`) containin
 | Number | string | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"7"` |
 | Percent | float | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"X"` |
 
+**tl_2020_*_bg.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for block groups in American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, and the U.S. Virgin Islands.
 
-### Guam
+**us_block_group_pop_centers_2020.geoparquet.** A GeoParquet file containing pre-processed block group population-weighted centroids for the 50 U.S. states, District of Columbia, and Island Areas.
 
-A CSV file (`"guam-phc-table01.csv"`) containing population counts at the national, municipality, and offshort water areas from the 2010 and 2020 censuses of Guam.
+**us_block_group_population_2020.csv.** A CSV file containing block group level population counts for the 50 U.S. states, District of Columbia, and Island Areas.
 
-**Metadata**
+## Blocks
 
-|  |  |
-|---|---|
-| Geographic Coverage | Guam |
-| Coordinate Reference System | EPSG 4269 |
-| Publisher | U.S. Census Bureau |
-| Availability | May be downloaded from the Census Bureau's website **[here](https://www.census.gov/data/tables/2020/dec/2020-guam.html)**. |
+**tl_2020_*_tabblock20.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for tabulation blocks in American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, and the U.S. Virgin Islands.
 
-**Fields**
+**us_island_area_block_housing_2020.csv.** A CSV file that lists housing unit counts for each tabulation block in the U.S. Island Areas.
 
-| Field | Data Type | Non-Null Count | Description | Example |
-|---|---|---|---|---|
-| Geographic area | string | 22 | The name of the state-equivalent, district, or municipality. The value "County subdivision not defined" refers to offshore water areas that don't below to any municipality. | `"Agana Heights municipality"` |
-| 2010 | string | 22 | The estimated population for the 2010 census. Formatted as a string with commas. | `"3,808"` |
-| 2020 | string | 22 | The estimated population for the 2020 census. Formatted as a string with commas. | `"3,673"` |
-| Number | string | 22 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"-135"` |
-| Percent | float | 21s | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"-3.5"` |
+## Counties
+
+**fips_counties.csv.** Associates geography names and FIPS codes (2020) for counties and county-equivalents. Available for download [here](https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt).
+
+**tl_2020_us_county.zip.** A TIGER/Line Shapefile (2020) containing geographic boundaries and metadata for the 3,234 U.S. counties and county equivalents (e.g., Louisiana parishes, organized boroughs of Alaska, independent cities, the District of Columbia, Puerto Rican municipalities). Relevant fields include the state and county FIPS codes, `STATEFP` and `COUNTYFP`, which are combined together in the `GEOID` column; the geographic area name, `NAME`; and the name + legal/statistical area description ("LSAD") column, `NAMELSAD` (e.g., "Atlanta city").
+
+**us_county_population_2020.csv.** Total population counts for each U.S. county, as tabulated by the U.S. Census Bureau for the 2020 Census.
+
+## County Subdivisions
+
+**tl_2020_\*\*_cousub.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for the 36,639 U.S. county subdivisions across the 50 U.S. states, American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, Puerto Rico, and the U.S. Virgin Islands. Relevant fields include the state, county, and county subdivision FIPS codes (`STATEFP`, `COUNTYFP`, and `COUSUBFP`, respectively), which are combined into the `GEOID` column, as well as `NAME` and `NAMELSAD`.
+
+**us_county_subdivision_population_2020.csv.** Total population counts for each U.S. county subdivision, as tabulated by the U.S. Census Bureau for the 2020 Census.
+
+## Government Units
+
+**gov_unit_corrections.json.** Corrections to apply to the U.S. Census Bureau Excel file `Govt_Units_2021_Final.xlsx` during the data-cleaning process (i.e., records to drop, outdated FIPS codes to update, and friendlier names to substitute). Created by University of Chicago Data Science Institute staff members.
+
+**Government_Units_List_Documentation_2021.pdf.** Describes the layout and columns of the Excel file listed below.
+
+**Govt_Units_2021_Final.xlsx.**  A snapshot view of the Census Bureau's master address file for governments. Includes all independent government units and dependent school districts that were active as of fiscal year ending June 30, 2021. The units were extracted from the Governments Master Address File (GMAF) on September 24, 2021. Available for download within a **[zipped file](https://www2.census.gov/programs-surveys/gus/datasets/2021/govt_units_2021.ZIP)** that also contains the above documentation.
 
 
-### U.S. Virgin Islands
+## Places
 
-A CSV file (`"us-virgin-islands-phc-table01.csv"`) containing population counts at the state-equivalent, island, district, town, census designated place (CDP), and offshort water areas from the 2010 and 2020 censuses of the U.S. Virgin Islands.
+**tl_2020_\*\*_place.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for the 32,188 Census Bureau places across the 50 U.S. states, American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, Puerto Rico, and the U.S. Virgin Islands. Relevant fields include the state and place FIPS codes (`STATEFP` and `PLACEFP`, respectively), which are combined into the `GEOID` column, as well as `NAME` and `NAMELSAD`.
 
-**Metadata**
-
-|  |  |
-|---|---|
-| Geographic Coverage | U.S. Virgin Islands |
-| Coordinate Reference System | EPSG 4269 |
-| Publisher | U.S. Census Bureau |
-| Availability | May be downloaded from the Census Bureau's website **[here](https://www.census.gov/data/tables/2020/dec/2020-us-virgin-islands.html)**. |
-
-**Fields**
-
-| Field | Data Type | Non-Null Count | Description | Example |
-|---|---|---|---|---|
-| Geographic area | string | 37 | The name of the state-equivalent, island, district, town, census-designated place (CDP), or offshore water area. The value "Island subdivision not defined" refers to offshore water areas and small uninhabitated islands not assigned to any subdistrict. | `"St. Croix Island"` |
-| 2010 | string | 37 | The estimated population for the 2010 census. Formatted as a string with commas. | `"50,601"` |
-| 2020 | string | 37 | The estimated population for the 2020 census. Formatted as a string with commas. | `"41,004"` |
-| Number | string | 37 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"-9,597"` |
-| Percent | float | 37 | The number difference between the 2020 and 2010 populations (2020 - 2010). When the computation is not possible, an "X" is used. | `"-19.0"` |
-
+**us_place_population_2020.csv.** Total population counts for each U.S. place, as tabulated by the U.S. Census Bureau for the 2020 Census.
 
 ## States
 
-A TIGER/Line Shapefile for 2020 (`"tl_2020_us_state.zip"`) containing geographic boundaries and metadata for states and state-equivalents.
+**fips_states.csv.** Associates geography names and FIPS codes (2020) for states and state-equivalents. Available for download [here](https://www2.census.gov/geo/docs/reference/state.txt).
+
+**tl_2020_us_state.zip.** A TIGER/Line Shapefile for 2020 containing geographic boundaries and metadata for states and state-equivalents.
+
+**us_state_population_2020.csv.** Total population counts for each U.S. state, as tabulated by the U.S. Census Bureau for the 2020 Census.
 
 **Metadata**
 
@@ -188,7 +106,7 @@ A TIGER/Line Shapefile for 2020 (`"tl_2020_us_state.zip"`) containing geographic
 
 ## Tracts
 
-A collection of 56 TIGER/Line Shapefiles (`"tl_2020_**_tract.zip"`) for 2020 containing a total of 85,528 census tracts.
+**tl_2020_\*\*_tract.zip.** A collection of 56 TIGER/Line Shapefiles for 2020, containing a total of 85,528 census tracts.
 
 **Metadata**
 
@@ -217,9 +135,11 @@ A collection of 56 TIGER/Line Shapefiles (`"tl_2020_**_tract.zip"`) for 2020 con
 | INTPTLAT | string |  | The current latitude of the 's internal point. Formatted with leading plus and minus signs. | `"+34.6713171"` |
 | INTPTLON | string |  | The current longitude of the state's internal point. Formatted with leading plus and minus signs. | `"-078.0020072"` |
 
+**us_census_tract_population_2020.csv.** Total population counts for each U.S. census tract, as tabulated by the U.S. Census Bureau for the 2020 Census.
+
 ## Zip Code Tabulation Areas
 
-A TIGER/Line Shapefile (`"tl_2020_us_zcta520.zip"`) for 2020 containing a total of 33,791 ZIP Code Tabulation Areas. It is important to note that ZIP Codes differ from ZCTAs, as **[documented](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html)** by the U.S. Census Bureau:
+**tl_2020_us_zcta520.zip**. A TIGER/Line Shapefile for 2020 containing a total of 33,791 ZIP Code Tabulation Areas. It is important to note that ZIP Codes differ from ZCTAs, as **[documented](https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html)** by the U.S. Census Bureau:
 
 >First introduced in 1963, ZIP Code is a trademark of the USPS created to coordinate mail handling and delivery. The USPS assigns ZIP Code ranges to regional post offices, which in turn assign ZIP Codes to delivery routes. Each delivery route is composed of street networks, and/or individual units with high mail volumes, such as high-rise buildings or individual business locations. Within the Census Bureau’s MAF/TIGER System, ZIP Codes are stored as one component of discrete addresses tied to delivery points, including specific housing unit locations. The result is a point-based dataset unsuitable for mapping and many analysis applications.
 
@@ -248,3 +168,6 @@ A TIGER/Line Shapefile (`"tl_2020_us_zcta520.zip"`) for 2020 containing a total 
 | AWATER20 | integer |  | The current water area. | `298552385` |
 | INTPTLAT20 | string |  | The current latitude of the 's internal point. Formatted with leading plus and minus signs. | `"+33.7427261"` |
 | INTPTLON20 | string |  | The current longitude of the state's internal point. Formatted with leading plus and minus signs. | `"-088.0973903"` |
+
+
+**us_zcta_population_2020.csv.** Total population counts for each U.S. zip code tabulation area (ZCTA), as tabulated by the U.S. Census Bureau for the 2020 Census.

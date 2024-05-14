@@ -1,6 +1,6 @@
 # Getting Started
 
-To run the application locally for further development and testing, follow the setup instructions and then execute one of several entrypoint commands described below.
+To run the application locally for development and testing, follow the setup instructions and then execute one of several entrypoint commands described below.
 
 ## Dependencies
 
@@ -26,11 +26,11 @@ The project's Makefile provides simple entrypoints for running the application l
 
 - All of the commands listed below **must be run under the root of the project**.
 
-- Services can be shut down at any point by entering `CTRL-C`.
+- Services can be shut down at any point by entering `CTRL-C` or, for services executing in the background, `CTRL-D`. This automatically shuts stops and destroys the active Docker containers.
 
-- The PostgreSQL database's data is persisted as a Docker volume called "pgdata", which is saved as a folder under the project root and ignored by Git. Because the project's Docker containers are run as the root user, you will need to assign yourself ownership of the directory if you'd like to delete or modify it (`sudo chown -R <username> pgdata`).
+- Data from the PostgreSQL databases are persisted in the Docker volumes "pgdata_small" and "pgdata_large", which are saved as folders under the project root and ignored by Git. Because the project's Docker containers are run as the root user, you will need to assign yourself ownership of the directories if you'd like to delete or modify it (e.g., `sudo chown -R <username> pgdata_small`).
 
-- For all commands, pgAdmin is provided as a GUI for the PostgreSQL database. To use pgAdmin, navigate to `localhost:443` in a web browser, select `servers` in the dropdown in the lefthand sidebar, and log in with the password `postgres` when prompted. **[Browse tables and query the loaded data](https://www.pgadmin.org/docs/pgadmin4/latest/user_interface.html#user-interface)** using raw SQL statements.
+- For all commands, pgAdmin is provided as a GUI for the PostgreSQL databases. To use pgAdmin, navigate to `localhost:443` in a web browser, select `servers` in the dropdown in the lefthand sidebar, click on the database you would like to inspect, and then log in with the password `postgres` when prompted. **[Browse tables and query the loaded data](https://www.pgadmin.org/docs/pgadmin4/latest/user_interface.html#user-interface)** using raw SQL statements.
 
 ### Run Full-Stack Application
 
@@ -63,10 +63,12 @@ This command builds and runs the PostGIS database and pgAdmin GUI. It is helpful
 make run-pipeline-interactive
 ```
 
-This command builds and runs the PostGIS database, pgAdmin GUI, and Django pipeline. The pipeline is run as a live development server in the background, with an attached interactive terminal. Using the terminal, you can run commands and scripts as part of the development process. 
+This command builds and runs the PostgreSQL databases, pgAdmin GUI, and Django pipeline. The pipeline is run as a live development server in the background, with an attached interactive terminal. Using the terminal, you can run commands and scripts as part of the development process. 
 
 ### Test Pipeline
 
 ```
 make test-pipeline
 ```
+
+This command runs tests against the `load_geos` and `load_associations` Django management commands in the pipeline. The remaining tests have dependencies with Google Cloud Storage and Mapbox and must be configured and executed separately. 
