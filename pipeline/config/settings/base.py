@@ -32,7 +32,7 @@ class BaseConfig(Configuration):
 
     # Define settings to generate population-weighted centroid datasets
     POPULATION_SERVICE = {
-        "island_blk_housing_fpath": "raw/census/blocks/us_island_area_block_population_2020.csv",
+        "island_blk_housing_fpath": "raw/census/blocks/us_island_area_block_housing_2020.csv",
         "island_blk_shapefile_fpath": "raw/census/blocks/tl_2020_**_tabblock20.zip",
         "island_blk_shapefile_crs": "EPSG:4269",
         "island_blk_grp_pop_fpath": "raw/census/block_groups/us_block_group_population_2020.csv",
