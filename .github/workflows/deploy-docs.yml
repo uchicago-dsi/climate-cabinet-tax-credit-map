@@ -1,0 +1,54 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      # Check out repository under $GITHUB_WORKSPACE so workflow can access it
+      - uses: actions/checkout@v4
+
+      # Configure Git credentials
+      - name: "Configure Git Credentials"
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      
+      # Install Python
+      - name: "Install Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      
+      # Set cache id
+      - name: "Set Cache Id"
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
+      
+      # Cache dependencies and build outputs to improve workflow execution time
+      - name: "Cache Dependencies and Build Outputs"
+        uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      
+      # Install dependencies
+      - name: "Install Dependencies"
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "docs/requirements.txt"
+
+      # Deploy GitHub pages site
+      - name: "Deploy GitHub Pages Site"
+        run: |
+          cd docs
+          mkdocs gh-deploy --force

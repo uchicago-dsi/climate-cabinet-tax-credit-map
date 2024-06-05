@@ -38,9 +38,9 @@ The push to `main` also triggers a new build of the Next.js app on Netlify simul
 
 #### Cloud SQL
 
-`cce-tax-widget-prod-postgres-large`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Dedicated core. 2vCPUs. 8GB RAM. 250GB SSD Storage. Stopped and destroyed manually after the pipeline has finished running.
+`cce-tax-widget-prod-db-lg`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Dedicated core. 2vCPUs. 8GB RAM. 250GB SSD Storage. Stopped and destroyed manually after the pipeline has finished running.
 
-`cce-tax-widget-prod-postgres-small`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Shared core (db-f1-micro). 1vCPU. 0.6GB RAM. 10GB SSD Storage. Stores data used by the website.
+`cce-tax-widget-prod-db-sm`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Shared core (db-f1-micro). 1vCPU. 0.6GB RAM. 10GB SSD Storage. Stores data used by the website.
 
 #### Cloud Storage
 
@@ -48,17 +48,18 @@ The push to `main` also triggers a new build of the Next.js app on Netlify simul
 
 #### IAM
 
+`cce-tax-credit-prod-id-pool`. Workload Identity Federation pool containing GitHub as a provider. Connected to the `cce-tax-widget-prod-artifact-registry-account` service account.
+
 `cce-tax-widget-prod-artifact-registry-account`. Service account with Artifact Registry Create-on-Push Writer and Workload Identity User permissions.
 
 `cce-tax-widget-prod-pipeline-account`. Service account with Cloud Run Admin, Cloud SQL Admin, and Storage Object User permissions.
 
 #### Secret Manager
 
+`cce-tax-widget-prod-db-lg-password`. Password to the "large" PostgreSQL database in Cloud SQL. Mapped to the environment variable `POSTGRES_PASSWORD`.
+
+`cce-tax-widget-prod-db-sm-password`. Password to the "small" PostgreSQL database in Cloud SQL. Mapped to the environment variable `RESIZED_POSTGRES_PASSWORD`.
+
 `cce-tax-widget-prod-django-secret-key`. Secret key used by the Django pipeline for common hashing operations. Mapped to the environment variable `DJANGO_SECRET_KEY`.
 
 `cce-tax-widget-prod-mapbox-secret-token`. Secret token used by the Django pipeline to create and/or update Mapbox tilesets. Mapped to the environment variable `MAPBOX_API_TOKEN`.
-
-`cce-tax-widget-prod-postgres-large-password`. Password to the "large" PostgreSQL database in Cloud SQL. Mapped to the environment variable `POSTGRES_PASSWORD`.
-
-`cce-tax-widget-prod-postgres-small-password`. Password to the "small" PostgreSQL database in Cloud SQL. Mapped to the environment variable `RESIZED_POSTGRES_PASSWORD`.
-
