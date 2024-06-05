@@ -30,33 +30,35 @@ The push to `main` also triggers a new build of the Next.js app on Netlify simul
 
 #### Artifact Registry
 
-`cc-widget-prod-pipeline-repo`. Repository for holding Docker images of the pipeline.
+`cce-tax-widget-prod-docker-repo`. Repository for holding Docker images for the tax widget application. Only contains images for the pipeline at this time.
 
 #### Cloud Run
 
-`cc-widget-prod-pipeline`. Cloud Run job that builds and runs the latest image from the `cc-widget-prod-pipeline-repo` as a container, overriding its commands to run all stages of the pipeline. The job instance is configured to use 8GB of memory and 2vCPUs and time out after 24 hours have passed. The job typically completes within one to two hours, however. It authenticates with other Google Cloud services using the `cc-widget-prod-pipeline-service-account` defined below.
+`cce-tax-widget-prod-pipeline`. Cloud Run job that builds and runs the latest image from the `cce-tax-widget-prod-pipeline-repo` as a container, overriding its commands to run all stages of the pipeline. The job instance is configured to use 8GB of memory and 2vCPUs and time out after 24 hours have passed. The job typically completes within one to two hours, however. It authenticates with other Google Cloud services using the `cce-tax-widget-prod-pipeline-service-account` defined below.
 
 #### Cloud SQL
 
-`cc-widget-prod-large-sql`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Dedicated core. 2vCPUs. 8GB RAM. 250GB SSD Storage. Stopped and destroyed manually after the pipeline has finished running.
+`cce-tax-widget-prod-postgres-large`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Dedicated core. 2vCPUs. 8GB RAM. 250GB SSD Storage. Stopped and destroyed manually after the pipeline has finished running.
 
-`cc-widget-prod-small-sql`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Shared core (db-f1-micro). 1vCPU. 0.6GB RAM. 10GB SSD Storage. Stores data used by the website.
+`cce-tax-widget-prod-postgres-small`. Cloud SQL instance on Enterprise Edition using PostgreSQL 15. Shared core (db-f1-micro). 1vCPU. 0.6GB RAM. 10GB SSD Storage. Stores data used by the website.
 
 #### Cloud Storage
 
-`cc-widget-product-storage`. Cloud Storage Bucket created with default settings. Holds raw and clean datasets used during pipeline processing.
+`cce-tax-widget-prod-storage`. Cloud Storage Bucket created with default settings. Holds raw and clean datasets used during pipeline processing.
 
 #### IAM
 
-`cc-widget-prod-pipeline-service-account`. Service account with Cloud Run Admin, Cloud SQL Admin, and Storage Object User permissions.
+`cce-tax-widget-prod-artifact-registry-account`. Service account with Artifact Registry Create-on-Push Writer and Workload Identity User permissions.
+
+`cce-tax-widget-prod-pipeline-account`. Service account with Cloud Run Admin, Cloud SQL Admin, and Storage Object User permissions.
 
 #### Secret Manager
 
-`DJANGO_SECRET_KEY`. Secret key used by the Django pipeline for common hashing operations.
+`cce-tax-widget-prod-django-secret-key`. Secret key used by the Django pipeline for common hashing operations. Mapped to the environment variable `DJANGO_SECRET_KEY`.
 
-`MAPBOX_API_TOKEN`. Secret token used by the Django pipeline to create and/or update Mapbox tilesets.
+`cce-tax-widget-prod-mapbox-secret-token`. Secret token used by the Django pipeline to create and/or update Mapbox tilesets. Mapped to the environment variable `MAPBOX_API_TOKEN`.
 
-`POSTGRES_PASSWORD`. Password to the "large" PostgreSQL database in Cloud SQL.
+`cce-tax-widget-prod-postgres-large-password`. Password to the "large" PostgreSQL database in Cloud SQL. Mapped to the environment variable `POSTGRES_PASSWORD`.
 
-`RESIZED_POSTGRES_PASSWORD`. Password to the "small" PostgreSQL database in Cloud SQL.
+`cce-tax-widget-prod-postgres-small-password`. Password to the "small" PostgreSQL database in Cloud SQL. Mapped to the environment variable `RESIZED_POSTGRES_PASSWORD`.
 

@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-push:
     # Reference previously-created GitHub environment containing variables for workflow
-    environment: "Test"
+    environment: "Production"
     runs-on: ubuntu-latest
 
     # Add "id-token" with the intended permissions. Used for OIDC connection with GitHub
