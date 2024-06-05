@@ -19,7 +19,7 @@ jobs:
 
     steps:
       # Check out repository under $GITHUB_WORKSPACE so workflow can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Display metadata
       - name: About
@@ -36,7 +36,8 @@ jobs:
           token_format: access_token
 
       # Login with Docker action using the token from the Google Cloud auth step
-      - uses: docker/login-action@v3
+      - name: "Authenticate to Docker Service"
+        uses: docker/login-action@v3
         with:
           registry: ${{ vars.CLOUD_REGION }}
           username: oauth2accesstoken
