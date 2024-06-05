@@ -26,7 +26,7 @@ Users can:
 
 ## Documentation
 
-Detailed documentation on the application's datasets, architecture, and infrastructure can be accessed in the web browser using the Python package `mkdocs`. Activate your virtual environment of choice, navigate to the `docs` directory, and then run:
+Detailed documentation on the application's datasets, architecture, and infrastructure may be found [**here**](https://climatecabinet.github.io/climate-cabinet-tax-credit-map/) in the repository's GitHub Pages site. The site can also be run locally in the web browser using the Python package `mkdocs`. Activate your virtual environment of choice, navigate to the `docs` directory, and then run:
 
 ```
 pip install -r requirements.txt
