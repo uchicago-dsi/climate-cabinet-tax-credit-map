@@ -1,6 +1,6 @@
 # Climate Cabinet - Tax Credit Bonus Map Widget
 
-<img alt="Demo of widget functionality" src="./docs/docs/assets/widget_demo.gif" style="width: 50%; margin-bottom: 25px;"/>
+<img alt="Demo of widget functionality" src="./docs/docs/assets/widget_demo.gif" style="margin-bottom: 25px;"/>
 
 
 A full-stack web application allowing local officials to search for tax credit bonuses newly-available under the Inflation Reduction Act (2020) within their state, county, municipality, municipal utility, or rural cooperative. At the time of writing, featured tax credit programs include the Alternative Fuel Refueling Property Credit, Direct Pay Clean Energy Investment Tax Credit, Direct Pay Clean Energy Production Tax Credit, Neighborhood Access and Equity Grant, and Solar for All. Program eligibilty is determined by the presence of a low-income, distressed, energy, and/or Justice 40 community within the jurisdiction, and tax credits can stack if a jurisdiction contains more than one of these "bonus" communities.
