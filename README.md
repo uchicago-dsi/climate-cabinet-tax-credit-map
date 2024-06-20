@@ -45,7 +45,7 @@ To run the application locally for development and testing, follow the setup ins
 
 ### Setup
 
-1. **Download Environment Files.** Download the `.env.dev` and `.env.test` files from the configured **[Google Cloud Storage bucket location]("")** and then save them under the project's `pipeline` directory. Similarly, download the `.env` file from Cloud Storage and save it under the `dashboard` directory. These files are ignored by Git by default.
+1. **Download Environment Files.** Download the `.env.dev` and `.env.test` files from the configured **[Google Cloud Storage bucket location](https://console.cloud.google.com/storage/browser/cce-tax-widget-prod-storage;tab=objects?prefix=&forceOnObjectsSortingFiltering=false)** and then save them under the project's `pipeline` directory. Similarly, download the `.env` file from Cloud Storage and save it under the `dashboard` directory. These files are ignored by Git by default.
 
 2. **Download Data Files.** Download the zipped data file from the same bucket and save it under the root of the project. Unzip the file to create a new `data` directory containing `raw`, `clean`, and `test` subfolders and delete any remaining zip artifacts. The entire `data` directory is also ignored by Git.
 

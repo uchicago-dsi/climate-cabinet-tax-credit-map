@@ -36,7 +36,7 @@ class BaseConfig(Configuration):
         "island_blk_shapefile_fpath": "raw/census/blocks/tl_2020_**_tabblock20.zip",
         "island_blk_shapefile_crs": "EPSG:4269",
         "island_blk_grp_pop_fpath": "raw/census/block_groups/us_block_group_population_2020.csv",
-        "island_blk_grp_shapefile_fpath": "raw/census/block_groups/tl_2020_**_bg.zip",
+        "island_blk_grp_shapefile_fpath": "raw/census/block_groups/tl_2020_[6,7][0,6,8,9]_bg.zip",
         "island_blk_grp_shapefile_crs": "EPSG:4269",
         "us_blk_grp_centroids_fpath": "raw/census/block_groups/CenPop2020_Mean_BG.txt",
         "us_blk_grp_centroids_crs": "EPSG:4269",
