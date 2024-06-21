@@ -58,3 +58,5 @@ Pipeline outputs are stored under `data/clean` in the data store. `geojsonl/` ho
     }
 ]
 ```
+
+Finally, `test` holds datasets used for pipeline testing, and `analysis` is auto-generated whenever a Jupyter notebook saves output.

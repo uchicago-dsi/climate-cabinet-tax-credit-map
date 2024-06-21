@@ -14,11 +14,13 @@ The application architecture is implemented differently across development envir
 
 ![A diagram of Docker Compose infrastructure](assets/local_infrastructure.svg)
 
-To "deploy" the app locally, a staff member manually builds and runs a Docker Compose application with the pipeline/Django project, PostgreSQL database, and web app as networked services. To ease the development process, pgAdmin is also provided as a sevice to quickly run commands against the database and view records in a GUI. All data files are read from and written to the local file system, which is mounted as a volume in the pipeline container. For more information on running the application in development mode, please consult the **[Getting Started page](/getting-started)**.
+To "deploy" the app locally, a staff member manually builds and runs a Docker Compose application with the pipeline/Django project, PostgreSQL databases, and web app as networked services. To ease the development process, pgAdmin is also provided as a sevice to quickly run commands against the database and view records in a GUI. All data files are read from and written to the local file system, which is mounted as a volume in the pipeline container. For more information on running the application in development mode, please consult the **[Getting Started page](/getting-started)**.
 
 ## Production
 
 ![A diagram of production infrastructure](assets/prod_infrastructure.svg)
+
+_Note: Before starting the deployment process, confirm that the cloud resources listed below have been created._
 
 To deploy the app in production, a staff member ensures that the `main` branch on GitHub is up-to-date by merging in the latest code. A GitHub Action triggered by the push builds and tags a new Docker image of the project's `pipeline` and then pushes that image to the Google Cloud Project's Artifact Registry.
 
@@ -30,11 +32,11 @@ The push to `main` also triggers a new build of the Next.js app on Netlify simul
 
 #### Artifact Registry
 
-`cce-tax-widget-prod-docker-repo`. Repository for holding Docker images for the tax widget application. Only contains images for the pipeline at this time.
+`cce-tax-widget-prod-docker-repo`. Repository holding Docker images for the tax widget application. Only contains images for the pipeline at this time.
 
 #### Cloud Run
 
-`cce-tax-widget-prod-pipeline`. Cloud Run job that builds and runs the latest image from the `cce-tax-widget-prod-pipeline-repo` as a container, overriding its commands to run all stages of the pipeline. The job instance is configured to use 8GB of memory and 2vCPUs and time out after 24 hours have passed. The job typically completes within one to two hours, however. It authenticates with other Google Cloud services using the `cce-tax-widget-prod-pipeline-service-account` defined below.
+`cce-tax-widget-prod-pipeline`. Cloud Run Job that builds and runs the latest image from the `cce-tax-widget-prod-pipeline-repo` as a container, overriding its commands to execute all stages of the pipeline. The job instance is configured to use 8GB of memory and 2vCPUs and time out after 24 hours have passed. (The job typically completes within one to two hours, however.) It authenticates with other Google Cloud services using the `cce-tax-widget-prod-pipeline-service-account` defined below.
 
 #### Cloud SQL
 

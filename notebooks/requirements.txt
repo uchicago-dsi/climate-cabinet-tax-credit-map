@@ -1,0 +1,18 @@
+# Notebooks
+nbformat
+ipykernel
+ipympl
+
+# Visualization
+folium
+mapclassify
+matplotlib
+
+# Data Wrangling & Analysis
+geopandas
+numpy
+pandas
+pyarrow
+scipy
+shapely
+statsmodels
