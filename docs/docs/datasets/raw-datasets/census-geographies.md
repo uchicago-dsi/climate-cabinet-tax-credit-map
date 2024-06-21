@@ -25,7 +25,7 @@ All Shapefiles referenced below are available for download through the U.S. Cens
 | Number | string | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"7"` |
 | Percent | float | 19 | The number difference between the 2020 and 2010 populations (2020 - 2010). Formatted as a string with commas. When the computation is not possible, an "X" is used. | `"X"` |
 
-**tl_2020_*_bg.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for block groups in American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, and the U.S. Virgin Islands.
+**tl_2020_*_bg.zip.** A collection of TIGER/Line Shapefiles (2020) containing geographic boundaries and metadata for block groups across the 50 U.S. States, District of Columbia, and Island Areas.
 
 **us_block_group_pop_centers_2020.geoparquet.** A GeoParquet file containing pre-processed block group population-weighted centroids for the 50 U.S. states, District of Columbia, and Island Areas.
 
@@ -105,6 +105,8 @@ All Shapefiles referenced below are available for download through the U.S. Cens
 
 
 ## Tracts
+
+**CenPop2020_Mean_TR.txt**. A CSV-formatted text file containing population-weighted centroids for 2020 census tracts.
 
 **tl_2020_\*\*_tract.zip.** A collection of 56 TIGER/Line Shapefiles for 2020, containing a total of 85,528 census tracts.
 

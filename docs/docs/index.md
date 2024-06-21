@@ -31,3 +31,5 @@ Users can currently:
 - Federally Recognized Tribal Lands, including Alaska Native Villages, are not yet included in the application, but those areas are eligible for IRA tax credits on the basis of qualifying as low-income and Justice40 communities.
 
 - Data dictionaries have not yet been completed for all datasets listed in the documentation.
+
+- Automatic creation and destruction of cloud resources using the Google Cloud Platform APIs or a tool like Terraform would greatly improve the maintenance process. Because Google CloudSQL does not allow database servers to scale down, two servers are necessary to cut down on costs. The first stores large, multipolygon geometries and their metadata during the data cleaning process and is eventually destroyed. The second, a microinstance that serves data to the website, stores the same records but with simplified geometries that are bounding boxes of the originals. Being able to spin up a database server during the data cleaning pipeline and destroy it after the final records had been upserted to the microinstance would be ideal.
